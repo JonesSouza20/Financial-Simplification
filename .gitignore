@@ -1,0 +1,28 @@
+# Dados financeiros e segredos: nunca no Git
+var/
+*.db
+*.db-wal
+*.db-shm
+*.sqlite3
+*.age
+backups/
+logs/
+.env
+.env.*
+
+# Python e ferramentas
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.hypothesis/
+.coverage
+.coverage.*
+htmlcov/
+
+# Arquivos gerados
+staticfiles/
+node_modules/
+test-results/
+playwright-report/

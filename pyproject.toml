@@ -1,0 +1,56 @@
+[project]
+name = "financas"
+version = "0.0.1"
+description = "Sistema de gestão financeira pessoal (uso individual, servidor local)"
+requires-python = ">=3.13,<3.14"
+dependencies = [
+    "django>=5.2,<5.3",      # LTS vigente (ADR-013)
+    "waitress>=3.0",         # servidor web no Windows (ADR-017)
+    "argon2-cffi>=23.1",     # hash de senha e PIN (ADR-019)
+    "django-axes>=7.0",      # bloqueio de tentativas (ADR-019)
+    "keyring>=25.0",         # cofre de credenciais do Windows (ADR-020)
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "pytest-django>=4.9",
+    "hypothesis>=6.100",
+    "time-machine>=2.15",
+    "coverage>=7.6",
+    "ruff>=0.8",
+    "pip-audit>=2.7",
+    "pytest-playwright>=0.5",
+]
+
+[tool.uv]
+package = false
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+extend-exclude = ["**/migrations/**"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "DJ", "S", "SIM"]
+ignore = []
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101"]  # assert é o padrão do pytest
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings.test"
+testpaths = ["tests"]
+addopts = "-ra --strict-markers -m 'not e2e and not slow'"
+markers = [
+    "e2e: testes de ponta a ponta com Playwright",
+    "slow: testes lentos (propriedades longas, backup)",
+]
+
+[tool.coverage.run]
+source = ["apps", "config"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
