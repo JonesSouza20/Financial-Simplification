@@ -1,5 +1,7 @@
 """Backup, restauração e saúde (F-100; security-plan.md §7)."""
 
+import datetime
+
 from django import forms
 from django.contrib import messages
 from django.contrib.auth import logout
@@ -136,18 +138,51 @@ def test_restore(request):
     return redirect("backup:index")
 
 
+PREVIEW_KEY = "backup_restore_preview"
+
+
 @require_POST
 def restore(request):
+    """Dois passos (security-plan.md §7.2): 1) restaura em arquivo temporário e mostra o
+    resumo; 2) com a confirmação, substitui os dados. As duas etapas pedem as senhas."""
     form = RestoreForm(request.POST)
-    if not form.is_valid() or not form.cleaned_data["confirm"]:
-        messages.error(request, "Confirme a substituição dos dados para restaurar.")
+    if not form.is_valid():
+        messages.error(request, "Informe a senha de login e a senha de backup.")
         return redirect("backup:index")
     if not request.user.check_password(form.cleaned_data["password"]):
         messages.error(request, "Senha de login incorreta. Nada foi alterado.")
         return redirect("backup:index")
+    name = form.cleaned_data["name"]
+    passphrase = form.cleaned_data["passphrase"]
+    if not form.cleaned_data["confirm"]:
+        try:
+            test = core.test_restore(core.find(name), passphrase=passphrase, kind="manual")
+        except LedgerError as exc:
+            messages.error(request, f"Nada foi substituído: {exc}")
+            return redirect("backup:index")
+        request.session[PREVIEW_KEY] = name
+        details = test.details_json
+        created = datetime.datetime.fromisoformat(details["created_at"])
+        last = details["summary"]["last"]
+        return render(
+            request,
+            "backup/restore_confirm.html",
+            {
+                "name": name,
+                "details": details,
+                "created": created.strftime("%d/%m/%Y %H:%M"),
+                "last_date": datetime.date.fromisoformat(last["date"]).strftime("%d/%m/%Y")
+                if last
+                else None,
+                "form": RestoreForm(initial={"name": name}),
+            },
+        )
+    if request.session.get(PREVIEW_KEY) != name:
+        messages.error(request, "Veja o resumo do backup antes de confirmar a restauração.")
+        return redirect("backup:index")
     try:
-        entry = core.find(form.cleaned_data["name"])
-        core.restore_live(entry, passphrase=form.cleaned_data["passphrase"])
+        entry = core.find(name)
+        core.restore_live(entry, passphrase=passphrase)
     except LedgerError as exc:
         messages.error(request, f"Nada foi substituído: {exc}")
         return redirect("backup:index")

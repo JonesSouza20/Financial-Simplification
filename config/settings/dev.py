@@ -10,3 +10,6 @@ SECRET_KEY = os.environ.get(
     "FINANCAS_SECRET_KEY",
     "dev-inseguro-nao-usar-com-dados-reais-0000000000000000000000",
 )
+
+# Estáticos direto das pastas de origem, sem collectstatic.
+WHITENOISE_USE_FINDERS = True

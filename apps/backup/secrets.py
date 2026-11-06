@@ -8,9 +8,10 @@ from __future__ import annotations
 import keyring
 
 SERVICE = "financas"
-SECRET_KEY = "secret_key"  # chave da aplicação (cookies)
-BACKUP_PASSPHRASE = "backup_passphrase"  # senha de backup (também guardada fora do sistema)
-TELEGRAM_TOKEN = "telegram_token"  # MVP-2
+# Nomes das entradas no cofre (não são os segredos).
+SECRET_KEY = "secret_key"  # noqa: S105 - chave da aplicação (cookies)
+BACKUP_PASSPHRASE = "backup_passphrase"  # noqa: S105 - também guardada fora do sistema
+TELEGRAM_TOKEN = "telegram_token"  # noqa: S105 - MVP-2
 
 MIN_PASSPHRASE = 16
 

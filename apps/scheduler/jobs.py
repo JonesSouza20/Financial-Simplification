@@ -74,7 +74,11 @@ def run_due(now: datetime.datetime | None = None, jobs: list[Job] | None = None)
     """Executa as tarefas cujo horário devido ainda não rodou. Devolve as execuções feitas."""
     now = now or timezone.localtime()
     done = []
+    from apps.backup import maintenance
+
     for job in jobs or JOBS:
+        if maintenance.active():
+            break  # restauração em andamento; as tarefas rodam na próxima volta
         slot = job.due(now)
         try:
             with transaction.atomic():

@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Versão | 0.1 |
+| Versão | 0.2 |
 | Data | 06/11/2026 |
 | Etapa | 4 — Especificação (Fase B) |
 | Status | Aprovado pelo usuário em 06/11/2026 (Fase B) |
@@ -279,3 +279,17 @@ Logs nunca contêm senhas, PIN, tokens, cookies nem segredos (RN-192). O teste a
 8. Primeiro teste de restauração em modo teste executado com sucesso.
 9. Telegram configurado com `chat_id` único; mensagem de teste recebida.
 10. Celular com bloqueio de tela; aparelho confiável ativado com PIN.
+
+## 13. Alterações após a aprovação
+
+| Seção | Alteração | Motivo |
+|---|---|---|
+| §7.1 | Nome do arquivo com segundos: `financas-AAAAMMDD-HHMMSS-<gatilho>.db.age` | Dois backups no mesmo minuto (ex.: manual e `pre_restore`) não colidem |
+| §7.1 | Retenção: o semanal é o mais novo de cada semana ISO (domingo); o mensal é o primeiro de cada mês (dia 1º); os de `pre_update`, `pre_migration`, `pre_restore` e `manual` ficam 90 dias | Detalhe do que já estava previsto |
+| §7.1 | Alerta também quando a última cópia na pasta da nuvem tem mais de 72 horas | Implementado na tela de saúde |
+| §7.2 | Passos 4 e 5 em duas telas: "Ver resumo para restaurar" restaura num arquivo temporário e mostra data, transações, saldos e último lançamento; a confirmação pede as senhas de novo | Ninguém substitui os dados sem ver o resumo |
+| §7.2 | Passo 6 sem reiniciar o serviço: durante a troca, um bloqueio de manutenção responde 503 às outras requisições e pausa o agendador; as conexões com o banco são fechadas antes e depois | O processo é único (ADR-011); reiniciar o serviço exigiria privilégio de administrador pela tela |
+| §7.3 | Passo 3: `ops\install.ps1 -RestoreFrom <arquivo .db.age>`; o código vem de uma cópia `git bundle` guardada na pasta da nuvem | `ops/guides/recuperacao-de-desastre.md`; ADR-038 |
+| §4 | Verificação do Funnel lê `tailscale serve status --json`; "desligado" só com resposta válida, senão "não verificado" | Falha segura: dúvida nunca vira "tudo certo" |
+| §9 | Ordem do `update.ps1`: backup `pre_update`, `git pull`, `uv sync`, `pip-audit`, testes, `collectstatic`, backup `pre_migration`, migrações, invariantes. Em falha depois das migrações, o código volta primeiro e o backup `pre_migration` é restaurado em seguida | Testes antes de tocar no banco; restaurar com o código antigo evita banco antigo com código novo |
+

@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Versão | 0.2 |
+| Versão | 0.3 |
 | Data | 06/11/2026 |
 | Etapa | 4 — Especificação (Fase B) |
 | Status | Versão 0.1 aprovada em 06/11/2026 (Fase B); versão 0.2 com detalhes da implementação da Fase 1A (§15) |
@@ -640,4 +640,5 @@ Toda migração:
 | 0.2 | Notas acrescentadas saem da coluna `ledger_transaction.notes` para a tabela `transaction_note` (§4.9) | Só inserção é mais simples de garantir com gatilho do que "só acréscimo" numa coluna de texto |
 | 0.2 | Novos gatilhos `txn_insert_draft_only`, `link_immutable` e `note_append_only` (§11) | Fecham caminhos que contornariam o equilíbrio e a imutabilidade |
 | 0.2 | Testes que gravam de verdade no banco (concorrência) removem e recriam os gatilhos de exclusão só para limpar o banco de teste (`tests/conftest.py`) | O `flush` do Django usa `DELETE`, que os gatilhos bloqueiam. Em produção os gatilhos nunca são removidos |
-
+| 0.3 | `backup_record`: sem `retention_class` e `pruned_at` (a retenção é decidida pelos manifestos nas pastas, não pelo banco, que volta no tempo numa restauração); com `message`; gatilho `pre_restore` | Fase 1D: o banco restaurado não sabe quais arquivos existem hoje nas pastas |
+| 0.3 | `restore_test`: `file_name` no lugar de `backup_id`; tipo `restore` para restaurações reais | Fase 1D: o backup testado pode ter sido gerado por outro banco (nuvem, outro PC) |

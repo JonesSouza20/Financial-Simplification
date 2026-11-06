@@ -10,6 +10,7 @@ dependencies = [
     "django-axes>=7.0",      # bloqueio de tentativas (ADR-019)
     "keyring>=25.0",         # cofre de credenciais do Windows (ADR-020)
     "pyrage>=1.2",
+    "whitenoise>=6.8,<7",
 ]
 
 [dependency-groups]

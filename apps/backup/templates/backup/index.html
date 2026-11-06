@@ -20,8 +20,8 @@
     <div class="field"><label for="restore-name">Backup</label><select id="restore-name" name="name" class="input">{% for e in available %}<option value="{{ e.name }}">{{ e.name }}</option>{% endfor %}</select></div>
     {% include "partials/field.html" with field=restore_form.password %}
     {% include "partials/field.html" with field=restore_form.passphrase %}
-    {% include "partials/field.html" with field=restore_form.confirm %}
-    <button class="btn btn-danger self-start" type="submit">Restaurar</button>
+    <p class="text-sm text-text-3">Primeiro o sistema restaura num arquivo temporário e mostra um resumo. Nada é substituído antes da sua confirmação.</p>
+    <button class="btn btn-secondary self-start" type="submit">Ver resumo para restaurar</button>
   </form>
   <form method="post" action="{% url 'backup:set_passphrase' %}" class="card flex flex-col gap-3">{% csrf_token %}
     <h2 class="text-base">Senha de backup</h2>

@@ -1,0 +1,24 @@
+{% extends "base.html" %}{% load fin %}
+{% block title %}Confirmar restauração{% endblock %}
+{% block content %}
+<div class="flex flex-col gap-6 max-w-2xl">
+  <h1>Confirmar restauração</h1>
+  <p class="text-sm">O backup <strong>{{ name }}</strong> foi restaurado num arquivo temporário e passou em todas as verificações. Confira o resumo antes de substituir os dados atuais.</p>
+  <section class="card text-sm">
+    <h2 class="text-base mb-2">Resumo do backup</h2>
+    <div class="row"><span class="flex-1">Data do backup</span><span>{{ created }}</span></div>
+    <div class="row"><span class="flex-1">Transações</span><span class="tabular-nums">{{ details.counts.ledger_transaction }}</span></div>
+    {% if details.summary.last %}<div class="row"><span class="flex-1">Último lançamento</span><span>{{ last_date }} · {{ details.summary.last.description }}</span></div>{% endif %}
+    {% for a in details.summary.accounts %}<div class="row"><span class="flex-1">{{ a.name }}</span><span class="tabular-nums">{{ a.cents|brl }}</span></div>{% endfor %}
+  </section>
+  <form method="post" action="{% url 'backup:restore' %}" class="card flex flex-col gap-3">{% csrf_token %}
+    {{ form.name }}
+    <p class="text-sm">Antes de substituir, o sistema faz um backup do estado atual (gatilho <code>pre_restore</code>). Depois você entra de novo com a senha de login que está no backup.</p>
+    {% include "partials/field.html" with field=form.password %}
+    {% include "partials/field.html" with field=form.passphrase %}
+    {% include "partials/field.html" with field=form.confirm %}
+    <div class="flex gap-2"><button class="btn btn-danger" type="submit">Substituir os dados</button>
+      <a class="btn btn-secondary" href="{% url 'backup:index' %}">Cancelar</a></div>
+  </form>
+</div>
+{% endblock %}

@@ -42,6 +42,9 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    # Arquivos estáticos em produção, antes do login obrigatório (ADR-037).
+    "whitenoise.middleware.WhiteNoiseMiddleware",
+    "apps.backup.maintenance.MaintenanceMiddleware",
     "apps.ui.middleware.SecurityHeadersMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -139,7 +142,7 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
-STATIC_ROOT = DATA_DIR / "staticfiles"
+STATIC_ROOT = DATA_DIR / "staticfiles"  # preenchido por collectstatic (install/update.ps1)
 
 # Sessões e cookies (security-plan.md §3.2). Valores Secure são ligados em prod (HTTPS).
 SESSION_ENGINE = "django.contrib.sessions.backends.db"

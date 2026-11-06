@@ -1,0 +1,26 @@
+<!--
+  Modelo da configuração do WinSW (v2.12.0). O install.ps1 preenche os campos @...@ e grava
+  ops\service\financas.xml (fora do Git) ao lado de ops\service\financas.exe.
+  A conta do serviço (seu usuário do Windows) é informada no "financas.exe install /p",
+  sem gravar a senha neste arquivo. Opções conferidas na documentação do WinSW 2.x;
+  confira de novo na versão instalada (security-plan.md, nota inicial).
+-->
+<service>
+  <id>financas</id>
+  <name>Finanças pessoais</name>
+  <description>Sistema de finanças pessoais (Waitress em 127.0.0.1; acesso pelo Tailscale Serve).</description>
+  <executable>@PYTHON@</executable>
+  <arguments>@ARGUMENTS@</arguments>
+  <workingdirectory>@ROOT@</workingdirectory>
+  <startmode>Automatic</startmode>
+  <delayedAutoStart>true</delayedAutoStart>
+  <onfailure action="restart" delay="10 sec"/>
+  <onfailure action="restart" delay="60 sec"/>
+  <resetfailure>1 hour</resetfailure>
+  <stoptimeout>30 sec</stoptimeout>
+  <logpath>@LOGDIR@</logpath>
+  <log mode="roll-by-size">
+    <sizeThreshold>10240</sizeThreshold>
+    <keepFiles>8</keepFiles>
+  </log>
+</service>

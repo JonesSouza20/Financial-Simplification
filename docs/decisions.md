@@ -2,10 +2,10 @@
 
 | Campo | Valor |
 |---|---|
-| Versão | 0.2 |
+| Versão | 0.3 |
 | Data | 06/11/2026 |
 | Etapa | 3 — Arquitetura (Fase A) |
-| Status | Versão 0.1 aprovada em 06/11/2026 (ADR-001 a 031: "Proposta" passa a valer como aceita). Versão 0.2 acrescenta ADR-032 a 036 (Fase B), aprovada em 06/11/2026 |
+| Status | Versão 0.1 aprovada em 06/11/2026 (ADR-001 a 031: "Proposta" passa a valer como aceita). Versão 0.2 acrescenta ADR-032 a 036 (Fase B), aprovada em 06/11/2026. ADR-037 e 038 propostas na Fase 1D |
 | Documentos relacionados | `product-requirements.md`, `architecture.md` |
 
 Formato: cada decisão (ADR) tem status, contexto, decisão, alternativas consideradas e consequências.
@@ -57,6 +57,8 @@ Uma decisão aprovada só muda por nova ADR que a substitua, citando a anterior.
 | 034 | Parcelas de cartão e de valores a receber como alocações | Proposta (Fase B) |
 | 035 | PIN reabre sessão até o fim da confiança do aparelho | Aceita (decisão do usuário na Fase B) |
 | 036 | Horizonte H avança só com o salário confirmado | Aceita (decisão do usuário na Fase B) |
+| 037 | Arquivos estáticos servidos pelo próprio processo (WhiteNoise) | Proposta (Fase 1D) |
+| 038 | Sistema em uso roda de um clone separado do código | Proposta (Fase 1D) |
 
 ---
 
@@ -551,3 +553,36 @@ Comparação em `architecture.md`, seção 9.4.
 - Se o salário atrasar, H = amanhã até a confirmação, e o dashboard mostra "salário atrasado" (RN-140).
 
 **Consequências:** o disponível não despenca enquanto o dinheiro não entrou. Com salário atrasado, o disponível passa a considerar só o que vence até hoje, e o alerta de atenção deixa a situação explícita.
+
+## ADR-037 — Arquivos estáticos servidos pelo próprio processo (WhiteNoise)
+
+**Status:** Proposta (Fase 1D).
+
+**Contexto:** em produção o Django roda com `DEBUG=False` e o Waitress só executa a aplicação. Nesse modo o Django não serve `/static/` (CSS, htmx, Alpine, ícones). Sem uma solução, as telas abririam sem estilo e sem scripts. Os testes de ponta a ponta não mostravam o problema, porque o servidor de testes serve estáticos sozinho.
+
+**Decisão:**
+- Biblioteca WhiteNoise (`whitenoise` 6.x), como middleware logo depois do `SecurityMiddleware` e antes do login obrigatório.
+- Armazenamento simples, sem nomes com hash. Os nomes com hash exigiriam `{% static %}` em todo lugar, inclusive na lista de cache do service worker e nos ícones do manifesto.
+- `collectstatic` roda no `install.ps1` e no `update.ps1`. Em desenvolvimento e nos testes, o WhiteNoise lê as pastas de origem (`WHITENOISE_USE_FINDERS`).
+- Teste automático com `DEBUG=False` confirma que o CSS e o JavaScript respondem sem login (`tests/backup/test_production_static.py`).
+
+**Alternativas:**
+- `django.views.static.serve` numa rota própria: sem dependência nova, mas a documentação do Django desaconselha em produção e não há controle de cache.
+- Servir os arquivos pelo Tailscale Serve: não cobre o acesso por `127.0.0.1` no PC.
+
+**Consequências:** uma dependência pequena e madura a mais, travada no `uv.lock` e auditada pelo `pip-audit`. Arquivos estáticos não exigem login, como já previa o `security-plan.md` §8.
+
+## ADR-038 — Sistema em uso roda de um clone separado do código
+
+**Status:** Proposta (Fase 1D). Complementa o `architecture.md` §11.
+
+**Contexto:** o desenvolvimento acontece em `%USERPROFILE%\Documents\Programa Financeiro`. Se o serviço rodasse dessa mesma pasta, cada mudança no código chegaria ao sistema em uso sem backup nem testes. O `update.ps1` também não teria de onde baixar a nova versão nem como voltar atrás com segurança.
+
+**Decisão:**
+- O sistema em uso roda de um clone, por exemplo `%USERPROFILE%\Financas`, cuja origem Git é a pasta de desenvolvimento.
+- O `update.ps1` faz `git pull --ff-only` dessa origem. Em falha, volta o clone para a versão anterior (`git reset --hard`), o que não afeta o histórico da pasta de desenvolvimento.
+- O `install.ps1` avisa quando é rodado numa pasta sem origem Git.
+- Uma cópia do código (`git bundle`) vai para a pasta da nuvem depois de cada atualização, para a recuperação de desastre (`ops/guides/recuperacao-de-desastre.md` §6).
+
+**Consequências:** duas pastas no PC. O banco real fica em `var\` do clone, longe dos testes do desenvolvimento.
+

@@ -2,7 +2,7 @@
 
 Projeto completo em [`docs/`](docs/README.md). Roadmap em [`docs/implementation-roadmap.md`](docs/implementation-roadmap.md).
 
-Estado: **Fase 1C — Cartões, a receber e dívida provisórios, abertura** concluída. Próxima: Fase 1D.
+Estado: **Fase 1D — Operação: serviço, agendador e backup** concluída. Próxima: porta de validação do MVP-1 (uso real por algumas semanas).
 
 ## Requisitos
 
@@ -48,4 +48,22 @@ TAILWINDCSS_VERSION=v4.1.7 uv run tailwindcss -i tailwind/input.css -o static/cs
 ```
 
 Primeiro acesso: abra `http://127.0.0.1:8000/` e crie a senha. As categorias padrão são carregadas pelo `migrate`. Depois use o assistente de abertura (`/abertura/contas/`).
+
+## Instalação no PC (uso real)
+
+O sistema em uso roda de um clone separado desta pasta (ADR-038). Passo a passo em [`ops/guides/servico-windows.md`](ops/guides/servico-windows.md):
+
+```powershell
+git clone "$env:USERPROFILE\Documents\Programa Financeiro" "$env:USERPROFILE\Financas"
+```
+
+```powershell
+powershell -ExecutionPolicy Bypass -File ops\install.ps1 -Mode logon
+```
+
+Outros scripts: `ops\update.ps1` (atualizar com backup e volta atrás), `ops\restore.ps1` (restaurar ou `-Test`), `ops\reset-password.ps1` (senha esquecida).
+
+Guias: [Tailscale Serve e HTTPS](ops/guides/tailscale-https.md), [criptografia do disco](ops/guides/criptografia-do-disco.md), [recuperação de desastre](ops/guides/recuperacao-de-desastre.md).
+
+Comandos de terminal (com `DJANGO_SETTINGS_MODULE=config.settings.prod`, que os scripts já definem): `backup_now`, `list_backups`, `restore_backup <nome> [--test]`, `check_invariants`, `init_secrets [--backup-passphrase]`, `reset_password`, `run_jobs`.
 

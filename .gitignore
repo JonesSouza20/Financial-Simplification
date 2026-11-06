@@ -26,3 +26,9 @@ staticfiles/
 node_modules/
 test-results/
 playwright-report/
+
+# Operação: configuração local, serviço gerado e executável do WinSW
+ops/config.ps1
+ops/service/financas.xml
+ops/service/*.exe
+ops/service/*.log

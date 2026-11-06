@@ -113,3 +113,30 @@ def schema(path) -> str:
         return f"{row[0]} migrações"
     finally:
         conn.close()
+
+
+def summary(path) -> dict:
+    """Resumo mostrado antes de restaurar (security-plan.md §7.2, passo 5): saldo de cada
+    conta, data e descrição do último lançamento. Só para exibição; nunca vai ao manifesto."""
+    conn = sqlite3.connect(f"file:{path}?mode=ro", uri=True)
+    try:
+        accounts = conn.execute(
+            """
+            SELECT f.name, COALESCE(SUM(CASE WHEN t.status IN ('confirmed', 'reversed')
+                                        THEN p.amount_cents END), 0)
+            FROM financial_account f
+            LEFT JOIN ledger_posting p ON p.account_id = f.ledger_account_id
+            LEFT JOIN ledger_transaction t ON t.id = p.transaction_id
+            WHERE f.archived_at IS NULL GROUP BY f.id ORDER BY f.name"""
+        ).fetchall()
+        last = conn.execute(
+            "SELECT operation_date, description FROM ledger_transaction "
+            "WHERE status IN ('confirmed', 'reversed') ORDER BY operation_date DESC, id DESC "
+            "LIMIT 1"
+        ).fetchone()
+    finally:
+        conn.close()
+    return {
+        "accounts": [{"name": n, "cents": c} for n, c in accounts],
+        "last": {"date": last[0], "description": last[1]} if last else None,
+    }

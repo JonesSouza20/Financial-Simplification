@@ -29,7 +29,7 @@ from django.utils import timezone
 
 from apps.ledger.errors import LedgerError
 
-from . import secrets, verify
+from . import maintenance, secrets, verify
 from .models import BackupRecord, RestoreTest
 
 PREFIX = "financas-"
@@ -247,8 +247,14 @@ def keep_set(items: list[Entry], now: datetime.datetime) -> set[str]:
                 keep.add(e.name)
 
     newest_per(lambda d: d.date(), rules["daily"])
+    # Semana ISO termina no domingo: o mais novo da semana é o de domingo.
     newest_per(lambda d: d.isocalendar()[:2], rules["weekly"])
-    newest_per(lambda d: (d.year, d.month), rules["monthly"])
+    # Mensal: o primeiro backup de cada mês (dia 1º), nos 12 meses mais recentes.
+    first_of_month: dict = {}
+    for e in regular:  # do mais novo para o mais antigo: fica o mais antigo de cada mês
+        first_of_month[(e.created.year, e.created.month)] = e
+    for month in list(first_of_month)[: rules["monthly"]]:
+        keep.add(first_of_month[month].name)
     return keep
 
 
@@ -277,9 +283,20 @@ def available() -> list[Entry]:
 
 
 def find(name: str) -> Entry:
+    """Pelo nome (pastas local e da nuvem) ou pelo caminho completo de um arquivo `.db.age`
+    com o manifesto `.json` ao lado (recuperação de desastre, security-plan.md §7.3)."""
     for e in available():
         if e.name == name:
             return e
+    path = Path(name)
+    manifest_path = path.with_name(path.name.replace(".db.age", ".json"))
+    if path.name.endswith(".db.age") and path.is_file() and manifest_path.is_file():
+        try:
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        except ValueError as exc:
+            raise BackupError("Manifesto do backup ilegível.") from exc
+        if manifest.get("file") == path.name:
+            return Entry(manifest, path)
     raise BackupError("Backup não encontrado.")
 
 
@@ -305,6 +322,7 @@ def _materialize(entry: Entry, passphrase: str, target: Path) -> dict:
         "counts": counts,
         "created_at": entry.manifest["created_at"],
         "schema": entry.manifest["schema"],
+        "summary": verify.summary(target),
     }
 
 
@@ -336,10 +354,13 @@ def restore_into(target: Path, entry: Entry, passphrase: str) -> dict:
 
 def restore_live(entry: Entry, *, passphrase: str) -> dict:
     """Restaura sobre o banco em uso (F-100). Faz backup do estado atual antes."""
-    create_backup("pre_restore", passphrase=passphrase)
-    connections.close_all()
-    details = restore_into(db_path(), entry, passphrase)
-    connections.close_all()
+    # O estado atual vai com a senha do cofre, se houver (a do backup pode ser antiga).
+    current = None if secrets.has(secrets.BACKUP_PASSPHRASE) else passphrase
+    with maintenance.gate():  # outras requisições recebem 503; o agendador espera
+        create_backup("pre_restore", passphrase=current)
+        connections.close_all()
+        details = restore_into(db_path(), entry, passphrase)
+        connections.close_all()
     RestoreTest.objects.create(
         file_name=entry.name, kind="restore", passed=True, details_json=details
     )

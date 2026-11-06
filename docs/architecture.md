@@ -510,3 +510,7 @@ Recuperação de desastre (PC perdido): instalar o sistema em outra máquina, in
 | §6.1, §6.2, §6.6 | Exemplo de parcela alinhado ao S09; vínculos e compromissos alinhados ao modelo de dados (liquidações e alocações em tabelas próprias, ADR-034); referência às invariantes I-01 a I-10 | Revisão da Etapa 7 |
 | §5 | Módulos `entries` (lançamentos do usuário) e `ui` (layout e cabeçalhos) explicitados na tabela | Fase 1B |
 | §5 | Módulos `persons` e `opening` explicitados; sinais `transaction_created` e `transaction_reversed` do Ledger avisam módulos com alocações (a receber, conciliação) sem que eles gravem pernas | Fase 1C |
+| §11 | Arquivos estáticos servidos pelo WhiteNoise dentro do processo; `collectstatic` na instalação e na atualização | ADR-037 |
+| §11 | Sistema em uso roda de um clone separado da pasta de desenvolvimento; `update.ps1` faz `git pull` dele e volta atrás em falha | ADR-038 |
+| §11 | Configuração local única em `ops\config.ps1` (porta, nome na tailnet, pasta de dados, modo), lida por todos os scripts e passada ao serviço | Fase 1D |
+| §10 | Restauração pela tela troca o banco dentro do processo, com bloqueio de manutenção (503 e agendador pausado), sem reiniciar o serviço | Fase 1D; `security-plan.md` §13 |
