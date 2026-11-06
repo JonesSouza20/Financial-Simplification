@@ -5,7 +5,7 @@
 | Versão | 0.2 |
 | Data | 06/11/2026 |
 | Etapa | 4 — Especificação (Fase B) |
-| Status | Aprovado pelo usuário em 06/11/2026 (Fase B) |
+| Status | Versão 0.1 aprovada em 06/11/2026 (Fase B); versão 0.2 com os ajustes da Fase 1D (§13), aprovada em 06/11/2026 |
 | Documentos relacionados | `architecture.md` §9–§11, `decisions.md` (ADR-012, 019 a 022), `testing-plan.md` §8–§9 |
 
 Comandos e nomes de opções de ferramentas externas (Tailscale, WinSW, `age`) serão conferidos na versão instalada durante a implementação. Este plano define **o que** deve ser garantido e **como verificar**.
