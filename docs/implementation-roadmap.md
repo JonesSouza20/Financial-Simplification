@@ -135,6 +135,8 @@ Programa Financeiro/
 │   ├── ledger/                   # models, services, triggers, invariants
 │   ├── security/                 # login, PIN, aparelhos, sessões
 │   ├── accounts/  categories/  persons/
+│   ├── entries/                  # lançamentos do usuário, movimentações, Corrigir/Estornar
+│   ├── ui/                       # layout, temas, PWA, cabeçalhos de segurança
 │   ├── cards/                    # compras, faturas, alocação, limite
 │   ├── receivables/
 │   ├── payables/                 # compromissos, liquidação, recorrências

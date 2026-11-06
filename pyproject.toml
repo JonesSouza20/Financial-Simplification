@@ -21,6 +21,7 @@ dev = [
     "ruff>=0.8",
     "pip-audit>=2.7",
     "pytest-playwright>=0.5",
+    "pytailwindcss>=0.4.2",
 ]
 
 [tool.uv]

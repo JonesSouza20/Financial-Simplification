@@ -1,0 +1,12 @@
+{% extends "auth.html" %}
+{% block title %}Configurar acesso{% endblock %}
+{% block auth %}
+<h1 class="text-xl">Criar sua senha</h1>
+<p class="text-sm text-text-2">Use pelo menos 12 caracteres. Uma frase fácil de lembrar funciona bem. Não há recuperação por e-mail.</p>
+<form method="post" class="flex flex-col gap-4">{% csrf_token %}
+  {% include "partials/form_errors.html" %}
+  {% include "partials/field.html" with field=form.password %}
+  {% include "partials/field.html" with field=form.confirm %}
+  <button class="btn btn-primary" type="submit">Criar senha</button>
+</form>
+{% endblock %}

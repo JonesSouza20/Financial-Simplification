@@ -1,0 +1,12 @@
+{% extends "auth.html" %}
+{% block title %}Entrar{% endblock %}
+{% block auth %}
+<h1 class="text-xl">Entrar</h1>
+<form method="post" class="flex flex-col gap-4">{% csrf_token %}
+  {% include "partials/form_errors.html" %}
+  {% include "partials/field.html" with field=form.password %}
+  {% include "partials/field.html" with field=form.trust_device %}
+  {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+  <button class="btn btn-primary" type="submit">Entrar</button>
+</form>
+{% endblock %}

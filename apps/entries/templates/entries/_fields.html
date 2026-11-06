@@ -1,0 +1,21 @@
+{% comment %}Campos comuns de gasto, recebimento e transferência. Requer x-data="entryKind" no formulário.{% endcomment %}
+{% include "partials/form_errors.html" %}
+{% if form.duplicate %}
+<div class="rounded-lg bg-warning-soft text-text text-sm px-4 py-3 flex flex-col gap-2" role="alert">
+  <p>Já existe um lançamento de {{ form.duplicate.description }} com esse valor nessa data. Salvar mesmo assim?</p>
+  {% include "partials/field.html" with field=form.confirm_duplicate %}
+</div>
+{% endif %}
+<fieldset class="seg">
+  <legend class="sr-only">Tipo</legend>
+  {% for radio in form.kind %}<label>{{ radio.tag }} {{ radio.choice_label }}</label>{% endfor %}
+</fieldset>
+{{ form.idempotency_key }}
+<div class="field">
+  <label for="{{ form.account.id_for_label }}"><span x-show="isTransfer">De</span><span x-show="isExpense">Pago com</span><span x-show="isIncome">Recebido em</span></label>
+  {{ form.account }}
+  {% for e in form.account.errors %}<span class="error">{{ e }}</span>{% endfor %}
+</div>
+<div x-show="isTransfer">{% include "partials/field.html" with field=form.destination %}</div>
+<div x-show="isExpense">{% include "partials/field.html" with field=form.expense_category %}</div>
+<div x-show="isIncome">{% include "partials/field.html" with field=form.income_category %}</div>

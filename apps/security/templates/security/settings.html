@@ -1,0 +1,44 @@
+{% extends "base.html" %}{% load fin %}
+{% block title %}Segurança{% endblock %}
+{% block content %}
+<div class="flex flex-col gap-6 max-w-2xl">
+  <h1>Segurança</h1>
+  <section class="card flex flex-col gap-3">
+    <h2 class="text-base">Aparelhos confiáveis</h2>
+    {% if not current %}<a class="text-sm text-primary" href="{% url 'security:device_new' %}">Confiar neste aparelho</a>{% endif %}
+    {% for d in devices %}
+      <div class="row">
+        <div class="flex-1 min-w-0">
+          <div class="font-medium">{{ d.name }}{% if current and current.pk == d.pk %} <span class="chip bg-primary-soft text-primary">este aparelho</span>{% endif %}</div>
+          <div class="text-xs text-text-3">
+            {% if d.revoked_at %}Revogado em {{ d.revoked_at|date:"d/m/Y H:i" }} · {{ d.revoked_reason }}
+            {% else %}Válido até {{ d.expires_at|date:"d/m/Y" }}{% if d.last_used_at %} · último uso {{ d.last_used_at|date:"d/m/Y H:i" }}{% endif %}{% endif %}
+          </div>
+        </div>
+        {% if not d.revoked_at %}
+        <form method="post" action="{% url 'security:device_revoke' d.pk %}" class="flex gap-2 items-center">{% csrf_token %}
+          <input class="input w-36" type="password" name="password" placeholder="Sua senha" required aria-label="Sua senha">
+          <button class="btn btn-danger" type="submit">Revogar</button>
+        </form>
+        {% endif %}
+      </div>
+    {% empty %}<p class="text-sm text-text-3">Nenhum aparelho confiável.</p>{% endfor %}
+    {% if devices %}
+    <form method="post" action="{% url 'security:device_revoke_all' %}" class="flex gap-2 items-center pt-2">{% csrf_token %}
+      <input class="input w-44" type="password" name="password" placeholder="Sua senha" required aria-label="Sua senha">
+      <button class="btn btn-danger" type="submit">Revogar todos</button>
+    </form>
+    {% endif %}
+  </section>
+  <section class="card flex flex-col gap-4">
+    <h2 class="text-base">Trocar senha</h2>
+    <p class="text-sm text-text-2">Ao trocar a senha, todos os aparelhos confiáveis são revogados.</p>
+    <form method="post" action="{% url 'security:change_password' %}" class="flex flex-col gap-4">{% csrf_token %}
+      {% include "partials/field.html" with field=password_form.current %}
+      {% include "partials/field.html" with field=password_form.new %}
+      {% include "partials/field.html" with field=password_form.confirm %}
+      <button class="btn btn-primary self-start" type="submit">Trocar senha</button>
+    </form>
+  </section>
+</div>
+{% endblock %}

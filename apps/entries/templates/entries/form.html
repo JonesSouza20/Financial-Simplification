@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<form method="post" class="max-w-lg flex flex-col gap-4" x-data="entryKind" @change="pick">{% csrf_token %}
+  <h1>{{ title }}</h1>
+  {% if correcting %}
+    <p class="text-sm text-text-2">O lançamento original será estornado e um novo será gravado no lugar. Nada é apagado.</p>
+  {% endif %}
+  <div class="card flex flex-col gap-4">
+    {% include "partials/field.html" with field=form.amount %}
+    {% include "entries/_fields.html" %}
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      {% include "partials/field.html" with field=form.on %}
+      {% include "partials/field.html" with field=form.competence %}
+    </div>
+    {% include "partials/field.html" with field=form.description %}
+  </div>
+  <button class="btn btn-primary" type="submit">{% if correcting %}Corrigir lançamento{% else %}Salvar{% endif %}</button>
+</form>
+{% endblock %}

@@ -70,6 +70,65 @@ def accounts(db):
     )
 
 
+PASSWORD = "uma frase de teste bem longa"  # noqa: S105 - só em testes
+
+
+@pytest.fixture
+def user(db):
+    from django.contrib.auth import get_user_model
+
+    return get_user_model().objects.create_user("usuario", password=PASSWORD)
+
+
+@pytest.fixture
+def web(client, user):
+    """Cliente autenticado com senha, como no login real."""
+    response = client.post("/acesso/entrar/", {"password": PASSWORD})
+    assert response.status_code == 302, response.content
+    return client
+
+
+@pytest.fixture
+def fin(db, on_20_11):
+    """Contas financeiras do cadastro comum, abertas em 01/11/2026 com saldo zero."""
+    from apps.accounts.services import create_account
+    from apps.money import Money
+
+    def make(name, account_type, asset_class, cents=0):
+        return create_account(
+            name=name,
+            account_type=account_type,
+            asset_class=asset_class,
+            opening_balance=Money(cents),
+            opening_date=datetime.date(2026, 11, 1),
+        )
+
+    return SimpleNamespace(
+        corrente=make("Corrente", "checking", "free"),
+        digital=make("Digital", "digital", "free"),
+        reserva=make("Reserva", "reserve", "reserve"),
+        vr=make("VR/VA", "benefit", "benefit"),
+        make=make,
+    )
+
+
+@pytest.fixture
+def cats(db):
+    from apps.categories.models import Category
+
+    def get(name, kind="expense"):
+        return Category.objects.get(name=name, kind=kind)
+
+    return SimpleNamespace(
+        mercado=get("Mercado"),
+        aluguel=get("Aluguel"),
+        eletronicos=get("Eletrônicos"),
+        salario=get("Salário", "income"),
+        beneficios=get("Benefícios", "income"),
+        get=get,
+    )
+
+
 @pytest.fixture
 def committed_db(transactional_db):
     """Banco com commits reais (testes de concorrência).

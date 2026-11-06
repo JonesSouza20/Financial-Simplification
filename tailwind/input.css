@@ -1,0 +1,97 @@
+/* Tokens de ui-ux-specification.md §3–§6. Gerar com:
+   TAILWINDCSS_VERSION=v4.1.7 uv run tailwindcss -i tailwind/input.css -o static/css/app.css --minify */
+@import "tailwindcss";
+@source "../templates";
+@source "../apps";
+
+@font-face { font-family: "Inter"; font-weight: 400; font-display: swap; src: url("../fonts/inter-latin-400.woff2") format("woff2"); }
+@font-face { font-family: "Inter"; font-weight: 500; font-display: swap; src: url("../fonts/inter-latin-500.woff2") format("woff2"); }
+@font-face { font-family: "Inter"; font-weight: 600; font-display: swap; src: url("../fonts/inter-latin-600.woff2") format("woff2"); }
+@font-face { font-family: "Inter"; font-weight: 700; font-display: swap; src: url("../fonts/inter-latin-700.woff2") format("woff2"); }
+
+:root {
+  --bg: #F7F8FA; --surface: #FFFFFF; --surface-2: #F1F3F6; --border: #E3E6EB;
+  --text: #14181F; --text-2: #4A5260; --text-3: #6B7380;
+  --primary: #0F766E; --primary-hover: #115E59; --primary-soft: #E6F4F2; --on-primary: #FFFFFF;
+  --positive: #15803D; --negative: #B42318; --negative-soft: #FDECEA;
+  --warning: #B45309; --warning-soft: #FEF3E2; --info: #1D4ED8;
+  --projection: #6D5BD0; --projection-soft: #EFEBFB;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0E1116; --surface: #161A21; --surface-2: #1D222B; --border: #2A303B;
+    --text: #E8EBF0; --text-2: #A9B1BD; --text-3: #808A97;
+    --primary: #2DD4BF; --primary-hover: #5EEAD4; --primary-soft: #123B37; --on-primary: #0E1116;
+    --positive: #4ADE80; --negative: #F87171; --negative-soft: #3A1715;
+    --warning: #FBBF24; --warning-soft: #3A2A0E; --info: #60A5FA;
+    --projection: #A78BFA; --projection-soft: #241E3D;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0E1116; --surface: #161A21; --surface-2: #1D222B; --border: #2A303B;
+  --text: #E8EBF0; --text-2: #A9B1BD; --text-3: #808A97;
+  --primary: #2DD4BF; --primary-hover: #5EEAD4; --primary-soft: #123B37; --on-primary: #0E1116;
+  --positive: #4ADE80; --negative: #F87171; --negative-soft: #3A1715;
+  --warning: #FBBF24; --warning-soft: #3A2A0E; --info: #60A5FA;
+  --projection: #A78BFA; --projection-soft: #241E3D;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
+  --color-text: var(--text);
+  --color-text-2: var(--text-2);
+  --color-text-3: var(--text-3);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-soft: var(--primary-soft);
+  --color-on-primary: var(--on-primary);
+  --color-positive: var(--positive);
+  --color-negative: var(--negative);
+  --color-negative-soft: var(--negative-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-info: var(--info);
+  --color-projection: var(--projection);
+  --color-projection-soft: var(--projection-soft);
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+@layer base {
+  html { -webkit-text-size-adjust: 100%; }
+  body { @apply bg-bg text-text font-sans antialiased; font-variant-numeric: tabular-nums; }
+  h1 { @apply text-2xl font-semibold; text-wrap: balance; }
+  h2 { @apply text-xl font-semibold; }
+  :focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+}
+
+@layer components {
+  .card { @apply bg-surface border border-border rounded-xl p-4; }
+  .btn { @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 min-h-11 font-medium transition-colors; }
+  .btn-primary { @apply bg-primary text-on-primary hover:bg-primary-hover; }
+  .btn-secondary { @apply bg-surface-2 text-text hover:bg-border; }
+  .btn-danger { @apply bg-negative-soft text-negative hover:bg-border; }
+  .field { @apply flex flex-col gap-1; }
+  .field label, .label { @apply text-sm font-medium text-text-2; }
+  .input { @apply w-full min-h-11 rounded-lg border border-border bg-surface px-3 text-base text-text; }
+  .help { @apply text-xs text-text-3; }
+  .error { @apply text-sm text-negative; }
+  .caption { @apply text-xs font-medium uppercase tracking-wide text-text-3; }
+  .chip { @apply inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium; }
+  .money { @apply font-semibold whitespace-nowrap; }
+  .nav-link { @apply flex items-center gap-3 rounded-lg px-3 py-2 text-text-2 hover:bg-surface-2; }
+  .nav-link[aria-current="page"] { @apply bg-primary-soft text-primary font-medium; }
+  .row { @apply flex items-center gap-3 py-3 border-b border-border last:border-0; }
+  .seg { @apply flex rounded-lg bg-surface-2 p-1 gap-1; }
+  .seg label { @apply flex-1 text-center rounded-md py-2 text-sm font-medium text-text-2 cursor-pointer; }
+  .seg input { @apply sr-only; }
+  .seg label:has(input:checked) { @apply bg-surface text-text shadow-sm; }
+  .key { @apply min-h-14 rounded-lg bg-surface-2 text-xl font-medium active:bg-border; }
+  input.input[type="checkbox"] { @apply w-5 min-h-5; }
+}

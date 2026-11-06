@@ -1,0 +1,10 @@
+{% load fin %}<div class="card">
+  {% for v in rows %}{% include "entries/_row.html" %}{% empty %}<p class="text-sm text-text-3">Nenhuma movimentação com esses filtros.</p>{% endfor %}
+  {% if rows %}
+  <div class="flex items-center justify-between pt-3 text-sm text-text-2">
+    <span>{{ page.paginator.count }} movimentação(ões){% if page.paginator.num_pages > 1 %} · página {{ page.number }} de {{ page.paginator.num_pages }}{% endif %}</span>
+    <span>Efeito nas contas nesta página: <span class="money {{ page_total|tone }}">{{ page_total|brl }}</span></span>
+  </div>
+  {% if page.has_next %}<a class="text-sm text-primary" href="?{% if request.GET.urlencode %}{{ request.GET.urlencode }}&amp;{% endif %}pagina={{ page.next_page_number }}">Mais antigas</a>{% endif %}
+  {% endif %}
+</div>

@@ -2,7 +2,7 @@
 
 Projeto completo em [`docs/`](docs/README.md). Roadmap em [`docs/implementation-roadmap.md`](docs/implementation-roadmap.md).
 
-Estado: **Fase 1A — Núcleo do Ledger** concluída. Próxima: Fase 1B.
+Estado: **Fase 1B — Cadastros, lançamentos e segurança** concluída. Próxima: Fase 1C.
 
 ## Requisitos
 
@@ -34,3 +34,18 @@ Testes de propriedade com 1.000 exemplos (porta de validação):
 ```bash
 HYPOTHESIS_PROFILE=thorough uv run pytest
 ```
+
+Testes de ponta a ponta (Chromium do Playwright, instalado com `uv run playwright install chromium`):
+
+```bash
+uv run pytest -m e2e
+```
+
+Gerar o CSS depois de mudar templates ou `tailwind/input.css` (o arquivo gerado fica no Git):
+
+```bash
+TAILWINDCSS_VERSION=v4.1.7 uv run tailwindcss -i tailwind/input.css -o static/css/app.css --minify
+```
+
+Primeiro acesso: abra `http://127.0.0.1:8000/` e crie a senha. As categorias padrão são carregadas pelo `migrate`.
+

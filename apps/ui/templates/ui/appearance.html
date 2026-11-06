@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Aparência{% endblock %}
+{% block content %}
+<div class="max-w-md flex flex-col gap-4" x-data="themePicker">
+  <h1>Aparência</h1>
+  <p class="text-sm text-text-2">A escolha vale para este aparelho.</p>
+  <fieldset class="seg">
+    <legend class="sr-only">Tema</legend>
+    <label><input type="radio" name="theme" value="auto" @change="pick" checked> Automático</label>
+    <label><input type="radio" name="theme" value="light" @change="pick"> Claro</label>
+    <label><input type="radio" name="theme" value="dark" @change="pick"> Escuro</label>
+  </fieldset>
+</div>
+{% endblock %}

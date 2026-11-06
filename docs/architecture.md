@@ -197,6 +197,8 @@ Organização em aplicações Django por domínio. A estrutura de pastas detalha
 | `calendar_br` | Dias úteis, feriados nacionais e de São Paulo, 5º dia útil | — |
 | `accounts` | Contas financeiras, classes, conciliação de saldo | Via serviço do `ledger` |
 | `categories` | Categorias e subcategorias | — |
+| `entries` | Lançamentos do usuário (gasto, recebimento, transferência), lista de movimentações, Corrigir e Estornar pela interface | Via serviço do `ledger` |
+| `ui` | Layout, temas, PWA, cabeçalhos de segurança, página inicial | Não |
 | `payables` | Contas a pagar, receitas previstas, recorrências, pagamentos | Via serviço do `ledger` |
 | `cards` | Cartões, compras, parcelas, faturas, limite, conciliação | Via serviço do `ledger` |
 | `receivables` | Pessoas, valores a receber, parcelas, recebimentos, baixas | Via serviço do `ledger` |
@@ -504,3 +506,4 @@ Recuperação de desastre (PC perdido): instalar o sistema em outra máquina, in
 | §6.4 | Lista de gatilhos detalhada em `database-design.md` §11 | — |
 | §9.2 | PIN reabre sessão também após a expiração absoluta, enquanto o aparelho for confiável | ADR-035 |
 | §6.1, §6.2, §6.6 | Exemplo de parcela alinhado ao S09; vínculos e compromissos alinhados ao modelo de dados (liquidações e alocações em tabelas próprias, ADR-034); referência às invariantes I-01 a I-10 | Revisão da Etapa 7 |
+| §5 | Módulos `entries` (lançamentos do usuário) e `ui` (layout e cabeçalhos) explicitados na tabela | Fase 1B |

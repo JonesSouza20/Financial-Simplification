@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Confiar neste aparelho{% endblock %}
+{% block content %}
+<div class="max-w-md flex flex-col gap-4">
+  <h1>Confiar neste aparelho</h1>
+  <p class="text-sm text-text-2">Por 30 dias, o PIN reabre o sistema neste aparelho. A senha continua necessária para operações sensíveis. Cinco erros de PIN revogam o aparelho.</p>
+  <form method="post" class="card flex flex-col gap-4">{% csrf_token %}
+    {% include "partials/form_errors.html" %}
+    {% include "partials/field.html" with field=form.name %}
+    {% include "partials/field.html" with field=form.pin %}
+    {% include "partials/field.html" with field=form.confirm %}
+    <button class="btn btn-primary" type="submit">Ativar PIN</button>
+  </form>
+</div>
+{% endblock %}

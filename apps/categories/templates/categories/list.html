@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Categorias{% endblock %}
+{% block content %}
+<div class="flex flex-col gap-6">
+  <h1>Categorias</h1>
+  <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+    <div class="card lg:col-span-2">
+      {% regroup roots by get_kind_display as groups %}
+      {% for group in groups %}
+        <h2 class="text-base mt-2 mb-1">{{ group.grouper }}</h2>
+        {% for c in group.list %}
+          <div class="row">
+            <span class="flex-1 min-w-0">
+              <span class="font-medium">{{ c.name }}</span>{% if c.is_system %} <span class="chip bg-surface-2 text-text-3">sistema</span>{% endif %}
+              <span class="block text-xs text-text-3">{% for k in c.children.all %}{% if not k.archived_at %}{{ k.name }}{% if k.accepts_benefit %} (VR/VA){% endif %}{% if not forloop.last %} · {% endif %}{% endif %}{% endfor %}</span>
+            </span>
+            {% if not c.is_system %}
+            <form method="post" action="{% url 'categories:archive' c.pk %}">{% csrf_token %}<button class="text-sm text-text-3 hover:text-negative" type="submit">Arquivar</button></form>
+            {% endif %}
+          </div>
+        {% endfor %}
+      {% endfor %}
+    </div>
+    <form method="post" class="card flex flex-col gap-4 self-start">{% csrf_token %}
+      <h2 class="text-base">Nova categoria</h2>
+      {% include "partials/form_errors.html" %}
+      {% for field in form %}{% include "partials/field.html" %}{% endfor %}
+      <button class="btn btn-primary" type="submit">Criar</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

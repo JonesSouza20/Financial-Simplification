@@ -1,0 +1,57 @@
+{% extends "base.html" %}{% load fin %}
+{% block title %}{{ view.txn.description }}{% endblock %}
+{% block content %}
+{% with txn=view.txn %}
+<div class="flex flex-col gap-6 max-w-2xl">
+  <div>
+    <span class="caption">{{ view.label }} · {{ txn.get_status_display }}</span>
+    <h1>{{ txn.description }}</h1>
+    <div class="text-2xl money mt-1 {% if view.kind == 'transfer' %}text-text-2{% else %}{{ view.signed|tone }}{% endif %}">{% if view.kind == 'transfer' %}{{ view.amount|brl }}{% else %}{{ view.signed|brl }}{% endif %}</div>
+  </div>
+  <section class="card grid grid-cols-1 gap-2 sm:grid-cols-2 text-sm">
+    <div><span class="caption">Data</span><div>{{ txn.operation_date|date:"d/m/Y" }}</div></div>
+    <div><span class="caption">Competência</span><div>{{ txn.competence_date|date:"m/Y" }}</div></div>
+    {% if view.category %}<div><span class="caption">Categoria</span><div>{{ view.category }}</div></div>{% endif %}
+    {% if view.account %}<div><span class="caption">Conta</span><div>{{ view.account }}{% if view.destination %} → {{ view.destination }}{% endif %}</div></div>{% endif %}
+  </section>
+  <section class="card">
+    <h2 class="text-base mb-2">O que este lançamento fez</h2>
+    {% for leg in view.legs %}
+      <div class="row text-sm"><span class="flex-1">{{ leg.name }}</span><span class="text-text-3">{{ leg.direction }}</span><span class="money">{{ leg.amount|brl }}</span></div>
+    {% endfor %}
+  </section>
+  {% if has_links %}
+  <section class="card text-sm flex flex-col gap-1">
+    <h2 class="text-base mb-1">Vínculos</h2>
+    {% for l in links_in %}<a class="text-primary" href="{% url 'entries:detail' l.from_transaction_id %}">{{ l.get_kind_display }} por: {{ l.from_transaction.description }}</a>{% endfor %}
+    {% for l in links_out %}<a class="text-primary" href="{% url 'entries:detail' l.to_transaction_id %}">{{ l.get_kind_display }}: {{ l.to_transaction.description }}</a>{% endfor %}
+  </section>
+  {% endif %}
+  {% if txn.status == 'confirmed' %}
+  <section class="card flex flex-col gap-3">
+    <h2 class="text-base">Corrigir ou estornar</h2>
+    <div class="flex flex-wrap gap-3 items-end">
+      {% if view.editable %}<a class="btn btn-secondary" href="{% url 'entries:correct' txn.pk %}">Corrigir</a>{% endif %}
+      <form method="post" action="{% url 'entries:reverse' txn.pk %}" class="flex flex-wrap gap-2 items-end">{% csrf_token %}
+        {% include "partials/field.html" with field=reason_form.reason %}
+        <button class="btn btn-danger" type="submit">Estornar</button>
+      </form>
+    </div>
+    <p class="help">Estornar desfaz o efeito com um lançamento inverso. O original continua no histórico.</p>
+  </section>
+  {% endif %}
+  <section class="card flex flex-col gap-3">
+    <h2 class="text-base">Notas</h2>
+    {% for n in notes %}<p class="text-sm"><span class="text-text-3">{{ n.created_at|date:"d/m/Y H:i" }}</span> {{ n.text }}</p>{% empty %}<p class="text-sm text-text-3">Sem notas.</p>{% endfor %}
+    <form method="post" action="{% url 'entries:note' txn.pk %}" class="flex flex-col gap-2">{% csrf_token %}
+      {% include "partials/field.html" with field=note_form.text %}
+      <button class="btn btn-secondary self-start" type="submit">Acrescentar nota</button>
+    </form>
+  </section>
+  <section class="card text-sm">
+    <h2 class="text-base mb-2">Histórico de alterações</h2>
+    {% for a in audit_rows %}<div class="row"><span class="text-text-3 w-32">{{ a.at|date:"d/m/Y H:i" }}</span><span class="flex-1">{{ a.action }}{% if a.reason %} · {{ a.reason }}{% endif %}</span></div>{% endfor %}
+  </section>
+</div>
+{% endwith %}
+{% endblock %}

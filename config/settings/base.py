@@ -24,20 +24,27 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "axes",
     "apps.ledger",
+    "apps.security",
+    "apps.accounts",
+    "apps.categories",
+    "apps.entries",
+    "apps.ui",
 ]
-
-# Início do uso (ADR-031). Datas anteriores só para itens de abertura (RN-181, I-09).
-FINANCAS_START_DATE = datetime.date(2026, 11, 1)
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "apps.ui.middleware.SecurityHeadersMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "apps.security.middleware.SessionTimeoutMiddleware",
+    "django.contrib.auth.middleware.LoginRequiredMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "axes.middleware.AxesMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -53,6 +60,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "apps.ui.context.ui",
             ],
         },
     },
@@ -92,6 +100,30 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
+AUTHENTICATION_BACKENDS = [
+    "axes.backends.AxesStandaloneBackend",
+    "django.contrib.auth.backends.ModelBackend",
+]
+LOGIN_URL = "security:login"
+LOGIN_REDIRECT_URL = "ui:home"
+
+# Bloqueio de tentativas (security-plan.md §3.3). Usuário único: o bloqueio é global.
+AXES_FAILURE_LIMIT = 5
+AXES_COOLOFF_TIME = "apps.security.lockout.cooloff"
+AXES_LOCKOUT_PARAMETERS = ["username"]
+AXES_RESET_ON_SUCCESS = True
+AXES_LOCKOUT_CALLABLE = "apps.security.lockout.lockout_response"
+AXES_VERBOSE = False
+# axes.W006 alerta para troca de User-Agent/cookie contornar o bloqueio. Aqui o login usa
+# sempre o mesmo nome de usuário, então o bloqueio por "username" já é global para todos.
+SILENCED_SYSTEM_CHECKS = ["axes.W006"]
+
+# Sessões e aparelhos confiáveis (security-plan.md §3.2, §3.4; ADR-019, ADR-035).
+FINANCAS_SESSION_IDLE_SECONDS = 30 * 60
+FINANCAS_SESSION_ABSOLUTE_SECONDS = 12 * 60 * 60
+FINANCAS_DEVICE_TRUST_DAYS = 30
+FINANCAS_PIN_MAX_FAILURES = 5
+
 # Localização (RNF-03).
 LANGUAGE_CODE = "pt-br"
 TIME_ZONE = "America/Sao_Paulo"
@@ -106,11 +138,15 @@ STATIC_ROOT = DATA_DIR / "staticfiles"
 SESSION_ENGINE = "django.contrib.sessions.backends.db"
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = "Strict"
-SESSION_COOKIE_AGE = 12 * 60 * 60  # expiração absoluta de 12 h
+SESSION_COOKIE_AGE = FINANCAS_SESSION_ABSOLUTE_SECONDS
+SESSION_COOKIE_SECURE = False
 CSRF_COOKIE_HTTPONLY = True
 CSRF_COOKIE_SAMESITE = "Strict"
 
-# Cabeçalhos de segurança (security-plan.md §8).
+# Cabeçalhos de segurança (security-plan.md §8). CSP em apps/ui/middleware.py.
 X_FRAME_OPTIONS = "DENY"
 SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_REFERRER_POLICY = "same-origin"
+
+# Início do uso (ADR-031). Datas anteriores só para itens de abertura (RN-181, I-09).
+FINANCAS_START_DATE = datetime.date(2026, 11, 1)

@@ -104,7 +104,8 @@ def check_all() -> list[Violation]:
             effective,
         )
     )
-    for account in LedgerAccount.objects.all():
+    # Contas sem pernas efetivas têm saldo zero dos dois lados; só as movimentadas são conferidas.
+    for account in LedgerAccount.objects.filter(pk__in=list(raw)):
         if account_balance(account).cents != raw.get(account.pk, 0):
             violations.append(Violation("I-04", f"saldo divergente na conta {account.code}"))
 

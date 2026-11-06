@@ -18,6 +18,15 @@ def snapshot_transaction(txn: LedgerTransaction) -> dict:
     }
 
 
+def record_event(
+    action: str, entity_type: str, entity_id: int, *, after=None, reason: str | None = None
+) -> AuditLog:
+    """Evento sem entidade carregada (ex.: login, bloqueio). Nunca recebe senha, PIN ou token."""
+    return AuditLog.objects.create(
+        action=action, entity_type=entity_type, entity_id=entity_id, after_json=after, reason=reason
+    )
+
+
 def log(action: str, entity, *, before=None, after=None, reason: str | None = None) -> AuditLog:
     return AuditLog.objects.create(
         action=action,

@@ -1,0 +1,43 @@
+{% extends "base.html" %}{% load fin %}
+{% block title %}Lançar{% endblock %}
+{% block content %}
+<form method="post" class="max-w-md mx-auto flex flex-col gap-4" x-data="entryKind" @change="pick">{% csrf_token %}
+  <div class="flex items-center justify-between">
+    <h1>Lançar</h1>
+    <a class="text-sm text-primary" href="{% url 'entries:new' %}">Lançamento completo</a>
+  </div>
+  <div class="card flex flex-col gap-4" x-data="keypad">
+    <div class="text-center">
+      <span class="caption">Valor</span>
+      <div class="text-4xl font-semibold" x-ref="display" aria-hidden="true">R$ 0,00</div>
+    </div>
+    <div class="field">
+      <label for="{{ form.amount.id_for_label }}" class="sr-only">Valor</label>
+      <input type="text" name="amount" id="{{ form.amount.id_for_label }}" x-ref="amount"
+             value="{{ form.amount.value|default_if_none:'' }}" inputmode="decimal" autocomplete="off"
+             placeholder="0,00" class="input text-center text-lg" required>
+      {% for e in form.amount.errors %}<span class="error">{{ e }}</span>{% endfor %}
+    </div>
+    <div class="grid grid-cols-3 gap-2" role="group" aria-label="Teclado numérico">
+      {% for k in "123456789" %}<button type="button" class="key" data-key="{{ k }}" @click="press">{{ k }}</button>{% endfor %}
+      <button type="button" class="key" data-key="back" @click="press" aria-label="Apagar">⌫</button>
+      <button type="button" class="key" data-key="0" @click="press">0</button>
+      <button type="button" class="key" data-key="00" @click="press">00</button>
+    </div>
+  </div>
+  <div class="card flex flex-col gap-4">
+    {% include "entries/_fields.html" %}
+    <div class="field" x-data="dateShortcuts">
+      <label for="{{ form.on.id_for_label }}">Data</label>
+      <div class="flex gap-2">
+        <input type="date" name="on" id="{{ form.on.id_for_label }}" x-ref="date" class="input min-w-0 flex-1" value="{{ form.on.value|date:'Y-m-d'|default:form.on.value }}" required>
+        <button type="button" class="btn btn-secondary shrink-0 px-3" data-offset="0" @click="set">Hoje</button>
+        <button type="button" class="btn btn-secondary shrink-0 px-3" data-offset="1" @click="set">Ontem</button>
+      </div>
+      {% for e in form.on.errors %}<span class="error">{{ e }}</span>{% endfor %}
+    </div>
+    {% include "partials/field.html" with field=form.description %}
+  </div>
+  <button class="btn btn-primary w-full text-lg" type="submit">Salvar</button>
+</form>
+{% endblock %}

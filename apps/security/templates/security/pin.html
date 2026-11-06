@@ -1,0 +1,12 @@
+{% extends "auth.html" %}
+{% block title %}PIN{% endblock %}
+{% block auth %}
+<h1 class="text-xl">Digite seu PIN</h1>
+<p class="text-sm text-text-2">Aparelho confiável: {{ device.name }}.</p>
+<form method="post" class="flex flex-col gap-4">{% csrf_token %}
+  {% include "partials/field.html" with field=form.pin %}
+  {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+  <button class="btn btn-primary" type="submit">Desbloquear</button>
+</form>
+<a class="text-sm text-primary" href="{% url 'security:login' %}">Entrar com a senha</a>
+{% endblock %}
