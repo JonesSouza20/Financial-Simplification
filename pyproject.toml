@@ -33,7 +33,8 @@ extend-exclude = ["**/migrations/**"]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "B", "UP", "DJ", "S", "SIM"]
-ignore = []
+# DJ001: NULL em texto é intencional (database-design.md §1: NULL = ausente; índices únicos parciais).
+ignore = ["DJ001"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["S101"]  # assert é o padrão do pytest

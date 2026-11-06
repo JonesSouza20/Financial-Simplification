@@ -2,7 +2,7 @@
 
 Projeto completo em [`docs/`](docs/README.md). Roadmap em [`docs/implementation-roadmap.md`](docs/implementation-roadmap.md).
 
-Estado: **Fase 0 — Fundação técnica**.
+Estado: **Fase 1A — Núcleo do Ledger** concluída. Próxima: Fase 1B.
 
 ## Requisitos
 
@@ -28,3 +28,9 @@ uv run python manage.py runserver 127.0.0.1:8000
 ```
 
 O banco e os arquivos de dados ficam em `var/`, que está fora do Git. A pasta pode ser trocada pela variável de ambiente `FINANCAS_DATA_DIR`.
+
+Testes de propriedade com 1.000 exemplos (porta de validação):
+
+```bash
+HYPOTHESIS_PROFILE=thorough uv run pytest
+```

@@ -2,10 +2,10 @@
 
 | Campo | Valor |
 |---|---|
-| Versão | 0.1 |
+| Versão | 0.2 |
 | Data | 06/11/2026 |
 | Etapa | 4 — Especificação (Fase B) |
-| Status | Aprovado pelo usuário em 06/11/2026 (Fase B) |
+| Status | Versão 0.1 aprovada em 06/11/2026 (Fase B); versão 0.2 com detalhes da implementação da Fase 1A (§15) |
 | Documentos relacionados | `architecture.md` (§6, §7), `business-rules.md`, `reference-scenarios.md` |
 
 Banco: SQLite em modo WAL, com chaves estrangeiras ligadas (`PRAGMA foreign_keys = ON`) e transações em modo `IMMEDIATE` (ADR-014). Nomes de tabelas e colunas em inglês, como é comum no código; a correspondência com os termos do glossário está na §2.
@@ -113,7 +113,7 @@ Restrições:
 | operation_date | TEXT NOT NULL | Data da operação |
 | competence_date | TEXT NOT NULL | Data de competência (RN-007) |
 | description | TEXT NOT NULL | |
-| notes | TEXT NULL | Notas acrescentadas (RN-013): só acréscimo, com auditoria |
+| (notas) | — | Notas acrescentadas ficam na tabela `transaction_note` (§4.9), só por inserção (RN-013) |
 | cancel_reason | TEXT NULL | Obrigatório quando `status = cancelled` |
 | origin | TEXT NOT NULL DEFAULT 'manual' | `manual`, `system` (recorrência, abertura), `import` |
 | external_id | TEXT NULL | Id da instituição, para importação (RF-IMP-02) |
@@ -250,6 +250,17 @@ Liquidações cuja transação foi estornada deixam de contar automaticamente (f
 | result_type | TEXT NOT NULL | Ex.: `ledger_transaction` |
 | result_id | INTEGER NOT NULL | |
 | created_at | TEXT NOT NULL | Registros com mais de 30 dias podem ser compactados; nunca antes |
+
+### 4.9 `transaction_note` — notas acrescentadas
+
+| Coluna | Tipo | Regra |
+|---|---|---|
+| id | INTEGER PK | |
+| transaction_id | INTEGER NOT NULL FK | |
+| text | TEXT NOT NULL | |
+| created_at | TEXT NOT NULL | |
+
+Só inserção (gatilho `note_append_only`).
 
 ## 5. Cadastros
 
@@ -535,6 +546,9 @@ Segunda barreira, além dos serviços (`architecture.md` §6.4).
 | `posting_no_delete` | `BEFORE DELETE ON ledger_posting` → erro. |
 | `posting_insert_only_draft_or_planned` | `BEFORE INSERT ON ledger_posting` → erro se a transação não estiver em `draft`, `forecast` ou `pending`. |
 | `txn_no_delete` | `BEFORE DELETE ON ledger_transaction` → erro. |
+| `txn_insert_draft_only` | `BEFORE INSERT ON ledger_transaction` → erro se `status <> 'draft'`. Toda transação nasce em rascunho, e o gatilho de finalização confere o equilíbrio. Assim nenhuma transação confirmada existe sem pernas. |
+| `link_immutable` | `BEFORE UPDATE OR DELETE ON transaction_link` → erro. |
+| `note_append_only` | `BEFORE UPDATE OR DELETE ON transaction_note` → erro. |
 | `txn_immutable_confirmed` | `BEFORE UPDATE ON ledger_transaction` quando `OLD.status IN ('confirmed','reversed','cancelled')`: erro se mudar `type`, `operation_date`, `competence_date` ou `description`. Única troca de estado permitida: `confirmed → reversed`. |
 | `txn_valid_transition` | `BEFORE UPDATE OF status`: só as transições de `business-rules.md` §3.2, mais `draft →` estado final. |
 | `txn_balanced_on_finalize` | `BEFORE UPDATE OF status` saindo de `draft`: erro se `SUM(amount_cents) <> 0` ou se houver menos de 2 pernas (I-01, I-02). |
@@ -618,3 +632,12 @@ Toda migração:
 | RN-180 a RN-186 | `CHECK` e validações de serviço |
 | RN-190 a RN-192 | `audit_log`, gatilho `audit_append_only` |
 | I-01 a I-10 | Gatilhos §11 e verificação de invariantes (`architecture.md` §6.6) |
+
+## 15. Alterações após a aprovação
+
+| Versão | Alteração | Motivo |
+|---|---|---|
+| 0.2 | Notas acrescentadas saem da coluna `ledger_transaction.notes` para a tabela `transaction_note` (§4.9) | Só inserção é mais simples de garantir com gatilho do que "só acréscimo" numa coluna de texto |
+| 0.2 | Novos gatilhos `txn_insert_draft_only`, `link_immutable` e `note_append_only` (§11) | Fecham caminhos que contornariam o equilíbrio e a imutabilidade |
+| 0.2 | Testes que gravam de verdade no banco (concorrência) removem e recriam os gatilhos de exclusão só para limpar o banco de teste (`tests/conftest.py`) | O `flush` do Django usa `DELETE`, que os gatilhos bloqueiam. Em produção os gatilhos nunca são removidos |
+

@@ -3,6 +3,7 @@
 Referências: architecture.md §3, §7, §9; database-design.md §1; security-plan.md §3, §8.
 """
 
+import datetime
 import os
 from pathlib import Path
 
@@ -23,7 +24,11 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "apps.ledger",
 ]
+
+# Início do uso (ADR-031). Datas anteriores só para itens de abertura (RN-181, I-09).
+FINANCAS_START_DATE = datetime.date(2026, 11, 1)
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -55,11 +60,7 @@ TEMPLATES = [
 
 # SQLite (ADR-014): WAL, chaves estrangeiras (o Django liga por padrão) e
 # transações em modo IMMEDIATE, para evitar conflitos de escrita no meio da operação.
-SQLITE_INIT_COMMAND = (
-    "PRAGMA journal_mode=WAL;"
-    "PRAGMA synchronous=NORMAL;"
-    "PRAGMA busy_timeout=20000;"
-)
+SQLITE_INIT_COMMAND = "PRAGMA journal_mode=WAL;PRAGMA synchronous=NORMAL;PRAGMA busy_timeout=20000;"
 
 DATABASES = {
     "default": {
