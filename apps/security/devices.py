@@ -19,7 +19,7 @@ from apps.ledger import audit
 
 from .models import TrustedDevice
 
-DEVICE_COOKIE = "fin_device"
+DEVICE_COOKIE = getattr(settings, "FINANCAS_DEVICE_COOKIE", "fin_device")
 
 
 def hash_token(token: str) -> str:

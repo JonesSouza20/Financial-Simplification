@@ -5,6 +5,8 @@ import os
 from types import SimpleNamespace
 from zoneinfo import ZoneInfo
 
+import keyring
+import keyring.backend
 import pytest
 import time_machine
 from hypothesis import HealthCheck, settings
@@ -180,3 +182,33 @@ def committed_db(transactional_db):
             cursor.execute(f"DELETE FROM {table}")  # noqa: S608
         cursor.execute("PRAGMA foreign_keys = ON")
     db_triggers.install(connection)
+
+
+class MemoryKeyring(keyring.backend.KeyringBackend):
+    """Cofre de segredos em memória."""
+
+    priority = 1
+
+    def __init__(self):
+        super().__init__()
+        self.data = {}
+
+    def get_password(self, service, username):
+        return self.data.get((service, username))
+
+    def set_password(self, service, username, password):
+        self.data[(service, username)] = password
+
+    def delete_password(self, service, username):
+        self.data.pop((service, username), None)
+
+
+@pytest.fixture(autouse=True)
+def _memory_keyring():
+    """Nenhum teste lê ou grava o Cofre de Credenciais real do Windows. O update.ps1 roda a
+    suíte no PC que guarda a senha de backup de verdade."""
+    previous = keyring.get_keyring()
+    memory = MemoryKeyring()
+    keyring.set_keyring(memory)
+    yield memory
+    keyring.set_keyring(previous)

@@ -34,6 +34,11 @@ if TAILNET_HOST:
     ALLOWED_HOSTS = [*ALLOWED_HOSTS, TAILNET_HOST]  # noqa: F405
     CSRF_TRUSTED_ORIGINS = [f"https://{TAILNET_HOST}"]
 
+# Nomes próprios: o sistema em uso e o de desenvolvimento rodam no mesmo PC (ADR-038) e o
+# navegador separa cookies por endereço, não por porta.
+SESSION_COOKIE_NAME = "financas_sessao"
+CSRF_COOKIE_NAME = "financas_csrf"
+FINANCAS_DEVICE_COOKIE = "financas_aparelho"
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 SECURE_HSTS_SECONDS = 31536000

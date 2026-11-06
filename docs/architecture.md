@@ -514,3 +514,4 @@ Recuperação de desastre (PC perdido): instalar o sistema em outra máquina, in
 | §11 | Sistema em uso roda de um clone separado da pasta de desenvolvimento; `update.ps1` faz `git pull` dele e volta atrás em falha | ADR-038 |
 | §11 | Configuração local única em `ops\config.ps1` (porta, nome na tailnet, pasta de dados, modo), lida por todos os scripts e passada ao serviço | Fase 1D |
 | §10 | Restauração pela tela troca o banco dentro do processo, com bloqueio de manutenção (503 e agendador pausado), sem reiniciar o serviço | Fase 1D; `security-plan.md` §13 |
+| §11 | Produção com cookies de nomes próprios (`financas_sessao`, `financas_csrf`, `financas_aparelho`); desenvolvimento na porta 8001, produção na 8000 | ADR-038: os dois rodam no mesmo PC |

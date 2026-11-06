@@ -102,7 +102,8 @@ def report() -> dict:
     if last_ok is None or now - last_ok.created_at > datetime.timedelta(hours=36):
         issues.append("Nenhum backup bom nas últimas 36 horas.")
     if last is not None and not last.ok:
-        issues.append(f"Último backup com problema: {last.message or 'verificação falhou'}.")
+        problem = (last.message or "verificação falhou").rstrip(".")
+        issues.append(f"Último backup com problema: {problem}.")
     if last_ok and last_ok.cloud_ok is None and core.cloud_dir() is not None:
         issues.append("O último backup bom não foi copiado para a nuvem.")
     last_cloud = BackupRecord.objects.filter(cloud_ok=True).first()
@@ -125,6 +126,11 @@ def report() -> dict:
     exposure = funnel()
     if exposure == "ligado":
         issues.append("Funnel do Tailscale ligado: o sistema está exposto na internet.")
+    elif exposure != "desligado":
+        issues.append(
+            "Não foi possível conferir o Funnel do Tailscale; confira à mão com "
+            "'tailscale funnel status'."
+        )
     if usage.free < 1024**3:
         issues.append("Menos de 1 GB livre no disco.")
     return {
@@ -148,5 +154,11 @@ def level(issues: list[str]) -> str:
     """Ponto de saúde no topo: verde, amarelo ou vermelho (ui-ux-specification.md §8.1)."""
     if not issues:
         return "ok"
-    serious = ("integridade", "falhou", "Nenhum backup", "não configurada: nenhum", "Funnel")
+    serious = (
+        "integridade",
+        "falhou",
+        "Nenhum backup",
+        "não configurada: nenhum",
+        "Funnel do Tailscale ligado",
+    )
     return "bad" if any(s in i for i in issues for s in serious) else "warn"

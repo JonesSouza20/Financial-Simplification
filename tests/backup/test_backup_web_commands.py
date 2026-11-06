@@ -31,8 +31,18 @@ def answers(monkeypatch, *values):
 
 def test_paginas_de_backup_e_saude(web, vault, dirs):
     assert web.get("/backup/").status_code == 200
+    from apps.backup.models import BackupRecord
+    from apps.scheduler.models import JobRun
+
+    BackupRecord.objects.create(trigger="daily", message="Senha ausente.", checks_passed=False)
+    JobRun.objects.create(
+        job_name="daily_backup",
+        scheduled_for=datetime.datetime(2026, 11, 20, 3, tzinfo=datetime.UTC),
+        status="failed",
+    )
     body = web.get("/backup/saude/").content.decode()
     assert "Senha de backup não configurada" in body
+    assert "Senha ausente.</p>" in body and "falhou" in body and "failed" not in body
 
 
 def test_definir_senha_de_backup_exige_senha_de_login(web, vault):
@@ -151,6 +161,13 @@ def test_funnel_ligado_e_grave(db, with_passphrase, dirs, monkeypatch):
     monkeypatch.setattr(health, "funnel", lambda: "ligado")
     issues = health.report()["issues"]
     assert any("Funnel" in i for i in issues) and health.level(issues) == "bad"
+
+
+def test_funnel_nao_verificado_e_aviso(db, with_passphrase, dirs, monkeypatch):
+    monkeypatch.setattr(health, "funnel", lambda: "não verificado")
+    issues = [i for i in health.report()["issues"] if "Funnel" in i]
+    assert len(issues) == 1 and "confira à mão" in issues[0]
+    assert health.level(issues) == "warn"
 
 
 def test_leitura_do_funnel(monkeypatch, _no_powershell):

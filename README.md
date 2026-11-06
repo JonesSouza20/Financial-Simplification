@@ -24,7 +24,7 @@ uv run ruff check .
 ```
 
 ```bash
-uv run python manage.py runserver 127.0.0.1:8000
+uv run python manage.py runserver 127.0.0.1:8001
 ```
 
 O banco e os arquivos de dados ficam em `var/`, que está fora do Git. A pasta pode ser trocada pela variável de ambiente `FINANCAS_DATA_DIR`.
@@ -47,7 +47,7 @@ Gerar o CSS depois de mudar templates ou `tailwind/input.css` (o arquivo gerado 
 TAILWINDCSS_VERSION=v4.1.7 uv run tailwindcss -i tailwind/input.css -o static/css/app.css --minify
 ```
 
-Primeiro acesso: abra `http://127.0.0.1:8000/` e crie a senha. As categorias padrão são carregadas pelo `migrate`. Depois use o assistente de abertura (`/abertura/contas/`).
+Primeiro acesso (desenvolvimento): abra `http://127.0.0.1:8001/` e crie a senha. A porta 8000 fica para o sistema em uso. As categorias padrão são carregadas pelo `migrate`. Depois use o assistente de abertura (`/abertura/contas/`).
 
 ## Instalação no PC (uso real)
 

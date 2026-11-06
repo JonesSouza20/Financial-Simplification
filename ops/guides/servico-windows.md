@@ -64,7 +64,7 @@ O instalador:
 7. inicia e confere que a porta escuta só em `127.0.0.1`;
 8. oferece configurar o Tailscale Serve (veja `tailscale-https.md`).
 
-Depois, abra `http://127.0.0.1:8000/`, crie a senha de login e siga o assistente de abertura.
+Depois, abra `http://127.0.0.1:8000/`, crie a senha de login e siga o assistente de abertura. A entrada por `http://127.0.0.1` com cookies seguros foi conferida no Chromium (mesmo motor do Edge e do Chrome); em outro navegador, se o login não funcionar, use o endereço `https://...ts.net/`.
 
 Para trocar algo (porta, modo, nome na tailnet), edite `ops\config.ps1` ou passe o parâmetro, e rode o `install.ps1` de novo. Ele atualiza o serviço ou a tarefa.
 

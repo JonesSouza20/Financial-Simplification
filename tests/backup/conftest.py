@@ -1,36 +1,14 @@
 """Cofre de segredos em memória e pastas temporárias para os testes de backup."""
 
-import keyring
 import pytest
-from keyring.backend import KeyringBackend
 
 PASSPHRASE = "frase de backup bem longa 2026"  # noqa: S105 - só em testes
 
 
-class MemoryKeyring(KeyringBackend):
-    priority = 1
-
-    def __init__(self):
-        super().__init__()
-        self.data = {}
-
-    def get_password(self, service, username):
-        return self.data.get((service, username))
-
-    def set_password(self, service, username, password):
-        self.data[(service, username)] = password
-
-    def delete_password(self, service, username):
-        self.data.pop((service, username), None)
-
-
 @pytest.fixture
-def vault():
-    previous = keyring.get_keyring()
-    memory = MemoryKeyring()
-    keyring.set_keyring(memory)
-    yield memory
-    keyring.set_keyring(previous)
+def vault(_memory_keyring):
+    """O cofre em memória (já ligado para todos os testes em tests/conftest.py)."""
+    return _memory_keyring
 
 
 @pytest.fixture

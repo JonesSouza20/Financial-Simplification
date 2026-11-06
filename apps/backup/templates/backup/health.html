@@ -12,7 +12,7 @@
     <p>Último teste de restauração: {% if test %}{{ test.at|date:"d/m/Y H:i" }} ({% if test.passed %}ok{% else %}falhou{% endif %}){% else %}nunca{% endif %}</p>
     <p>Pasta local: {{ local }} · nuvem: {{ cloud|default:"não configurada" }}</p>
     <p>Última cópia na pasta da nuvem: {% if last_cloud %}{{ last_cloud.created_at|date:"d/m/Y H:i" }}{% else %}nenhuma{% endif %} · Funnel do Tailscale: {{ funnel }}</p>
-    {% for job, run in runs %}<p>{{ job.label }}: {% if run %}{{ run.scheduled_for|date:"d/m/Y H:i" }} · {{ run.status }}{% else %}nunca{% endif %}</p>{% endfor %}
+    {% for job, run in runs %}<p>{{ job.label }}: {% if run %}{{ run.scheduled_for|date:"d/m/Y H:i" }} · {% if run.status == "ok" %}ok{% elif run.status == "failed" %}falhou{% else %}em execução{% endif %}{% else %}nunca{% endif %}</p>{% endfor %}
   </section>
 </div>
 {% endblock %}
