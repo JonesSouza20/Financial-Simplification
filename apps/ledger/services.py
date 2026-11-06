@@ -42,6 +42,7 @@ from .models import (
     TransactionStatus,
     TransactionType,
 )
+from .signals import transaction_created, transaction_reversed
 
 MAX_TRANSACTION_CENTS = 999_999_999  # R$ 9.999.999,99 (RN-180)
 RECORDABLE_STATUSES = frozenset(
@@ -78,6 +79,20 @@ def display_balance(account: LedgerAccount, as_of: datetime.date | None = None) 
     """Saldo como o usuário lê: passivo, receita e patrimônio com sinal invertido (RN-003)."""
     raw = account_balance(account, as_of)
     return raw if account.kind in ("asset", "expense") else -raw
+
+
+SYSTEM_ACCOUNTS = {
+    "equity:opening": "Patrimônio: Abertura",
+    "equity:adjustments": "Patrimônio: Ajustes de conciliação",
+}
+
+
+def system_account(code: str) -> LedgerAccount:
+    """Conta de patrimônio do sistema (business-rules.md §2). Recria se faltar."""
+    account, _ = LedgerAccount.objects.get_or_create(
+        code=code, defaults={"kind": "equity", "name": SYSTEM_ACCOUNTS[code], "is_system": True}
+    )
+    return account
 
 
 def today() -> datetime.date:
@@ -237,6 +252,9 @@ def reverse_partially(
                 to_transaction=original,
                 amount_cents=amount.cents,
             )
+            transaction_reversed.send(
+                sender=LedgerTransaction, original=original, reversal=reversal
+            )
             audit.log(
                 "reverse_partially",
                 original,
@@ -331,6 +349,7 @@ def _create(
     _fault_point("before_finalize")
     LedgerTransaction.objects.filter(pk=txn.pk).update(status=status, updated_at=timezone.now())
     txn.refresh_from_db()
+    transaction_created.send(sender=LedgerTransaction, transaction=txn)
     return txn
 
 
@@ -434,6 +453,7 @@ def _reverse(txn, *, reason: str, mode: str, operation_date=None) -> LedgerTrans
         status=TransactionStatus.REVERSED, version=F("version") + 1, updated_at=timezone.now()
     )
     original.refresh_from_db()
+    transaction_reversed.send(sender=LedgerTransaction, original=original, reversal=reversal)
     audit.log(
         "reverse",
         original,

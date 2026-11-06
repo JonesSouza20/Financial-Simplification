@@ -1,0 +1,27 @@
+{% extends "base.html" %}{% load fin %}
+{% block title %}A receber{% endblock %}
+{% block content %}
+<div class="flex flex-col gap-6">
+  <h1>A receber</h1>
+  <p class="text-sm text-text-2">Dinheiro que outras pessoas devem a você: empréstimos e compras delas nos seus cartões. Receber de volta não é receita.</p>
+  <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+    <div class="card lg:col-span-2">
+      {% for r in rows %}
+        <a class="row" href="{% url 'receivables:detail' r.person.pk %}">
+          <span class="flex-1">{{ r.person.name }}{% if r.overdue.cents %} <span class="chip bg-negative-soft text-negative">atrasado {{ r.overdue|brl }}</span>{% endif %}</span>
+          <span class="money">{{ r.open|brl }}</span>
+        </a>
+      {% empty %}<p class="text-sm text-text-3">Ninguém deve nada a você.</p>{% endfor %}
+    </div>
+    <form method="post" class="card flex flex-col gap-4 self-start">{% csrf_token %}
+      <h2 class="text-base">Emprestar dinheiro</h2>
+      {% include "partials/form_errors.html" %}
+      {{ form.idempotency_key }}
+      {% for field in form.visible_fields %}{% include "partials/field.html" %}{% endfor %}
+      <datalist id="people">{% for n in people %}<option value="{{ n }}"></option>{% endfor %}</datalist>
+      <button class="btn btn-primary" type="submit">Registrar empréstimo</button>
+      <p class="help">Emprestar não é despesa: o dinheiro sai da conta e vira valor a receber.</p>
+    </form>
+  </div>
+</div>
+{% endblock %}

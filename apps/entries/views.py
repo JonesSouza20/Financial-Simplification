@@ -5,10 +5,12 @@ from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_http_methods, require_POST
 
+from apps.accounts.reconciliation import reconciled_after
 from apps.ledger import services as ledger
 from apps.ledger.errors import LedgerError
-from apps.ledger.models import AuditLog, LedgerTransaction
+from apps.ledger.models import CARD_PURCHASE_TYPES, AuditLog, LedgerTransaction
 from apps.security.views import _safe_next
+from apps.ui.forms import MoneyField
 
 from . import services
 from .forms import EntryForm, FilterForm, NoteForm, ReasonForm
@@ -16,22 +18,29 @@ from .services import EXPENSE, INCOME, TRANSFER
 
 
 def _save(request, form, *, template, context=None, correcting=None):
-    """Valida, avisa duplicidade e grava. Devolve resposta ou None para re-renderizar."""
-    entry = form.entry()
-    if correcting is None and not form.cleaned_data.get("confirm_duplicate"):
-        duplicate = services.possible_duplicate(entry)
-        if duplicate is not None:
-            form.duplicate = duplicate
-            return None
+    """Valida, avisa duplicidade e período conciliado, e grava. Devolve None para re-renderizar."""
     try:
+        entry = form.entry()
+        data = form.cleaned_data
+        if correcting is None and not data.get("confirm_duplicate"):
+            duplicate = services.possible_duplicate(entry)
+            if duplicate is not None:
+                form.duplicate = duplicate
+                return None
+        account = getattr(entry, "account", None)
+        if account is not None and not data.get("confirm_reconciled"):
+            marker = reconciled_after(account, entry.on).first()
+            if marker is not None:
+                form.reconciled = marker
+                return None
         if correcting is not None:
             return services.correct(
                 correcting,
                 entry,
                 reason="Corrigido pelo usuário",
-                idempotency_key=form.cleaned_data["idempotency_key"],
+                idempotency_key=data["idempotency_key"],
             )
-        return services.record(entry, idempotency_key=form.cleaned_data["idempotency_key"])
+        return services.record(entry, idempotency_key=data["idempotency_key"])
     except LedgerError as exc:
         form.add_error(None, str(exc))
         return None
@@ -103,6 +112,7 @@ def detail(request, pk):
             "audit_rows": audit_rows.order_by("at"),
             "reason_form": ReasonForm(),
             "note_form": NoteForm(),
+            "is_card": txn.type in CARD_PURCHASE_TYPES,
         },
     )
 
@@ -154,17 +164,30 @@ def _initial_from(txn, view):
 
 @require_POST
 def reverse(request, pk):
+    """Estornar (F-014). Compra no cartão: lançamento errado (técnico) ou devolução do lojista
+    (comercial), total ou parcial (RN-082 a RN-084, RN-121)."""
     txn = get_object_or_404(LedgerTransaction, pk=pk)
     form = ReasonForm(request.POST)
-    if form.is_valid():
-        try:
-            reversal = ledger.reverse(txn, reason=form.cleaned_data["reason"])
-            messages.success(request, "Lançamento estornado. Nada foi apagado.")
-            return redirect("entries:detail", pk=reversal.pk)
-        except LedgerError as exc:
-            messages.error(request, str(exc))
-    else:
+    if not form.is_valid():
         messages.error(request, "Informe o motivo do estorno.")
+        return redirect("entries:detail", pk=pk)
+    reason = form.cleaned_data["reason"]
+    mode = request.POST.get("mode", "technical")
+    try:
+        partial = None
+        if txn.type in CARD_PURCHASE_TYPES and mode == "commercial" and request.POST.get("amount"):
+            try:
+                partial = MoneyField().clean(request.POST["amount"])
+            except Exception:  # noqa: BLE001 - mensagem amigável abaixo
+                raise LedgerError("Valor do estorno inválido. Use o formato 1.234,56.") from None
+        if partial is not None:
+            reversal = ledger.reverse_partially(txn, amount=partial, reason=reason)
+        else:
+            reversal = ledger.reverse(txn, reason=reason, mode=mode)
+        messages.success(request, "Lançamento estornado. Nada foi apagado.")
+        return redirect("entries:detail", pk=reversal.pk)
+    except LedgerError as exc:
+        messages.error(request, str(exc))
     return redirect("entries:detail", pk=pk)
 
 

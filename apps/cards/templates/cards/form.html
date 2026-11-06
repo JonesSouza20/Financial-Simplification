@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Novo cartão{% endblock %}
+{% block content %}
+<div class="max-w-md flex flex-col gap-4">
+  <h1>Novo cartão</h1>
+  <form method="post" class="card flex flex-col gap-4">{% csrf_token %}
+    {% include "partials/form_errors.html" %}
+    {% for field in form %}{% include "partials/field.html" %}{% endfor %}
+    <p class="help">Compra feita no dia do fechamento vai para a fatura seguinte.</p>
+    <button class="btn btn-primary" type="submit">Criar cartão</button>
+  </form>
+</div>
+{% endblock %}

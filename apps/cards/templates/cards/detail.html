@@ -1,0 +1,56 @@
+{% extends "base.html" %}{% load fin %}
+{% block title %}{{ card.name }}{% endblock %}
+{% block content %}
+<div class="flex flex-col gap-6">
+  <div>
+    <span class="caption">Cartão · fecha dia {{ card.closing_day }} · vence dia {{ card.due_day }}</span>
+    <h1>{{ card.name }}</h1>
+  </div>
+  <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+    <div class="card"><span class="caption">Saldo devedor</span><div class="text-xl money">{{ owed|brl }}</div><span class="help">Inclui parcelas futuras.</span></div>
+    <div class="card"><span class="caption">Limite disponível</span><div class="text-xl money">{{ available|brl }}</div><span class="help">Limite total {{ limit|brl }}.</span></div>
+    <div class="card"><span class="caption">Ciclo atual</span><div class="text-sm">Fecha {{ next_closing|date:"d/m" }} · vence {{ next_due|date:"d/m" }}</div></div>
+  </div>
+  <section class="card flex flex-col gap-2">
+    <div class="flex items-center gap-2"><h2 class="text-base">Faturas</h2><span class="chip bg-projection-soft text-projection">Estimativa</span></div>
+    <p class="help">Calculadas pelas datas das compras até as faturas reais chegarem (MVP-3). A soma é igual ao saldo devedor.</p>
+    {% for e in estimates %}
+      <div class="row text-sm"><span class="flex-1">Vence {{ e.due_date|date:"d/m/Y" }}{% if e.overdue %} <span class="chip bg-negative-soft text-negative">vencida</span>{% endif %}</span><span class="money text-projection italic">≈ {{ e.amount|brl }}</span></div>
+    {% empty %}<p class="text-sm text-text-3">Nada em aberto.</p>{% endfor %}
+  </section>
+  <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+    <form method="post" action="{% url 'cards:pay' card.pk %}" class="card flex flex-col gap-4">{% csrf_token %}
+      <h2 class="text-base">Pagar cartão</h2>
+      {{ pay_form.idempotency_key }}
+      {% include "partials/field.html" with field=pay_form.account %}
+      {% include "partials/field.html" with field=pay_form.amount %}
+      {% include "partials/field.html" with field=pay_form.on %}
+      <button class="btn btn-primary" type="submit">Registrar pagamento</button>
+      <p class="help">Pagar a fatura não é despesa nova: a despesa já foi contada na compra.</p>
+    </form>
+    <form method="post" action="{% url 'cards:add_opening_item' card.pk %}" class="card flex flex-col gap-4">{% csrf_token %}
+      <h2 class="text-base">Item de abertura (situação em 01/11/2026)</h2>
+      <p class="help">Fatura fechada a vencer e compras da fatura aberta: valor e vencimento. Parcelas restantes de compra antiga: total, parcelas e quantas já foram faturadas.</p>
+      {% for field in item_form %}{% include "partials/field.html" %}{% endfor %}
+      <button class="btn btn-secondary" type="submit">Adicionar item</button>
+    </form>
+  </div>
+  <section class="card">
+    <h2 class="text-base mb-2">Compras e itens</h2>
+    {% for p in purchases %}
+      <a class="row text-sm" href="{% url 'entries:detail' p.transaction_id %}">
+        <span class="w-14 text-text-3">{{ p.purchase_date|date:"d/m" }}</span>
+        <span class="flex-1 min-w-0"><span class="block truncate">{{ p.description }}</span>
+          <span class="block text-xs text-text-3">{% if p.is_opening_item %}{{ p.get_opening_kind_display }}{% else %}{{ p.installments_count }}x{% endif %}{% for s in p.shares.all %} · parte de {{ s.person.name }} {{ s.amount_cents|brl }}{% endfor %}{% if p.transaction.status != 'confirmed' %} · {{ p.transaction.get_status_display }}{% endif %}</span></span>
+        <span class="money">{% if p.is_opening_item %}{{ p.opening_amount_cents|brl }}{% else %}{{ p.total_cents|brl }}{% endif %}</span>
+      </a>
+    {% empty %}<p class="text-sm text-text-3">Nenhuma compra ainda.</p>{% endfor %}
+  </section>
+  {% if payments %}
+  <section class="card">
+    <h2 class="text-base mb-2">Pagamentos</h2>
+    {% for t, amount in payments %}<a class="row text-sm" href="{% url 'entries:detail' t.pk %}"><span class="flex-1">{{ t.operation_date|date:"d/m/Y" }}{% if t.status != 'confirmed' %} · {{ t.get_status_display }}{% endif %}</span><span class="money">{{ amount|brl }}</span></a>{% endfor %}
+  </section>
+  {% endif %}
+</div>
+{% endblock %}

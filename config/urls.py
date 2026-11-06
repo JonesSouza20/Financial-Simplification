@@ -8,4 +8,8 @@ urlpatterns = [
     path("contas/", include("apps.accounts.urls")),
     path("categorias/", include("apps.categories.urls")),
     path("movimentacoes/", include("apps.entries.urls")),
+    path("cartoes/", include("apps.cards.urls")),
+    path("a-receber/", include("apps.receivables.urls")),
+    path("dividas/", include("apps.debts.urls")),
+    path("abertura/", include("apps.opening.urls")),
 ]

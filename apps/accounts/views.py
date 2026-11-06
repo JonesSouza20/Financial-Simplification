@@ -12,7 +12,7 @@ from apps.ledger.errors import LedgerError
 from apps.money import Money
 from apps.ui.forms import DateInput, MoneyField, StyledForm
 
-from . import services
+from . import reconciliation, services
 from .models import DEFAULT_CLASS, AccountType, AssetClassChoice, FinancialAccount
 
 
@@ -79,8 +79,51 @@ def detail(request, pk):
             "account": account,
             "balance": services.balance(account),
             "history": account_history(account)[:200],
+            "reconcile_form": ReconcileForm(),
+            "reconciliations": account.reconciliations.all()[:10],
         },
     )
+
+
+class ReconcileForm(StyledForm):
+    on = forms.DateField(label="Data do saldo no banco", widget=DateInput())
+    informed = MoneyField(label="Saldo que o banco mostra", allow_negative=True)
+    adjust = forms.BooleanField(label="Não achei a diferença: registrar ajuste", required=False)
+    notes = forms.CharField(label="Motivo do ajuste", max_length=200, required=False)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.initial.setdefault("on", timezone.localdate())
+
+
+@require_POST
+def reconcile(request, pk):
+    """Conciliação de saldo (F-022; RN-130, RN-131)."""
+    account = get_object_or_404(FinancialAccount, pk=pk)
+    form = ReconcileForm(request.POST)
+    if form.is_valid():
+        d = form.cleaned_data
+        try:
+            rec = reconciliation.reconcile(
+                account=account,
+                on=d["on"],
+                informed=d["informed"],
+                adjust=d["adjust"],
+                notes=d["notes"] or "",
+            )
+            if rec.difference_cents:
+                messages.success(
+                    request,
+                    f"Ajuste de {Money(rec.difference_cents)} registrado. "
+                    "Não é receita nem despesa.",
+                )
+            else:
+                messages.success(request, "Saldo conferido: igual ao do banco.")
+        except LedgerError as exc:
+            messages.error(request, str(exc))
+    else:
+        messages.error(request, "Confira a data e o saldo informados.")
+    return redirect("accounts:detail", pk=pk)
 
 
 @require_POST

@@ -1,0 +1,29 @@
+{% extends "base.html" %}{% load fin %}
+{% block title %}{{ debt.description }}{% endblock %}
+{% block content %}
+<div class="flex flex-col gap-6">
+  <div class="flex flex-wrap items-end justify-between gap-3">
+    <div><span class="caption">{{ debt.get_kind_display }} · {{ debt.creditor }} · vence dia {{ debt.due_day }}</span><h1>{{ debt.description }}</h1></div>
+    <div class="text-right">
+      {% if debt.kind == 'loan' %}<span class="caption">Saldo devedor</span><div class="text-2xl money">{{ balance|brl }}</div>
+      {% else %}<span class="caption">Parcela</span><div class="text-2xl money">{{ debt.contract_installment_cents|brl }}</div>{% endif %}
+      {% if debt.remaining_installments %}<span class="help">{{ debt.remaining_installments }} parcelas restantes na abertura</span>{% endif %}
+    </div>
+  </div>
+  <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+    <form method="post" action="{% url 'debts:pay' debt.pk %}" class="card flex flex-col gap-4 self-start">{% csrf_token %}
+      <h2 class="text-base">Pagar parcela</h2>
+      {{ form.idempotency_key }}
+      {% for field in form.visible_fields %}{% include "partials/field.html" %}{% endfor %}
+      <button class="btn btn-primary" type="submit">Registrar parcela</button>
+      {% if debt.kind == 'loan' %}<p class="help">Informe principal e juros como estão no extrato do banco. A tabela de amortização chega no MVP-5.</p>
+      {% else %}<p class="help">A parcela do consórcio entra como despesa da categoria Consórcio.</p>{% endif %}
+    </form>
+    <section class="card">
+      <h2 class="text-base mb-2">Histórico</h2>
+      {% for t in history %}<a class="row text-sm" href="{% url 'entries:detail' t.pk %}"><span class="flex-1">{{ t.operation_date|date:"d/m/Y" }} · {{ t.description }}</span><span class="text-xs text-text-3">{{ t.get_status_display }}</span></a>
+      {% empty %}<p class="text-sm text-text-3">Sem lançamentos.</p>{% endfor %}
+    </section>
+  </div>
+</div>
+{% endblock %}

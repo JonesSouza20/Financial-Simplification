@@ -2,7 +2,7 @@
 
 Projeto completo em [`docs/`](docs/README.md). Roadmap em [`docs/implementation-roadmap.md`](docs/implementation-roadmap.md).
 
-Estado: **Fase 1B — Cadastros, lançamentos e segurança** concluída. Próxima: Fase 1C.
+Estado: **Fase 1C — Cartões, a receber e dívida provisórios, abertura** concluída. Próxima: Fase 1D.
 
 ## Requisitos
 
@@ -47,5 +47,5 @@ Gerar o CSS depois de mudar templates ou `tailwind/input.css` (o arquivo gerado 
 TAILWINDCSS_VERSION=v4.1.7 uv run tailwindcss -i tailwind/input.css -o static/css/app.css --minify
 ```
 
-Primeiro acesso: abra `http://127.0.0.1:8000/` e crie a senha. As categorias padrão são carregadas pelo `migrate`.
+Primeiro acesso: abra `http://127.0.0.1:8000/` e crie a senha. As categorias padrão são carregadas pelo `migrate`. Depois use o assistente de abertura (`/abertura/contas/`).
 

@@ -1,21 +1,41 @@
 {% comment %}Campos comuns de gasto, recebimento e transferência. Requer x-data="entryKind" no formulário.{% endcomment %}
 {% include "partials/form_errors.html" %}
+{% if form.reconciled %}
+<div class="rounded-lg bg-warning-soft text-text text-sm px-4 py-3 flex flex-col gap-2" role="alert">
+  <p>Esta conta foi conciliada em {{ form.reconciled.reconciliation_date|date:"d/m/Y" }}. Lançar nesta data deixa a conciliação pendente de nova conferência.</p>
+  {% include "partials/field.html" with field=form.confirm_reconciled %}
+</div>
+{% endif %}
 {% if form.duplicate %}
 <div class="rounded-lg bg-warning-soft text-text text-sm px-4 py-3 flex flex-col gap-2" role="alert">
   <p>Já existe um lançamento de {{ form.duplicate.description }} com esse valor nessa data. Salvar mesmo assim?</p>
   {% include "partials/field.html" with field=form.confirm_duplicate %}
 </div>
 {% endif %}
-<fieldset class="seg">
+<fieldset class="seg seg-4">
   <legend class="sr-only">Tipo</legend>
   {% for radio in form.kind %}<label>{{ radio.tag }} {{ radio.choice_label }}</label>{% endfor %}
 </fieldset>
 {{ form.idempotency_key }}
-<div class="field">
+<div class="field" x-show="notCard">
   <label for="{{ form.account.id_for_label }}"><span x-show="isTransfer">De</span><span x-show="isExpense">Pago com</span><span x-show="isIncome">Recebido em</span></label>
   {{ form.account }}
   {% for e in form.account.errors %}<span class="error">{{ e }}</span>{% endfor %}
 </div>
+<div x-show="isCard" class="flex flex-col gap-4">
+  <div class="grid grid-cols-1 gap-4 sm:grid-cols-[1fr_8rem]">
+    {% include "partials/field.html" with field=form.card %}
+    {% include "partials/field.html" with field=form.installments %}
+  </div>
+  <details class="rounded-lg border border-border px-3 py-2" {% if form.share_person.value %}open{% endif %}>
+    <summary class="text-sm font-medium text-primary cursor-pointer">Dividir com alguém</summary>
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 pt-3">
+      {% include "partials/field.html" with field=form.share_person %}
+      {% include "partials/field.html" with field=form.share_amount %}
+    </div>
+    <datalist id="people">{% for name in form.people %}<option value="{{ name }}"></option>{% endfor %}</datalist>
+  </details>
+</div>
 <div x-show="isTransfer">{% include "partials/field.html" with field=form.destination %}</div>
-<div x-show="isExpense">{% include "partials/field.html" with field=form.expense_category %}</div>
+<div x-show="usesExpenseCategory">{% include "partials/field.html" with field=form.expense_category %}</div>
 <div x-show="isIncome">{% include "partials/field.html" with field=form.income_category %}</div>

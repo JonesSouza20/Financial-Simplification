@@ -1,0 +1,16 @@
+{% extends "base.html" %}{% load fin %}
+{% block title %}Mais{% endblock %}
+{% block content %}
+<div class="flex flex-col gap-4 max-w-md">
+  <h1>Mais</h1>
+  <nav class="card flex flex-col" aria-label="Todas as seções">
+    {% for name, label, ic, active in nav %}<a href="{% url name %}" class="nav-link py-3">{% icon ic %} {{ label }}</a>{% endfor %}
+  </nav>
+  <nav class="card flex flex-col" aria-label="Configurações">
+    {% for name, label, ic, active in settings_nav %}<a href="{% url name %}" class="nav-link py-3">{% icon ic %} {{ label }}</a>{% endfor %}
+    <form method="post" action="{% url 'security:logout' %}">{% csrf_token %}
+      <button class="nav-link py-3 w-full" type="submit">{% icon 'logout' %} Sair</button>
+    </form>
+  </nav>
+</div>
+{% endblock %}

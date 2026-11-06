@@ -6,13 +6,13 @@
   <div>
     <span class="caption">{{ view.label }} · {{ txn.get_status_display }}</span>
     <h1>{{ txn.description }}</h1>
-    <div class="text-2xl money mt-1 {% if view.kind == 'transfer' %}text-text-2{% else %}{{ view.signed|tone }}{% endif %}">{% if view.kind == 'transfer' %}{{ view.amount|brl }}{% else %}{{ view.signed|brl }}{% endif %}</div>
+    <div class="text-2xl money mt-1 {% if view.kind == 'transfer' %}text-text-2{% elif view.kind == 'card' %}text-negative{% else %}{{ view.signed|tone }}{% endif %}">{% if view.kind == 'transfer' %}{{ view.amount|brl }}{% elif view.kind == 'card' %}−{{ view.amount|brl }}{% else %}{{ view.signed|brl }}{% endif %}</div>
   </div>
   <section class="card grid grid-cols-1 gap-2 sm:grid-cols-2 text-sm">
     <div><span class="caption">Data</span><div>{{ txn.operation_date|date:"d/m/Y" }}</div></div>
     <div><span class="caption">Competência</span><div>{{ txn.competence_date|date:"m/Y" }}</div></div>
     {% if view.category %}<div><span class="caption">Categoria</span><div>{{ view.category }}</div></div>{% endif %}
-    {% if view.account %}<div><span class="caption">Conta</span><div>{{ view.account }}{% if view.destination %} → {{ view.destination }}{% endif %}</div></div>{% endif %}
+    {% if view.account %}<div><span class="caption">{% if view.kind == 'card' %}Cartão{% else %}Conta{% endif %}</span><div>{{ view.account }}{% if view.destination %}{% if view.kind == 'card' %} · {% else %} → {% endif %}{{ view.destination }}{% endif %}</div></div>{% endif %}
   </section>
   <section class="card">
     <h2 class="text-base mb-2">O que este lançamento fez</h2>
@@ -32,9 +32,21 @@
     <h2 class="text-base">Corrigir ou estornar</h2>
     <div class="flex flex-wrap gap-3 items-end">
       {% if view.editable %}<a class="btn btn-secondary" href="{% url 'entries:correct' txn.pk %}">Corrigir</a>{% endif %}
-      <form method="post" action="{% url 'entries:reverse' txn.pk %}" class="flex flex-wrap gap-2 items-end">{% csrf_token %}
-        {% include "partials/field.html" with field=reason_form.reason %}
-        <button class="btn btn-danger" type="submit">Estornar</button>
+      <form method="post" action="{% url 'entries:reverse' txn.pk %}" class="flex flex-col gap-3 w-full">{% csrf_token %}
+        {% if is_card %}
+        <fieldset class="flex flex-col gap-2 text-sm">
+          <legend class="label mb-1">Tipo de estorno</legend>
+          <label class="flex items-center gap-2"><input type="radio" name="mode" value="technical" checked> Lançamento errado (some do mês original)</label>
+          <label class="flex items-center gap-2"><input type="radio" name="mode" value="commercial"> Devolução ou cancelamento pela loja (vale na data de hoje)</label>
+        </fieldset>
+        <div class="field"><label for="rev-amount">Valor devolvido (deixe em branco para o total)</label>
+          <input id="rev-amount" class="input" name="amount" inputmode="decimal" placeholder="0,00">
+          <span class="help">Valor parcial só vale para devolução pela loja.</span></div>
+        {% endif %}
+        <div class="flex flex-wrap gap-2 items-end">
+          {% include "partials/field.html" with field=reason_form.reason %}
+          <button class="btn btn-danger" type="submit">Estornar</button>
+        </div>
       </form>
     </div>
     <p class="help">Estornar desfaz o efeito com um lançamento inverso. O original continua no histórico.</p>

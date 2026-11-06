@@ -6,6 +6,21 @@
     <div><span class="caption">{{ account.get_account_type_display }} · {{ account.get_asset_class_display }}</span><h1>{{ account.name }}</h1></div>
     <div class="text-right"><span class="caption">Saldo</span><div class="text-2xl money {{ balance|tone }}">{{ balance|brl }}</div></div>
   </div>
+  <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+    <form method="post" action="{% url 'accounts:reconcile' account.pk %}" class="card flex flex-col gap-4 self-start">{% csrf_token %}
+      <h2 class="text-base">Conferir saldo com o banco</h2>
+      {% for field in reconcile_form %}{% include "partials/field.html" %}{% endfor %}
+      <button class="btn btn-secondary" type="submit">Conferir</button>
+      <p class="help">Com diferença, procure primeiro lançamentos esquecidos. O ajuste fica registrado e não conta como receita nem despesa.</p>
+    </form>
+    <section class="card self-start">
+      <h2 class="text-base mb-2">Conferências</h2>
+      {% for r in reconciliations %}
+        <div class="row text-sm"><span class="flex-1">{{ r.reconciliation_date|date:"d/m/Y" }}{% if r.status == 'to_reconcile' %} <span class="chip bg-warning-soft text-warning">a reconciliar</span>{% endif %}</span>
+          <span class="text-text-3">banco {{ r.informed_cents|brl }}</span>{% if r.difference_cents %}<span class="money {{ r.difference_cents|tone }}">ajuste {{ r.difference_cents|brl }}</span>{% else %}<span class="chip bg-primary-soft text-primary">igual</span>{% endif %}</div>
+      {% empty %}<p class="text-sm text-text-3">Nenhuma conferência ainda.</p>{% endfor %}
+    </section>
+  </div>
   <div class="card">
     <h2 class="text-base mb-2">Histórico</h2>
     {% for p in history %}

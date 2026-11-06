@@ -2,12 +2,27 @@
 {% block title %}Início{% endblock %}
 {% block content %}
 <div class="flex flex-col gap-6">
+  {% if not opening_done %}
+  <a href="{% url 'opening:step' 'contas' %}" class="card flex items-center gap-3 border-primary bg-primary-soft">
+    <span class="flex-1"><span class="font-semibold">Comece pela abertura</span><span class="block text-sm text-text-2">Registre saldos, cartões, dívidas e valores a receber de 01/11/2026.</span></span>
+    {% icon 'arrow' %}
+  </a>
+  {% endif %}
   <section class="card flex flex-col gap-2">
-    <span class="caption">Saldo bancário</span>
+    <a class="caption hover:text-primary" href="{% url 'ui:origin' 'bancario' %}">Saldo bancário · de onde vem</a>
     <span class="text-3xl font-semibold money {{ bank|tone }}">{{ bank|brl }}</span>
-    <span class="text-sm text-text-2">Contas livres {{ free|brl }} · Guardado {{ reserve|brl }} · Benefícios {{ benefit|brl }}</span>
+    <span class="text-sm text-text-2">
+      <a class="hover:text-primary" href="{% url 'ui:origin' 'livre' %}">Contas livres {{ free|brl }}</a> ·
+      <a class="hover:text-primary" href="{% url 'ui:origin' 'guardado' %}">Guardado {{ reserve|brl }}</a> ·
+      <a class="hover:text-primary" href="{% url 'ui:origin' 'beneficios' %}">Benefícios {{ benefit|brl }}</a>
+    </span>
     <span class="help">O saldo disponível, que desconta as contas a pagar, chega no MVP-2.</span>
   </section>
+  <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+    <a class="card" href="{% url 'ui:origin' 'cartoes' %}"><span class="caption">Cartões (saldo devedor)</span><div class="text-xl money">{{ cards_total|brl }}</div></a>
+    <a class="card" href="{% url 'ui:origin' 'dividas' %}"><span class="caption">Dívidas</span><div class="text-xl money">{{ debts_total|brl }}</div></a>
+    <a class="card" href="{% url 'ui:origin' 'a-receber' %}"><span class="caption">A receber</span><div class="text-xl money">{{ receivable_total|brl }}</div></a>
+  </div>
   <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
     <section class="card">
       <div class="flex items-center justify-between mb-2"><h2 class="text-base">Contas</h2><a class="text-sm text-primary" href="{% url 'accounts:create' %}">Nova conta</a></div>

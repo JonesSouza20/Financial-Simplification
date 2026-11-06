@@ -17,7 +17,7 @@ pytestmark = [
 OUT = Path(__file__).resolve().parents[2] / "var" / "screens"
 
 
-def test_screens(app, fin, cats, on_20_11):
+def test_screens(app, fin, cats, on_20_11, card_a):
     entries.record(
         EntryInput(
             kind=INCOME,
@@ -43,6 +43,7 @@ def test_screens(app, fin, cats, on_20_11):
             ("home", "/"),
             ("lancar", "/movimentacoes/lancar/"),
             ("movimentacoes", "/movimentacoes/"),
+            ("cartoes", "/cartoes/"),
         ):
             app.goto(app.base + path)
             app.screenshot(path=str(OUT / f"{name}-{theme}.png"), full_page=True)

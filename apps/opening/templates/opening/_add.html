@@ -1,0 +1,8 @@
+<form method="post" class="card flex flex-col gap-4">{% csrf_token %}
+  <h2 class="text-base">{{ label }}</h2>
+  {% include "partials/form_errors.html" %}
+  <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+    {% for field in form %}{% include "partials/field.html" %}{% endfor %}
+  </div>
+  <button class="btn btn-secondary self-start" name="action" value="add:{{ section }}">{{ label }}</button>
+</form>

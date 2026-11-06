@@ -1,0 +1,43 @@
+{% extends "base.html" %}{% load fin %}
+{% block title %}{{ person.name }}{% endblock %}
+{% block content %}
+<div class="flex flex-col gap-6">
+  <div class="flex flex-wrap items-end justify-between gap-3">
+    <div><span class="caption">A receber</span><h1>{{ person.name }}</h1></div>
+    <div class="text-right"><span class="caption">Em aberto</span><div class="text-2xl money">{{ total|brl }}</div></div>
+  </div>
+  <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+    <section class="card">
+      <h2 class="text-base mb-2">Em aberto</h2>
+      {% for inst, remaining in pending %}
+        <div class="row text-sm">
+          <span class="flex-1 min-w-0"><span class="block truncate">{{ inst.receivable.description }}</span>
+            <span class="block text-xs {% if inst.due_date < today %}text-negative{% else %}text-text-3{% endif %}">vence {{ inst.due_date|date:"d/m/Y" }}{% if inst.due_date < today %} · atrasado{% endif %}</span></span>
+          <span class="money">{{ remaining|brl }}</span>
+        </div>
+      {% empty %}<p class="text-sm text-text-3">Nada em aberto.</p>{% endfor %}
+    </section>
+    <form method="post" action="{% url 'receivables:receive' person.pk %}" class="card flex flex-col gap-4 self-start">{% csrf_token %}
+      <h2 class="text-base">Recebi</h2>
+      {{ form.idempotency_key }}
+      {% for field in form.visible_fields %}{% include "partials/field.html" %}{% endfor %}
+      <button class="btn btn-primary" type="submit">Registrar recebimento</button>
+      <p class="help">O valor abate primeiro o que vence antes.</p>
+    </form>
+  </div>
+  <section class="card">
+    <h2 class="text-base mb-2">Origem</h2>
+    {% for r in receivables %}
+      <a class="row text-sm" href="{% url 'entries:detail' r.origin_transaction_id %}"><span class="flex-1">{{ r.description }}</span><span class="money">{{ r.total_cents|brl }}</span></a>
+    {% endfor %}
+  </section>
+  {% if history %}
+  <section class="card">
+    <h2 class="text-base mb-2">Recebimentos e estornos</h2>
+    {% for a in history %}
+      <a class="row text-sm" href="{% url 'entries:detail' a.transaction_id %}"><span class="flex-1">{{ a.transaction.operation_date|date:"d/m/Y" }} · {% if a.kind == 'receipt' %}recebido{% else %}estorno da compra{% endif %}{% if a.transaction.status != 'confirmed' %} ({{ a.transaction.get_status_display }}){% endif %}</span><span class="money">{{ a.amount_cents|brl }}</span></a>
+    {% endfor %}
+  </section>
+  {% endif %}
+</div>
+{% endblock %}

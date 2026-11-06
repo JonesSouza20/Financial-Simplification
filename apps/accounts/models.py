@@ -47,3 +47,28 @@ class FinancialAccount(models.Model):
 
     def __str__(self) -> str:
         return self.name
+
+
+class BalanceReconciliation(models.Model):
+    """Conferência do saldo com o banco (RN-130 a RN-133; database-design.md §9.1)."""
+
+    account = models.ForeignKey(
+        FinancialAccount, on_delete=models.PROTECT, related_name="reconciliations"
+    )
+    reconciliation_date = models.DateField()
+    informed_cents = models.BigIntegerField()
+    calculated_cents = models.BigIntegerField()
+    difference_cents = models.BigIntegerField()
+    adjustment_transaction = models.ForeignKey(
+        "ledger.LedgerTransaction", null=True, blank=True, on_delete=models.PROTECT
+    )
+    status = models.CharField(max_length=16, default="reconciled")  # reconciled, to_reconcile
+    notes = models.CharField(max_length=200, blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "balance_reconciliation"
+        ordering = ["-reconciliation_date", "-id"]
+
+    def __str__(self) -> str:
+        return f"{self.account} {self.reconciliation_date}"

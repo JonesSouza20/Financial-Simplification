@@ -27,16 +27,31 @@ document.addEventListener("alpine:init", function () {
 
   // Mostra campos conforme o tipo (gasto, recebimento, transferência).
   Alpine.data("entryKind", function () {
+    // Valores simples (não getters nem métodos): a versão CSP do Alpine só reage assim em x-show.
     return {
       kind: "expense",
+      isExpense: true,
+      isIncome: false,
+      isTransfer: false,
+      isCard: false,
+      notCard: true,
+      usesExpenseCategory: true,
       init: function () {
         var checked = this.$root.querySelector('input[name="kind"]:checked');
-        if (checked) this.kind = checked.value;
+        this.sync(checked ? checked.value : "expense");
       },
-      pick: function (event) { this.kind = event.target.value; },
-      isExpense: function () { return this.kind === "expense"; },
-      isIncome: function () { return this.kind === "income"; },
-      isTransfer: function () { return this.kind === "transfer"; },
+      pick: function (event) {
+        if (event.target && event.target.name === "kind") this.sync(event.target.value);
+      },
+      sync: function (kind) {
+        this.kind = kind;
+        this.isExpense = kind === "expense";
+        this.isIncome = kind === "income";
+        this.isTransfer = kind === "transfer";
+        this.isCard = kind === "card";
+        this.notCard = kind !== "card";
+        this.usesExpenseCategory = kind === "expense" || kind === "card";
+      },
     };
   });
 
@@ -72,7 +87,6 @@ document.addEventListener("alpine:init", function () {
         if (this.choice === "auto") document.documentElement.removeAttribute("data-theme");
         else document.documentElement.setAttribute("data-theme", this.choice);
       },
-      isChoice: function (value) { return this.choice === value; },
     };
   });
 

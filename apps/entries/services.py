@@ -27,7 +27,7 @@ from apps.ledger.models import (
 from apps.ledger.services import Leg
 from apps.money import Money
 
-EXPENSE, INCOME, TRANSFER = "expense", "income", "transfer"
+EXPENSE, INCOME, TRANSFER, CARD = "expense", "income", "transfer", "card"
 
 EXPENSE_TYPES = {TransactionType.EXPENSE_PAID, TransactionType.EXPENSE_BENEFIT}
 INCOME_TYPES = {TransactionType.INCOME_RECEIVED, TransactionType.BENEFIT_CREDIT}
@@ -37,6 +37,13 @@ TRANSFER_TYPES = {
     TransactionType.RESERVE_WITHDRAWAL,
 }
 EDITABLE_TYPES = EXPENSE_TYPES | INCOME_TYPES | TRANSFER_TYPES
+CARD_TYPES = {
+    TransactionType.CARD_PURCHASE,
+    TransactionType.CARD_THIRD_PARTY,
+    TransactionType.CARD_MIXED,
+    TransactionType.OPENING_CARD_ITEM,
+    TransactionType.OPENING_CARD_THIRD_PARTY,
+}
 UNDO_WINDOW = datetime.timedelta(minutes=2)
 
 
@@ -101,7 +108,12 @@ def build(entry: EntryInput) -> tuple[str, list[Leg], str]:
     return txn_type, legs, entry.description.strip() or str(category)
 
 
-def record(entry: EntryInput, *, idempotency_key: str | None = None) -> LedgerTransaction:
+def record(entry, *, idempotency_key: str | None = None) -> LedgerTransaction:
+    """Grava gasto, recebimento, transferência (EntryInput) ou compra no cartão."""
+    from apps.cards.services import PurchaseInput, record_purchase
+
+    if isinstance(entry, PurchaseInput):
+        return record_purchase(entry, idempotency_key=idempotency_key)
     txn_type, legs, description = build(entry)
     return ledger.record(
         type=txn_type,
@@ -113,16 +125,18 @@ def record(entry: EntryInput, *, idempotency_key: str | None = None) -> LedgerTr
     )
 
 
-def possible_duplicate(entry: EntryInput) -> LedgerTransaction | None:
-    """Mesma conta, mesmo valor e data, nas últimas 24 horas (RN-171). Só avisa."""
+def possible_duplicate(entry) -> LedgerTransaction | None:
+    """Mesma conta (ou cartão), mesmo valor e data, nas últimas 24 horas (RN-171). Só avisa."""
     since = timezone.now() - datetime.timedelta(hours=24)
+    account = entry.card.ledger_account if hasattr(entry, "card") else entry.account.ledger_account
+    amount = entry.total if hasattr(entry, "card") else entry.amount
     return (
         LedgerTransaction.objects.filter(
             status=TransactionStatus.CONFIRMED,
             operation_date=entry.on,
             created_at__gte=since,
-            postings__account=entry.account.ledger_account,
-            postings__amount_cents__in=[entry.amount.cents, -entry.amount.cents],
+            postings__account=account,
+            postings__amount_cents__in=[amount.cents, -amount.cents],
         )
         .order_by("-id")
         .first()
@@ -220,6 +234,27 @@ def describe(txn: LedgerTransaction) -> EntryView:
                 view.account = acc.name
             elif acc:
                 view.destination = acc.name
+    elif txn.type in CARD_TYPES:
+        view.kind = CARD
+        view.label = (
+            "Compra no cartão"
+            if txn.type
+            in (
+                TransactionType.CARD_PURCHASE,
+                TransactionType.CARD_THIRD_PARTY,
+                TransactionType.CARD_MIXED,
+            )
+            else "Item de abertura do cartão"
+        )
+        view.signed = Money(0)  # não mexe em conta financeira: vai para o cartão
+        view.account = ", ".join(p.account.name for p in postings if p.account.owner_type == "card")
+        people = [
+            p.account.name.replace("A receber: ", "")
+            for p in postings
+            if p.account.owner_type == "person"
+        ]
+        if people:
+            view.destination = "parte de " + ", ".join(people)
     elif fin_legs:
         net = sum(p.amount_cents for p, _ in fin_legs)
         view.signed = Money(net)

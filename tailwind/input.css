@@ -92,6 +92,7 @@
   .seg label { @apply flex-1 text-center rounded-md py-2 text-sm font-medium text-text-2 cursor-pointer; }
   .seg input { @apply sr-only; }
   .seg label:has(input:checked) { @apply bg-surface text-text shadow-sm; }
+  .seg-4 { @apply grid grid-cols-2 sm:flex; }
   .key { @apply min-h-14 rounded-lg bg-surface-2 text-xl font-medium active:bg-border; }
   input.input[type="checkbox"] { @apply w-5 min-h-5; }
 }

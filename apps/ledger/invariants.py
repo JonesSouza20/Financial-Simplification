@@ -21,6 +21,10 @@ class Violation:
     detail: str
 
 
+# Verificações extras registradas por outros módulos (ex.: I-06, I-07), no ready() de cada app.
+EXTRA_CHECKS: list = []
+
+
 def _rows(sql: str, params=()) -> list[tuple]:
     with connection.cursor() as cursor:
         cursor.execute(sql, params)
@@ -129,4 +133,6 @@ def check_all() -> list[Violation]:
     ):
         violations.append(Violation("I-09", f"transação {txn_id} anterior ao início do uso"))
 
+    for extra in EXTRA_CHECKS:
+        violations.extend(extra())
     return violations

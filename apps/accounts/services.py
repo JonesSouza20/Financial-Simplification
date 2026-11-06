@@ -20,11 +20,7 @@ from .models import FinancialAccount
 
 
 def opening_equity() -> LedgerAccount:
-    account, _ = LedgerAccount.objects.get_or_create(
-        code="equity:opening",
-        defaults={"kind": "equity", "name": "Patrimônio: Abertura", "is_system": True},
-    )
-    return account
+    return ledger.system_account("equity:opening")
 
 
 @transaction.atomic

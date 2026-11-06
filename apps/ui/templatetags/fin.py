@@ -26,6 +26,10 @@ ICONS = {
     "alert": '<path d="M12 4 2.5 20h19z"/><path d="M12 10v4.5M12 17.5v.5"/>',
     "clock": '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
     "arrow": '<path d="M5 12h14M13 6l6 6-6 6"/>',
+    "card": '<rect x="2.5" y="5.5" width="19" height="13" rx="2"/><path d="M2.5 10h19M6 15h4"/>',
+    "users": '<circle cx="9" cy="8" r="3.25"/><path d="M3 19c.8-3.2 3.2-5 6-5s5.2 1.8 6 5"/>'
+    '<path d="M16 5.2a3 3 0 0 1 0 5.6M18 14.3c1.6.7 2.6 2.3 3 4.7"/>',
+    "debt": '<path d="M4 19h16M6 16V9M10 16V9M14 16V9M18 16V9M3 9l9-5 9 5"/>',
 }
 
 

@@ -1,0 +1,18 @@
+{% extends "base.html" %}{% load fin %}
+{% block title %}Dívidas{% endblock %}
+{% block content %}
+<div class="flex flex-col gap-6">
+  <div class="flex flex-wrap items-center justify-between gap-3"><h1>Dívidas</h1>
+    <div class="flex gap-2"><a class="btn btn-secondary" href="{% url 'debts:create_consortium' %}">Novo consórcio</a><a class="btn btn-primary" href="{% url 'debts:create_loan' %}">Nova dívida</a></div></div>
+  <div class="card"><span class="caption">Saldo devedor (empréstimos)</span><div class="text-2xl money">{{ total|brl }}</div>
+    <span class="help">Cartões aparecem na tela de cartões. Consórcio não contemplado não é dívida: é compromisso mensal.</span></div>
+  <div class="card">
+    {% for d, b in rows %}
+      <a class="row" href="{% url 'debts:detail' d.pk %}">
+        <span class="flex-1 min-w-0"><span class="font-medium">{{ d.description }}</span> <span class="text-xs text-text-3">{{ d.creditor }} · {{ d.get_kind_display }}</span></span>
+        <span class="money">{% if d.kind == 'loan' %}{{ b|brl }}{% else %}{{ d.contract_installment_cents|brl }}/mês{% endif %}</span>
+      </a>
+    {% empty %}<p class="text-sm text-text-3">Nenhuma dívida cadastrada.</p>{% endfor %}
+  </div>
+</div>
+{% endblock %}

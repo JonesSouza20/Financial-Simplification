@@ -4,6 +4,9 @@ NAV = [
     ("ui:home", "Início", "home"),
     ("entries:list", "Movimentações", "list"),
     ("accounts:list", "Contas", "wallet"),
+    ("cards:list", "Cartões", "card"),
+    ("receivables:list", "A receber", "users"),
+    ("debts:list", "Dívidas", "debt"),
     ("categories:list", "Categorias", "tag"),
 ]
 SETTINGS_NAV = [

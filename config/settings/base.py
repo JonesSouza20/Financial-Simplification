@@ -30,6 +30,11 @@ INSTALLED_APPS = [
     "apps.accounts",
     "apps.categories",
     "apps.entries",
+    "apps.persons",
+    "apps.receivables",
+    "apps.cards",
+    "apps.debts",
+    "apps.opening",
     "apps.ui",
 ]
 

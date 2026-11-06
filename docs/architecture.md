@@ -199,6 +199,8 @@ Organização em aplicações Django por domínio. A estrutura de pastas detalha
 | `categories` | Categorias e subcategorias | — |
 | `entries` | Lançamentos do usuário (gasto, recebimento, transferência), lista de movimentações, Corrigir e Estornar pela interface | Via serviço do `ledger` |
 | `ui` | Layout, temas, PWA, cabeçalhos de segurança, página inicial | Não |
+| `persons` | Pessoas que devem ao usuário (conta "A receber" de cada uma) | Não |
+| `opening` | Assistente de abertura: rascunho na sessão e gravação atômica de contas, cartões, dívidas e valores a receber (F-002) | Via serviços dos módulos |
 | `payables` | Contas a pagar, receitas previstas, recorrências, pagamentos | Via serviço do `ledger` |
 | `cards` | Cartões, compras, parcelas, faturas, limite, conciliação | Via serviço do `ledger` |
 | `receivables` | Pessoas, valores a receber, parcelas, recebimentos, baixas | Via serviço do `ledger` |
@@ -507,3 +509,4 @@ Recuperação de desastre (PC perdido): instalar o sistema em outra máquina, in
 | §9.2 | PIN reabre sessão também após a expiração absoluta, enquanto o aparelho for confiável | ADR-035 |
 | §6.1, §6.2, §6.6 | Exemplo de parcela alinhado ao S09; vínculos e compromissos alinhados ao modelo de dados (liquidações e alocações em tabelas próprias, ADR-034); referência às invariantes I-01 a I-10 | Revisão da Etapa 7 |
 | §5 | Módulos `entries` (lançamentos do usuário) e `ui` (layout e cabeçalhos) explicitados na tabela | Fase 1B |
+| §5 | Módulos `persons` e `opening` explicitados; sinais `transaction_created` e `transaction_reversed` do Ledger avisam módulos com alocações (a receber, conciliação) sem que eles gravem pernas | Fase 1C |

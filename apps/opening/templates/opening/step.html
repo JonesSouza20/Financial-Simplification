@@ -1,0 +1,92 @@
+{% extends "base.html" %}{% load fin %}
+{% block title %}Abertura{% endblock %}
+{% block content %}
+<div class="flex flex-col gap-6 max-w-3xl">
+  <div>
+    <span class="caption">Assistente de abertura · situação em 01/11/2026</span>
+    <h1>{% for s, label in steps %}{% if s == step %}{{ label }}{% endif %}{% endfor %}</h1>
+  </div>
+  <nav class="flex flex-wrap gap-2 text-sm" aria-label="Etapas">
+    {% for s, label in steps %}
+      <a href="{% url 'opening:step' s %}" class="chip {% if s == step %}bg-primary text-on-primary{% else %}bg-surface-2 text-text-2{% endif %}">{{ forloop.counter }}. {{ label }}</a>
+    {% endfor %}
+  </nav>
+  <p class="text-sm text-text-2">Nada é gravado até você confirmar na revisão. Itens de abertura não contam como despesa de novembro.</p>
+
+  {% if step == 'contas' %}
+    <section class="card">
+      <h2 class="text-base mb-2">Contas adicionadas</h2>
+      {% for a in draft.accounts %}
+        <form method="post" class="row">{% csrf_token %}<input type="hidden" name="index" value="{{ forloop.counter0 }}">
+          <span class="flex-1">{{ a.name }} <span class="text-xs text-text-3">{{ a.asset_class }}</span></span><span class="money {{ a.balance|tone }}">{{ a.balance|brl }}</span>
+          <button class="text-sm text-text-3 hover:text-negative" name="action" value="remove:accounts">Remover</button></form>
+      {% empty %}<p class="text-sm text-text-3">Nenhuma ainda.</p>{% endfor %}
+    </section>
+    {% include "opening/_add.html" with form=forms.accounts section="accounts" label="Adicionar conta" %}
+  {% elif step == 'cartoes' %}
+    <section class="card">
+      <h2 class="text-base mb-2">Cartões</h2>
+      {% for c in summary.cards %}
+        <form method="post" class="row">{% csrf_token %}<input type="hidden" name="index" value="{{ forloop.counter0 }}">
+          <span class="flex-1">{{ c.name }} <span class="text-xs text-text-3">{{ c.items }} item(ns)</span></span>
+          <span class="money">{{ c.owed|brl }}</span>
+          <button class="text-sm text-text-3 hover:text-negative" name="action" value="remove:cards">Remover</button></form>
+      {% empty %}<p class="text-sm text-text-3">Nenhum ainda.</p>{% endfor %}
+    </section>
+    {% include "opening/_add.html" with form=forms.cards section="cards" label="Adicionar cartão" %}
+    {% if draft.cards %}
+    <section class="card">
+      <h2 class="text-base mb-2">Itens de abertura</h2>
+      <p class="help mb-2">Compare a soma de cada cartão com "fatura atual + lançamentos futuros" no app do banco.</p>
+      {% for i, amount in items_view %}
+        <form method="post" class="row text-sm">{% csrf_token %}<input type="hidden" name="index" value="{{ forloop.counter0 }}">
+          <span class="flex-1">{{ i.description|default:i.kind }}{% if i.person %} · de {{ i.person }}{% endif %}</span>
+          <span class="money">{{ amount|brl }}</span>
+          <button class="text-text-3 hover:text-negative" name="action" value="remove:items">Remover</button></form>
+      {% empty %}<p class="text-sm text-text-3">Nenhum item ainda.</p>{% endfor %}
+    </section>
+    {% include "opening/_add.html" with form=forms.items section="items" label="Adicionar item de cartão" %}
+    {% endif %}
+  {% elif step == 'dividas' %}
+    <section class="card">
+      <h2 class="text-base mb-2">Dívidas e consórcio</h2>
+      {% for d in draft.debts %}
+        <form method="post" class="row text-sm">{% csrf_token %}<input type="hidden" name="index" value="{{ forloop.counter0 }}">
+          <span class="flex-1">{{ d.description|default:d.creditor }} <span class="text-xs text-text-3">{% if d.kind == 'loan' %}empréstimo{% else %}consórcio{% endif %}</span></span>
+          <span class="money">{% if d.kind == 'loan' %}{{ d.balance|brl }}{% else %}{{ d.installment|brl }}/mês{% endif %}</span>
+          <button class="text-text-3 hover:text-negative" name="action" value="remove:debts">Remover</button></form>
+      {% empty %}<p class="text-sm text-text-3">Nenhuma ainda.</p>{% endfor %}
+    </section>
+    {% include "opening/_add.html" with form=forms.debts section="debts" label="Adicionar" %}
+  {% elif step == 'receber' %}
+    <section class="card">
+      <h2 class="text-base mb-2">Valores a receber já existentes</h2>
+      {% for r in draft.receivables %}
+        <form method="post" class="row text-sm">{% csrf_token %}<input type="hidden" name="index" value="{{ forloop.counter0 }}">
+          <span class="flex-1">{{ r.person }} · {{ r.description|default:"saldo" }}</span><span class="money">{{ r.amount|brl }}</span>
+          <button class="text-text-3 hover:text-negative" name="action" value="remove:receivables">Remover</button></form>
+      {% empty %}<p class="text-sm text-text-3">Nenhum. Compras de outras pessoas no cartão entram como item do cartão.</p>{% endfor %}
+    </section>
+    {% include "opening/_add.html" with form=forms.receivables section="receivables" label="Adicionar" %}
+  {% else %}
+    <section class="card grid grid-cols-1 gap-3 sm:grid-cols-2">
+      <div><span class="caption">Saldo bancário</span><div class="text-xl money">{{ summary.bank|brl }}</div></div>
+      <div><span class="caption">Benefícios</span><div class="text-xl money">{{ summary.benefit|brl }}</div></div>
+      <div><span class="caption">Cartões (saldo devedor)</span><div class="text-xl money">{{ summary.cards_total|brl }}</div></div>
+      <div><span class="caption">Dívidas</span><div class="text-xl money">{{ summary.debts_total|brl }}</div></div>
+      <div><span class="caption">A receber</span><div class="text-xl money">{{ summary.receivable_total|brl }}</div></div>
+      <div><span class="caption">Patrimônio de abertura</span><div class="text-xl money {{ summary.equity|tone }}">{{ summary.equity|brl }}</div></div>
+    </section>
+    {% for c in summary.cards %}<div class="row text-sm"><span class="flex-1">{{ c.name }}</span><span>devedor {{ c.owed|brl }} · limite disponível {{ c.available|brl }}</span></div>{% endfor %}
+    <form method="post">{% csrf_token %}
+      <button class="btn btn-primary" name="action" value="commit">Confirmar abertura</button>
+      <span class="help ml-2">Grava tudo de uma vez. Se algo der errado, nada é gravado.</span>
+    </form>
+  {% endif %}
+
+  <div class="flex justify-between">
+    {% if prev %}<a class="btn btn-secondary" href="{% url 'opening:step' prev %}">Voltar</a>{% else %}<span></span>{% endif %}
+    {% if next %}<a class="btn btn-secondary" href="{% url 'opening:step' next %}">Próximo</a>{% endif %}
+  </div>
+</div>
+{% endblock %}

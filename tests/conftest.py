@@ -130,6 +130,31 @@ def cats(db):
 
 
 @pytest.fixture
+def card_a(db):
+    """Cartão A do cadastro comum: limite 5.000,00, fecha dia 25, vence dia 5."""
+    from apps.cards.services import create_card
+    from apps.money import Money
+
+    return create_card(name="Cartão A", credit_limit=Money(500000), closing_day=25, due_day=5)
+
+
+@pytest.fixture
+def card_b(db):
+    """Cartão B do cadastro comum: limite 3.000,00, fecha dia 1, vence dia 10."""
+    from apps.cards.services import create_card
+    from apps.money import Money
+
+    return create_card(name="Cartão B", credit_limit=Money(300000), closing_day=1, due_day=10)
+
+
+@pytest.fixture
+def ana(db):
+    from apps.persons.services import get_or_create
+
+    return get_or_create("Ana")
+
+
+@pytest.fixture
 def committed_db(transactional_db):
     """Banco com commits reais (testes de concorrência).
 
@@ -142,6 +167,8 @@ def committed_db(transactional_db):
 
     db_triggers.uninstall(connection, db_triggers.DELETE_BLOCKERS)
     with connection.cursor() as cursor:
+        # Tabelas de outros módulos referenciam transações; o flush do Django as limpa depois.
+        cursor.execute("PRAGMA foreign_keys = OFF")
         for table in (
             "transaction_note",
             "transaction_link",
@@ -151,4 +178,5 @@ def committed_db(transactional_db):
             "ledger_transaction",
         ):
             cursor.execute(f"DELETE FROM {table}")  # noqa: S608
+        cursor.execute("PRAGMA foreign_keys = ON")
     db_triggers.install(connection)

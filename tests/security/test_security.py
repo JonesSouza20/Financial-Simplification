@@ -2,6 +2,7 @@
 
 import datetime
 import importlib
+import re
 import time
 
 import pytest
@@ -27,7 +28,7 @@ PUBLIC = {
 def all_paths(resolver=None, prefix=""):
     resolver = resolver or get_resolver()
     for p in resolver.url_patterns:
-        route = prefix + str(p.pattern).replace("<int:pk>", "1")
+        route = prefix + re.sub(r"<int:\w+>", "1", re.sub(r"<slug:\w+>", "x", str(p.pattern)))
         if isinstance(p, URLResolver):
             yield from all_paths(p, route)
         elif isinstance(p, URLPattern):

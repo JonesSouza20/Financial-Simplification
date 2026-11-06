@@ -9,4 +9,5 @@ urlpatterns = [
     path("nova/", views.create, name="create"),
     path("<int:pk>/", views.detail, name="detail"),
     path("<int:pk>/arquivar/", views.archive, name="archive"),
+    path("<int:pk>/conferir/", views.reconcile, name="reconcile"),
 ]
