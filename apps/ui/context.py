@@ -11,6 +11,8 @@ NAV = [
 ]
 SETTINGS_NAV = [
     ("security:settings", "Segurança", "shield"),
+    ("backup:index", "Backup", "shield"),
+    ("backup:health", "Saúde", "check"),
     ("ui:appearance", "Aparência", "sun"),
 ]
 

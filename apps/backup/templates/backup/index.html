@@ -1,0 +1,42 @@
+{% extends "base.html" %}{% load fin %}
+{% block title %}Backup{% endblock %}
+{% block content %}
+<div class="flex flex-col gap-6 max-w-3xl">
+  <h1>Backup</h1>
+  {% if not has_passphrase %}<p class="rounded-lg bg-negative-soft text-negative text-sm px-4 py-3">Defina a senha de backup: sem ela nenhum backup é feito.</p>{% endif %}
+  <form method="post" action="{% url 'backup:now' %}">{% csrf_token %}<button class="btn btn-primary" type="submit">Fazer backup agora</button></form>
+  <section class="card">
+    <h2 class="text-base mb-2">Backups disponíveis</h2>
+    {% for e in available %}
+      <div class="row text-sm flex-wrap"><span class="flex-1">{{ e.name }}</span>
+        <form method="post" action="{% url 'backup:test' %}" class="flex gap-2">{% csrf_token %}<input type="hidden" name="name" value="{{ e.name }}">
+          <input class="input w-40" type="password" name="passphrase" placeholder="Senha de backup" aria-label="Senha de backup">
+          <button class="btn btn-secondary" type="submit">Testar restauração</button></form>
+      </div>
+    {% empty %}<p class="text-sm text-text-3">Nenhum backup ainda.</p>{% endfor %}
+  </section>
+  <form method="post" action="{% url 'backup:restore' %}" class="card flex flex-col gap-3">{% csrf_token %}
+    <h2 class="text-base">Restaurar</h2>
+    <div class="field"><label for="restore-name">Backup</label><select id="restore-name" name="name" class="input">{% for e in available %}<option value="{{ e.name }}">{{ e.name }}</option>{% endfor %}</select></div>
+    {% include "partials/field.html" with field=restore_form.password %}
+    {% include "partials/field.html" with field=restore_form.passphrase %}
+    {% include "partials/field.html" with field=restore_form.confirm %}
+    <button class="btn btn-danger self-start" type="submit">Restaurar</button>
+  </form>
+  <form method="post" action="{% url 'backup:set_passphrase' %}" class="card flex flex-col gap-3">{% csrf_token %}
+    <h2 class="text-base">Senha de backup</h2>
+    {% for field in passphrase_form %}{% include "partials/field.html" %}{% endfor %}
+    <button class="btn btn-secondary self-start" type="submit">Salvar senha de backup</button>
+  </form>
+  <form method="post" action="{% url 'backup:set_cloud' %}" class="card flex flex-col gap-3">{% csrf_token %}
+    <h2 class="text-base">Pasta da nuvem</h2>
+    {% for field in cloud_form %}{% include "partials/field.html" %}{% endfor %}
+    <button class="btn btn-secondary self-start" type="submit">Salvar pasta</button>
+  </form>
+  <section class="card text-sm">
+    <h2 class="text-base mb-2">Histórico</h2>
+    {% for r in records %}<div class="row"><span class="flex-1">{{ r.created_at|date:"d/m/Y H:i" }} · {{ r.trigger }}</span><span>{% if r.ok %}ok{% else %}{{ r.message|default:"falhou" }}{% endif %}</span></div>{% endfor %}
+    {% for t in tests %}<div class="row"><span class="flex-1">Teste {{ t.at|date:"d/m/Y H:i" }} · {{ t.file_name }}</span><span>{% if t.passed %}ok{% else %}falhou{% endif %}</span></div>{% endfor %}
+  </section>
+</div>
+{% endblock %}

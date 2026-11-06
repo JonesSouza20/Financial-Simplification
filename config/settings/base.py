@@ -35,6 +35,8 @@ INSTALLED_APPS = [
     "apps.cards",
     "apps.debts",
     "apps.opening",
+    "apps.backup",
+    "apps.scheduler",
     "apps.ui",
 ]
 
@@ -152,6 +154,13 @@ CSRF_COOKIE_SAMESITE = "Strict"
 X_FRAME_OPTIONS = "DENY"
 SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_REFERRER_POLICY = "same-origin"
+
+FINANCAS_VERSION = "0.1.0"
+
+# Backup (ADR-021; security-plan.md §7). A pasta da nuvem é escolhida na tela de backup.
+FINANCAS_BACKUP_DIR = DATA_DIR / "backups"
+FINANCAS_BACKUP_HOUR = 3  # 03:00
+FINANCAS_RETENTION = {"daily": 7, "weekly": 4, "monthly": 12, "pre_update_days": 90}
 
 # Início do uso (ADR-031). Datas anteriores só para itens de abertura (RN-181, I-09).
 FINANCAS_START_DATE = datetime.date(2026, 11, 1)

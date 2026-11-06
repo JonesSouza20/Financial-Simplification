@@ -9,6 +9,7 @@ dependencies = [
     "argon2-cffi>=23.1",     # hash de senha e PIN (ADR-019)
     "django-axes>=7.0",      # bloqueio de tentativas (ADR-019)
     "keyring>=25.0",         # cofre de credenciais do Windows (ADR-020)
+    "pyrage>=1.2",
 ]
 
 [dependency-groups]

@@ -1,0 +1,7 @@
+# Quebras de linha LF no repositório e na cópia de trabalho; scripts do Windows em CRLF.
+* text=auto eol=lf
+*.ps1 text eol=crlf
+*.xml text eol=crlf
+*.woff2 binary
+*.png binary
+*.svg text eol=lf

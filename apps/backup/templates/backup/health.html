@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Saúde{% endblock %}
+{% block content %}
+<div class="flex flex-col gap-4 max-w-2xl">
+  <h1>Saúde do sistema</h1>
+  <section class="card text-sm flex flex-col gap-1">
+    {% for i in issues %}<p class="text-negative">• {{ i }}</p>{% empty %}<p class="text-positive">Tudo certo.</p>{% endfor %}
+  </section>
+  <section class="card text-sm flex flex-col gap-1">
+    <p>Versão {{ version }} · disco livre {{ free_gb }} GB · criptografia do disco: {{ encryption }}</p>
+    <p>Último backup bom: {% if last_ok %}{{ last_ok.created_at|date:"d/m/Y H:i" }}{% else %}nenhum{% endif %}</p>
+    <p>Último teste de restauração: {% if test %}{{ test.at|date:"d/m/Y H:i" }} ({% if test.passed %}ok{% else %}falhou{% endif %}){% else %}nunca{% endif %}</p>
+    <p>Pasta local: {{ local }} · nuvem: {{ cloud|default:"não configurada" }}</p>
+    {% for job, run in runs %}<p>{{ job.label }}: {% if run %}{{ run.scheduled_for|date:"d/m/Y H:i" }} · {{ run.status }}{% else %}nunca{% endif %}</p>{% endfor %}
+  </section>
+</div>
+{% endblock %}

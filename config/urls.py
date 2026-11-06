@@ -12,4 +12,5 @@ urlpatterns = [
     path("a-receber/", include("apps.receivables.urls")),
     path("dividas/", include("apps.debts.urls")),
     path("abertura/", include("apps.opening.urls")),
+    path("backup/", include("apps.backup.urls")),
 ]

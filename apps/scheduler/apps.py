@@ -1,0 +1,7 @@
+from django.apps import AppConfig
+
+
+class SchedulerConfig(AppConfig):
+    name = "apps.scheduler"
+    label = "scheduler"
+    verbose_name = "Agendador"
