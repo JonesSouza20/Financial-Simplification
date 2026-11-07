@@ -51,6 +51,7 @@ Se mostrar "não verificado", confira à mão com o comando acima.
 ## 4. Conferir no celular
 
 1. Com o Tailscale ligado no celular, abra `https://<nome-do-pc>.<sua-tailnet>.ts.net/`.
+   Se o Safari disser que "o servidor não pode ser encontrado" com o Tailscale ligado, **reinicie o iPhone**. Na primeira configuração, o iOS pode só aplicar o DNS do Tailscale depois de reiniciar (aconteceu na instalação de 06/11/2026; o PC e o túnel estavam corretos).
 2. O navegador deve mostrar o cadeado, sem alerta de certificado.
 3. Entre com a senha, ative o aparelho confiável com PIN e instale como app ("Adicionar à tela inicial").
 4. Desligue o Tailscale no celular e tente de novo: o endereço não deve abrir.
