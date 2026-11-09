@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Saúde{% endblock %}
 {% block content %}
-<div class="flex flex-col gap-4 max-w-2xl">
+<div class="flex flex-col gap-4 max-w-2xl [overflow-wrap:anywhere]">
   <h1>Saúde do sistema</h1>
   <section class="card text-sm flex flex-col gap-1">
     {% for i in issues %}<p class="text-negative">• {{ i }}</p>{% empty %}<p class="text-positive">Tudo certo.</p>{% endfor %}

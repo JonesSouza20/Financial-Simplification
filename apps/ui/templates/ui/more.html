@@ -4,13 +4,11 @@
 <div class="flex flex-col gap-4 max-w-md">
   <h1>Mais</h1>
   <nav class="card flex flex-col" aria-label="Todas as seções">
-    {% for name, label, ic, active in nav %}<a href="{% url name %}" class="nav-link py-3">{% icon ic %} {{ label }}</a>{% endfor %}
+    {% for name, label, ic, active in nav_holdings %}<a href="{% url name %}" class="row">{{ label }}</a>{% endfor %}
+    <a href="{% url 'ui:settings' %}" class="row">Ajustes</a>
   </nav>
-  <nav class="card flex flex-col" aria-label="Configurações">
-    {% for name, label, ic, active in settings_nav %}<a href="{% url name %}" class="nav-link py-3">{% icon ic %} {{ label }}</a>{% endfor %}
-    <form method="post" action="{% url 'security:logout' %}">{% csrf_token %}
-      <button class="nav-link py-3 w-full" type="submit">{% icon 'logout' %} Sair</button>
-    </form>
-  </nav>
+  <form method="post" action="{% url 'security:logout' %}">{% csrf_token %}
+    <button class="btn btn-secondary" type="submit">Sair</button>
+  </form>
 </div>
 {% endblock %}

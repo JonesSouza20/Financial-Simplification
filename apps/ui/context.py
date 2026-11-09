@@ -3,13 +3,15 @@
 NAV = [
     ("ui:home", "Início", "home"),
     ("entries:list", "Movimentações", "list"),
-    ("accounts:list", "Contas", "wallet"),
+]
+NAV_HOLDINGS = [
     ("cards:list", "Cartões", "card"),
-    ("receivables:list", "A receber", "users"),
     ("debts:list", "Dívidas", "debt"),
-    ("categories:list", "Categorias", "tag"),
+    ("receivables:list", "A receber", "users"),
+    ("accounts:list", "Contas", "wallet"),
 ]
 SETTINGS_NAV = [
+    ("categories:list", "Categorias", "tag"),
     ("security:settings", "Segurança", "shield"),
     ("backup:index", "Backup", "shield"),
     ("backup:health", "Saúde", "check"),
@@ -23,5 +25,10 @@ def ui(request):
     section = current.split(":")[0]
     return {
         "nav": [(n, label, icon, n.split(":")[0] == section) for n, label, icon in NAV],
+        "nav_holdings": [
+            (n, label, icon, n.split(":")[0] == section) for n, label, icon in NAV_HOLDINGS
+        ],
         "settings_nav": [(n, label, icon, n == current) for n, label, icon in SETTINGS_NAV],
+        "settings_active": current == "ui:settings"
+        or any(n == current for n, _, _ in SETTINGS_NAV),
     }

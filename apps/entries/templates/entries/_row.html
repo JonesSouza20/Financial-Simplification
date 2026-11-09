@@ -6,6 +6,6 @@
   </span>
   {% if v.txn.status != 'confirmed' %}<span class="chip bg-surface-2 text-text-2">{{ v.txn.get_status_display }}</span>{% endif %}
   {% if v.kind == 'transfer' %}<span class="money text-text-2">{{ v.amount|brl }}</span>
-  {% elif v.kind == 'card' %}<span class="money text-negative" title="No cartão: não sai da conta agora">−{{ v.amount|brl }}</span>
-  {% else %}<span class="money {{ v.signed|tone }}">{{ v.signed|brl }}</span>{% endif %}
+  {% elif v.kind == 'card' %}<span class="money" title="No cartão: não sai da conta agora">−{{ v.amount|brl }}</span>
+  {% else %}<span class="money">{{ v.signed|signed }}</span>{% endif %}
 </a>

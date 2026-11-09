@@ -130,6 +130,12 @@ def more(request):
 
 
 @require_GET
+def settings_hub(request):
+    """Ajustes: o que é usado raramente sai da navegação principal (design-study.md §10)."""
+    return render(request, "ui/settings.html")
+
+
+@require_GET
 def appearance(request):
     return render(request, "ui/appearance.html")
 

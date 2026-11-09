@@ -1,0 +1,13 @@
+{% extends "base.html" %}{% load fin %}
+{% block title %}Ajustes{% endblock %}
+{% block content %}
+<div class="flex flex-col gap-4 max-w-xl">
+  <h1>Ajustes</h1>
+  <nav class="card flex flex-col" aria-label="Ajustes">
+    {% for name, label, ic, active in settings_nav %}<a href="{% url name %}" class="row">{{ label }}</a>{% endfor %}
+  </nav>
+  <form method="post" action="{% url 'security:logout' %}">{% csrf_token %}
+    <button class="btn btn-secondary" type="submit">Sair</button>
+  </form>
+</div>
+{% endblock %}
