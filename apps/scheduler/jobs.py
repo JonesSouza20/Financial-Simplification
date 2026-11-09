@@ -50,6 +50,12 @@ def monthly_due(now: datetime.datetime) -> datetime.datetime:
     return _at(prev, settings.FINANCAS_BACKUP_HOUR + 1)
 
 
+def alerts_due(now: datetime.datetime) -> datetime.datetime:
+    """Avisos do dia, às 08:00 (F-080)."""
+    slot = _at(now, settings.FINANCAS_ALERT_HOUR)
+    return slot if slot <= now else slot - datetime.timedelta(days=1)
+
+
 def _daily_backup() -> str:
     from apps.backup.core import create_backup
 
@@ -70,11 +76,18 @@ def _renew_recurrences() -> str:
     return renew()
 
 
+def _collect_alerts() -> str:
+    from apps.notifications.services import collect
+
+    return collect()
+
+
 JOBS = [
     # Antes do backup do mesmo horário, para ele já levar as ocorrências novas.
     Job("renew_recurrences", "Renovação de recorrências", daily_due, _renew_recurrences),
     Job("daily_backup", "Backup diário", daily_due, _daily_backup),
     Job("monthly_restore_test", "Teste mensal de restauração", monthly_due, _monthly_restore_test),
+    Job("telegram_alerts", "Avisos no Telegram", alerts_due, _collect_alerts),
 ]
 
 
@@ -84,7 +97,7 @@ def run_due(now: datetime.datetime | None = None, jobs: list[Job] | None = None)
     done = []
     from apps.backup import maintenance
 
-    for job in jobs or JOBS:
+    for job in JOBS if jobs is None else jobs:
         if maintenance.active():
             break  # restauração em andamento; as tarefas rodam na próxima volta
         slot = job.due(now)
@@ -105,6 +118,16 @@ def run_due(now: datetime.datetime | None = None, jobs: list[Job] | None = None)
     return done
 
 
+def tick(now: datetime.datetime | None = None, jobs_to_run: list[Job] | None = None) -> None:
+    """Uma volta do agendador: tarefas devidas e, depois, a fila de avisos."""
+    from apps.backup import maintenance
+    from apps.notifications.services import flush
+
+    run_due(now, jobs_to_run)
+    if not maintenance.active():
+        flush(now)
+
+
 def last_runs() -> list[tuple[Job, JobRun | None]]:
     return [(job, JobRun.objects.filter(job_name=job.name).first()) for job in JOBS]
 
@@ -122,7 +145,7 @@ def start(interval_seconds: int = 60) -> None:
         while True:
             try:
                 close_old_connections()
-                run_due()
+                tick()
             except Exception:  # noqa: BLE001 - o agendador nunca derruba o serviço
                 log.exception("Falha no agendador")
             finally:

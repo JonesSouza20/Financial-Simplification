@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "apps.balances",
     "apps.opening",
     "apps.backup",
+    "apps.notifications",
     "apps.scheduler",
     "apps.ui",
 ]
@@ -166,6 +167,7 @@ FINANCAS_VERSION = "0.1.0"
 # Backup (ADR-021; security-plan.md §7). A pasta da nuvem é escolhida na tela de backup.
 FINANCAS_BACKUP_DIR = DATA_DIR / "backups"
 FINANCAS_BACKUP_HOUR = 3  # 03:00
+FINANCAS_ALERT_HOUR = 8  # 08:00 (F-080)
 FINANCAS_RETENTION = {"daily": 7, "weekly": 4, "monthly": 12, "pre_update_days": 90}
 
 # Início do uso (ADR-031). Datas anteriores só para itens de abertura (RN-181, I-09).

@@ -52,6 +52,9 @@ def issue(user, *, name: str, pin: str, user_agent: str = "") -> tuple[TrustedDe
         user_agent_summary=user_agent[:120],
     )
     audit.record_event("device_trusted", "trusted_device", device.pk, after={"name": device.name})
+    from apps.notifications.services import enqueue_safely
+
+    enqueue_safely("security", f"Novo aparelho confiável: {device.name}.", f"device:{device.pk}")
     return device, token
 
 

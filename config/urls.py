@@ -14,4 +14,5 @@ urlpatterns = [
     path("dividas/", include("apps.debts.urls")),
     path("abertura/", include("apps.opening.urls")),
     path("backup/", include("apps.backup.urls")),
+    path("ajustes/", include("apps.notifications.urls")),
 ]

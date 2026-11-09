@@ -15,6 +15,7 @@ SETTINGS_NAV = [
     ("payables:money_settings", "Dinheiro", "wallet"),
     ("payables:holidays", "Feriados", "clock"),
     ("categories:list", "Categorias", "tag"),
+    ("notifications:settings", "Avisos", "clock"),
     ("security:settings", "Segurança", "shield"),
     ("backup:index", "Backup", "shield"),
     ("backup:health", "Saúde", "check"),

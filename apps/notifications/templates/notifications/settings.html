@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Avisos{% endblock %}
+{% block content %}
+<h1>Avisos no Telegram</h1>
+<div class="two mt-3">
+  <form method="post" class="flex flex-col gap-3">{% csrf_token %}
+    {% include "partials/form_errors.html" %}
+    <p class="sub">{% if has_token %}Token guardado no cofre do Windows.{% else %}Nenhum token guardado ainda.{% endif %}</p>
+    {% for field in form.visible_fields %}{% include "partials/field.html" %}{% endfor %}
+    <button class="btn btn-primary w-full" type="submit">Salvar</button>
+  </form>
+  <aside class="flex flex-col gap-3">
+    <h2 class="caption grp-head">Conferir</h2>
+    {% if configured %}
+    <form method="post" action="{% url 'notifications:test' %}">{% csrf_token %}
+      <button class="btn btn-secondary w-full" type="submit">Enviar mensagem de teste</button>
+    </form>
+    {% else %}<p class="sub">Salve o token e o número do chat para poder testar.</p>{% endif %}
+    <p class="note">O bot só envia mensagens e só para este chat. O Telegram consegue ler o nome e o valor das contas avisadas.</p>
+    {% if recent %}
+    <h2 class="caption grp-head mt-2">Últimos avisos</h2>
+    {% for n in recent %}
+    <div class="row"><span class="flex-1 min-w-0 text-sm">{{ n.summary }}{% if n.last_error %}<span class="block error">{{ n.last_error }}</span>{% endif %}</span><span class="sub shrink-0">{{ n.get_status_display }}</span></div>
+    {% endfor %}
+    {% endif %}
+  </aside>
+</div>
+{% endblock %}

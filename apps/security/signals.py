@@ -30,5 +30,12 @@ def on_locked_out(sender, request=None, **kwargs):
     last = AuditLog.objects.filter(action="lockout").order_by("-at").first()
     if last and timezone.now() - last.at < cooloff():
         return
-    # Alerta no Telegram entra no MVP-2 (RF-SEG-04).
     audit.record_event("lockout", "auth_user", 0)
+    from apps.notifications.services import enqueue_safely
+
+    now = timezone.localtime()
+    enqueue_safely(
+        "security",
+        f"Login bloqueado por tentativas erradas às {now:%H:%M}.",
+        f"lockout:{now.isoformat(timespec='minutes')}",
+    )
