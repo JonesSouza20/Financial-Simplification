@@ -5,7 +5,7 @@
 | Versão | 0.4 |
 | Data | 06/11/2026 |
 | Etapa | 4 — Especificação (Fase B) |
-| Status | Versão 0.1 aprovada em 06/11/2026 (Fase B); versão 0.2 com detalhes da implementação da Fase 1A (§15); versão 0.3 com os ajustes da Fase 1D (§15), aprovada em 06/11/2026; versão 0.4 com os detalhes da Fase 2A (§15), a aprovar |
+| Status | Versão 0.1 aprovada em 06/11/2026 (Fase B); versão 0.2 com detalhes da implementação da Fase 1A (§15); versão 0.3 com os ajustes da Fase 1D (§15), aprovada em 06/11/2026; versão 0.4 com os detalhes da Fase 2A (§15), aprovada em 08/11/2026 |
 | Documentos relacionados | `architecture.md` (§6, §7), `business-rules.md`, `reference-scenarios.md` |
 
 Banco: SQLite em modo WAL, com chaves estrangeiras ligadas (`PRAGMA foreign_keys = ON`) e transações em modo `IMMEDIATE` (ADR-014). Nomes de tabelas e colunas em inglês, como é comum no código; a correspondência com os termos do glossário está na §2.

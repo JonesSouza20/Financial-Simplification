@@ -5,7 +5,7 @@
 | Versão | 0.4 |
 | Data | 06/11/2026 |
 | Etapa | 3 — Arquitetura (Fase A) |
-| Status | Versão 0.1 aprovada em 06/11/2026 (ADR-001 a 031: "Proposta" passa a valer como aceita). Versão 0.2 acrescenta ADR-032 a 036 (Fase B), aprovada em 06/11/2026. Versão 0.3 acrescenta ADR-037 e 038 (Fase 1D), aprovada em 06/11/2026. ADR-039 proposta na Fase 2A |
+| Status | Versão 0.1 aprovada em 06/11/2026 (ADR-001 a 031: "Proposta" passa a valer como aceita). Versão 0.2 acrescenta ADR-032 a 036 (Fase B), aprovada em 06/11/2026. Versão 0.3 acrescenta ADR-037 e 038 (Fase 1D), aprovada em 06/11/2026. Versão 0.4 acrescenta ADR-039 (Fase 2A), aprovada em 08/11/2026 |
 | Documentos relacionados | `product-requirements.md`, `architecture.md` |
 
 Formato: cada decisão (ADR) tem status, contexto, decisão, alternativas consideradas e consequências.
@@ -59,7 +59,7 @@ Uma decisão aprovada só muda por nova ADR que a substitua, citando a anterior.
 | 036 | Horizonte H avança só com o salário confirmado | Aceita (decisão do usuário na Fase B) |
 | 037 | Arquivos estáticos servidos pelo próprio processo (WhiteNoise) | Aceita (aprovada pelo usuário na Fase 1D) |
 | 038 | Sistema em uso roda de um clone separado do código | Aceita (aprovada pelo usuário na Fase 1D) |
-| 039 | Compromisso é alterado por cancelamento e recriação; pagamento não se corrige | Proposta (Fase 2A) |
+| 039 | Compromisso é alterado por cancelamento e recriação; pagamento não se corrige | Aceita (aprovada pelo usuário na Fase 2A) |
 
 ---
 
@@ -589,7 +589,7 @@ Comparação em `architecture.md`, seção 9.4.
 
 ## ADR-039 — Compromisso é alterado por cancelamento e recriação; pagamento não se corrige
 
-**Status:** Proposta (Fase 2A). Complementa a ADR-032.
+**Status:** Aceita (aprovada pelo usuário em 08/11/2026, Fase 2A). Complementa a ADR-032.
 
 **Contexto:** as pernas de uma transação são imutáveis em qualquer estado, inclusive previsto e pendente. O compromisso guarda o valor planejado, e o "Corrigir" cria uma transação nova que não sabe de liquidações.
 
