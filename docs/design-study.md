@@ -2,9 +2,9 @@
 
 | Campo | Valor |
 |---|---|
-| Versão | 0.3 |
+| Versão | 1.0 |
 | Data | 08/11/2026 |
-| Status | Direção B escolhida e revisão de Início e Pagamentos aceita em 08/11/2026. Parte 2 (seções 10 a 17) em avaliação |
+| Status | Aprovado pelo usuário em 09/11/2026 (Partes 1 e 2). As propostas da seção 17 entram na implementação |
 | Decisão | ADR-040: pré-requisito da Fase 2B |
 | Protótipos | Canvas da direção B, guardado fora do repositório |
 

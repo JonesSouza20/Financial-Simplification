@@ -2,10 +2,10 @@
 
 | Campo | Valor |
 |---|---|
-| Versão | 0.1 |
+| Versão | 0.2 |
 | Data | 06/11/2026 |
 | Etapa | 4 — Especificação (Fase B) |
-| Status | Aprovado pelo usuário em 06/11/2026 (Fase B) |
+| Status | Versão 0.1 aprovada em 06/11/2026 (Fase B); versão 0.2 substitui a identidade visual pelo estudo de design aprovado em 09/11/2026 (§18) |
 | Documentos relacionados | `functional-specification.md` (F-xxx), `architecture.md` §4.4 (htmx, Alpine.js, Tailwind, ECharts) |
 
 ---
@@ -326,3 +326,17 @@ Regras:
 - Verbos nos botões: Salvar, Pagar, Recebi, Estornar compra, Corrigir, Conferir limite.
 - Datas relativas quando ajudam: "vence amanhã", "venceu há 2 dias", sempre com a data absoluta ao lado.
 - Toda projeção e estimativa diz em que se baseia (RN-153).
+
+## 18. Alterações após a aprovação
+
+O `design-study.md` (ADR-040, aprovado em 09/11/2026) substitui os trechos abaixo. Onde houver diferença, vale o estudo.
+
+| Seção | Alteração |
+|---|---|
+| §1, princípios 1 e 5 | O topo da tela inicial é "Pode gastar" (RN-154, ADR-041). Poucos números à vista; o detalhe fica a um toque |
+| §2, §3, §5, §6 | Identidade "clareza calma", Inter e `#0F766E` dão lugar à direção "Caderno técnico": família IBM Plex, papel frio, cobalto só para ação, cores com função financeira, réguas no lugar de cartões, sem sombra e sem degradê |
+| §2 | Lucide dá lugar a um conjunto próprio de ícones de traço reto |
+| §4 | Mantido: real, projetado e estimado com cor, estilo e rótulo próprios. Hachura e etiqueta passam a ser a marca de previsão |
+| §8 | Navegação reorganizada: Início, Pagamentos e Movimentações; Cartões, Dívidas, A receber e Contas; Ajustes reúne Categorias, Segurança, Backup, Saúde e Aparência. No celular, Lançar fica na barra, sem botão flutuante |
+| §10, §11 | Esboços e regras de gráficos substituídos pelos quadros e pela seção 12 do estudo |
+| §15, §16 | Regras de largura e tema das seções 12, 15 e 16 do estudo |

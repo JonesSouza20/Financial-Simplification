@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Versão | 0.3 |
+| Versão | 0.4 |
 | Data | 06/11/2026 |
 | Etapa | 6 — Planejamento (Fase B) |
 | Status | Aprovado pelo usuário em 06/11/2026 (Fase B) |
@@ -368,3 +368,4 @@ Ordem proposta segundo as prioridades do usuário (quitar dívidas → parar de 
 | 08/11/2026 | A Fase 2A foi iniciada antes do fim da Porta MVP-1, por decisão do usuário. A porta continua valendo e corre em paralelo: a 2A fica só no repositório de desenvolvimento e **não vai para o sistema em uso** (`update.ps1`) até a porta terminar | A 2A não tem telas; publicá-la no meio da validação misturaria duas versões |
 | 08/11/2026 | Fase 2A entregue como domínio, serviços e testes, sem telas. O cadastro editável de feriados (RF-CFG-03) ficou como serviço; a tela entra com as demais da 2B | As telas de pagamentos, calendário, recorrências e configurações já estavam na 2B |
 | 08/11/2026 | Estudo completo de design e UI/UX, aprovado pelo usuário, passa a ser pré-requisito da Fase 2B (decisão do usuário: antes das próximas telas, para não refazê-las). A Fase 6 segue o estudo e inclui itens novos e melhorias nas telas existentes | ADR-040 |
+| 09/11/2026 | Estudo de design aprovado; a Fase 2B inclui aplicar o novo visual às telas existentes. A 2B começa com a Porta MVP-1 ainda em andamento (mesma decisão da 2A): fica na branch `fase-2a`, fora do sistema em uso | ADR-040 |
