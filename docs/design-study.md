@@ -2,11 +2,11 @@
 
 | Campo | Valor |
 |---|---|
-| Versão | 0.1 |
+| Versão | 0.2 |
 | Data | 08/11/2026 |
-| Status | Parte 1 em avaliação. A Parte 2 (design system completo) começa depois da escolha da direção |
+| Status | Direção B escolhida em 08/11/2026. Estudo de cores e revisão de Início e Pagamentos em avaliação. A Parte 2 começa depois dessa aprovação |
 | Decisão | ADR-040: pré-requisito da Fase 2B |
-| Protótipos | Canvas com as 3 direções, guardado fora do repositório |
+| Protótipos | Canvas da direção B, guardado fora do repositório |
 
 Nenhuma tela do sistema muda antes da aprovação. Mudanças em `ui-ux-specification.md` entram por seção de alterações, depois do estudo aprovado.
 
@@ -154,3 +154,65 @@ Até a Fase 3A, o valor das faturas é estimado (RN-075). Por isso a linha da fa
 - [Why Your AI Keeps Building the Same Purple Gradient Website](https://prg.sh/ramblings/Why-Your-AI-Keeps-Building-the-Same-Purple-Gradient-Website)
 - [AI Slop Fonts and Gradients](https://www.925studios.co/blog/ai-slop-design-tells)
 - [W3C, What's New in WCAG 2.2](https://w3.org/WAI/standards-guidelines/wcag/new-in-22/)
+
+## 9. Revisão depois da escolha da direção B
+
+Decisões do usuário em 08/11/2026: seguir a direção B; "Pode gastar" como número principal (ADR-041); estudar as cores em relação às finanças, sem as direções A e C; reduzir números e textos em Início e Pagamentos, porque as pessoas não querem uma tela com cara de planilha.
+
+**O pedido não é menos informação, e sim menos números à vista.** A densidade passa a ser visual: a conta vira barra, a lista vira linha do tempo, e o detalhe fica a um toque. Isso ajusta o item "alta densidade de informação" da seção 1.
+
+| Tela | Números à vista antes | Depois |
+|---|---|---|
+| Início, computador | 46 | 22 |
+| Início, celular | 26 | 14 |
+| Pagamentos, computador | 32 | 12 |
+| Pagamentos, celular | Não existia | 10 |
+
+### O que mudou
+
+- **Início:** o número principal ganha uma única barra do dinheiro: já tem dono, mínimo e livre. A conta completa fica em "Como calculamos". Tabela e gráfico de linha viram uma só linha do tempo até o salário. Dívidas ficam com um total e barras. O gasto do mês vira uma barra com três categorias e Outros. Lista de contas e os 12 meses saem da tela inicial.
+- **Pagamentos:** a tabela de seis colunas vira lista agrupada por quando agir (esta semana, até o salário, depois do salário), com uma marca por conta e uma ação por linha. O resumo de quatro números vira uma frase e uma faixa com os próximos 31 dias. "Em aberto" só aparecerá quando a conta estiver paga em parte.
+- **Celular:** versões próprias das duas telas.
+
+### Estudo de cores
+
+Evidência: a associação de azul com confiança vem sobretudo de pesquisas de marketing, e o efeito de convenção do setor é forte. O estudo mais robusto encontrado, com 1.995 respondentes em sites de bancos e seguros, indica que **cores sóbrias geram mais confiança do que cores vivas**, e azul mais do que vermelho. Isso sustenta uma paleta contida e o cobalto. Não há pesquisa rigorosa sobre aplicativos de finanças pessoais.
+
+Os bancos brasileiros ocupam roxo, laranja, vermelho e amarelo. Essas cores são evitadas como identidade; os significados delas não foram verificados e não são usados aqui.
+
+| Papel | Pergunta que responde | Preenchimento | Texto |
+|---|---|---|---|
+| Folga | Posso gastar? | `#2A9D5C` | `#17693F` |
+| Atenção | Estou abaixo do mínimo? | `#B07A12` | `#8A5200` |
+| Crítico | Atrasou ou ficou negativo? | `#8F1D0B` | `#AE240E` |
+| Comprometido | Já tem dono? | `#3A3F45` | — |
+| Mínimo de segurança | Está separado? | hachura `#8A8D85` | — |
+| Previsão e estimativa | É certeza? | hachura `#4A43A0` | `#4A43A0` |
+| Ação | Onde toco? | `#1B3FAB` | `#1B3FAB` |
+| Categorias | Para onde foi? | `#6B2C8C`, `#3C8DA8`, `#5E7A2E`, hachura para Outros | — |
+
+Regras:
+- Cor representa **estado**, não sinal. O verde deixa de marcar todo valor positivo.
+- Cobalto só para o que se toca.
+- No máximo três categorias com cor, mais Outros, sempre com o nome escrito no gráfico.
+
+Medições por script:
+
+| Verificação | Resultado |
+|---|---|
+| Textos sobre os fundos | Mínimo de 5,04:1 (alvo 4,5:1) |
+| Preenchimentos sobre o painel | Mínimo de 3,22:1 (alvo 3:1) |
+| Verde de texto × vermelho, com daltonismo | Diferença baixa (ΔE 8,1 em deuteranopia). Por isso o verde mais claro é usado nos preenchimentos (ΔE 18,4) |
+| Folga × atenção, com daltonismo | Baixa (ΔE 7,1 a 8,2). Os estados nunca aparecem lado a lado e sempre têm palavra e ícone |
+| Folga × mínimo, com daltonismo | Baixa (ΔE 4,9). O mínimo é hachurado, e o padrão faz a diferença |
+| Categorias, com daltonismo | Baixa (ΔE mínimo 6,1). Por isso o nome fica sempre escrito no gráfico |
+
+O tema escuro entra na Parte 2.
+
+### Pontos a confirmar
+
+1. **Conta variável antes do salário.** A Luz estimada (R$ 180,00) vence antes do salário, mas a RN-143 não a desconta. O número principal pode parecer maior do que a realidade.
+2. **"Cerca de R$ 91 por dia".** Proposta nova, fora dos requisitos: pode gastar ÷ dias até o salário.
+3. **Texto para quando o disponível ficar abaixo do mínimo.** Proposta: "Abaixo do mínimo em R$ X", com o número em atenção, sem valor negativo grande.
+
+Fontes adicionais: [CFPB, cor em visualização de dados](https://cfpb.github.io/design-manual-archive/data-visualization/color.html); [Hue Got It, 4imprint](https://info.4imprint.co.uk/blue-paper/how-brand-colours-influence-trust-customer-behaviour-market-report).
