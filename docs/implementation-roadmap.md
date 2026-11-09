@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Versão | 0.1 |
+| Versão | 0.2 |
 | Data | 06/11/2026 |
 | Etapa | 6 — Planejamento (Fase B) |
 | Status | Aprovado pelo usuário em 06/11/2026 (Fase B) |
@@ -360,3 +360,10 @@ Ordem proposta segundo as prioridades do usuário (quitar dívidas → parar de 
 | RF-SEG | 1B (01–05), 1D (06), 2B (07) |
 | RF-BKP | 1D |
 | RF-CFG | 1B (04), 2A (03), 2B (01–02) |
+
+## 8. Alterações após a aprovação
+
+| Data | Alteração | Motivo |
+|---|---|---|
+| 08/11/2026 | A Fase 2A foi iniciada antes do fim da Porta MVP-1, por decisão do usuário. A porta continua valendo e corre em paralelo: a 2A fica só no repositório de desenvolvimento e **não vai para o sistema em uso** (`update.ps1`) até a porta terminar | A 2A não tem telas; publicá-la no meio da validação misturaria duas versões |
+| 08/11/2026 | Fase 2A entregue como domínio, serviços e testes, sem telas. O cadastro editável de feriados (RF-CFG-03) ficou como serviço; a tela entra com as demais da 2B | As telas de pagamentos, calendário, recorrências e configurações já estavam na 2B |

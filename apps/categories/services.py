@@ -71,9 +71,14 @@ def rename(category: Category, name: str) -> Category:
 def archive(category: Category) -> None:
     if category.is_system:
         raise InvalidStateError("Categorias de sistema não podem ser arquivadas.")
+    from apps.payables.services import open_on_account
+
     now = timezone.now()
     ids = [category.pk, *category.children.values_list("pk", flat=True)]
-    for cat in Category.objects.filter(pk__in=ids):
+    related = list(Category.objects.filter(pk__in=ids).select_related("ledger_account"))
+    if any(open_on_account(cat.ledger_account) for cat in related):  # I-10
+        raise InvalidStateError("Esta categoria tem contas previstas ou pendentes.")
+    for cat in related:
         Category.objects.filter(pk=cat.pk).update(archived_at=now)
         LedgerAccount.objects.filter(pk=cat.ledger_account_id).update(archived_at=now)
     audit.log("archive", category)

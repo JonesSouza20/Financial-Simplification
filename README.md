@@ -2,7 +2,7 @@
 
 Projeto completo em [`docs/`](docs/README.md). Roadmap em [`docs/implementation-roadmap.md`](docs/implementation-roadmap.md).
 
-Estado: **Fase 1D — Operação: serviço, agendador e backup** concluída. Próxima: porta de validação do MVP-1 (uso real por algumas semanas).
+Estado: **Fase 2A — Compromissos, liquidação, recorrências e calendário** concluída no desenvolvimento, sem telas. O sistema em uso segue na versão da Fase 1D até o fim da porta de validação do MVP-1. Próxima: Fase 2B.
 
 ## Requisitos
 

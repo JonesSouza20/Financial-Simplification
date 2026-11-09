@@ -19,7 +19,12 @@ from apps.categories.services import by_key
 from apps.ledger import audit
 from apps.ledger import services as ledger
 from apps.ledger.errors import InvalidTransactionError
-from apps.ledger.models import LedgerAccount, LedgerTransaction, TransactionType
+from apps.ledger.models import (
+    EFFECTIVE_STATUSES,
+    LedgerAccount,
+    LedgerTransaction,
+    TransactionType,
+)
 from apps.ledger.services import Leg
 from apps.money import Money
 
@@ -152,6 +157,14 @@ def pay_loan(
     )
 
 
+def consortium_legs(debt: Debt, account: FinancialAccount, amount: Money) -> list[Leg]:
+    """Pernas da parcela (T19). Planejado e pago usam as mesmas, com o vínculo no memo."""
+    return [
+        Leg(by_key("consortium").ledger_account, amount, f"consórcio #{debt.pk}"),
+        Leg(account.ledger_account, -amount),
+    ]
+
+
 def pay_consortium(
     *,
     debt: Debt,
@@ -167,10 +180,7 @@ def pay_consortium(
         raise InvalidTransactionError("Informe o valor pago.")
     return ledger.record(
         type=TransactionType.CONSORTIUM_INSTALLMENT,
-        legs=[
-            Leg(by_key("consortium").ledger_account, amount, f"consórcio #{debt.pk}"),
-            Leg(account.ledger_account, -amount),
-        ],
+        legs=consortium_legs(debt, account, amount),
         operation_date=on,
         description=f"Parcela: {debt.description}",
         idempotency_key=idempotency_key,
@@ -181,13 +191,14 @@ def history(debt: Debt):
     if debt.ledger_account_id is None:
         consortium = by_key("consortium").ledger_account
         return LedgerTransaction.objects.filter(
+            status__in=EFFECTIVE_STATUSES,
             type=TransactionType.CONSORTIUM_INSTALLMENT,
             postings__account=consortium,
             postings__memo=f"consórcio #{debt.pk}",
         ).order_by("-operation_date", "-id")
-    return LedgerTransaction.objects.filter(postings__account=debt.ledger_account).order_by(
-        "-operation_date", "-id"
-    )
+    return LedgerTransaction.objects.filter(
+        status__in=EFFECTIVE_STATUSES, postings__account=debt.ledger_account
+    ).order_by("-operation_date", "-id")
 
 
 def active():

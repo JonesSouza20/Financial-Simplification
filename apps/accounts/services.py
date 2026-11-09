@@ -12,7 +12,7 @@ from django.utils import timezone
 from apps.ledger import audit
 from apps.ledger import services as ledger
 from apps.ledger.errors import InvalidStateError, InvalidTransactionError
-from apps.ledger.models import LedgerAccount, LedgerTransaction, TransactionStatus, TransactionType
+from apps.ledger.models import LedgerAccount, TransactionType
 from apps.ledger.services import Leg
 from apps.money import Money
 
@@ -77,11 +77,9 @@ def balance(account: FinancialAccount) -> Money:
 @transaction.atomic
 def archive(account: FinancialAccount) -> None:
     """Arquiva sem excluir; só sem lançamentos futuros em aberto (RN-185)."""
-    open_future = LedgerTransaction.objects.filter(
-        postings__account=account.ledger_account,
-        status__in=[TransactionStatus.FORECAST, TransactionStatus.PENDING],
-    ).exists()
-    if open_future:
+    from apps.payables.services import open_on_account
+
+    if open_on_account(account.ledger_account):
         raise InvalidStateError("Esta conta tem lançamentos previstos ou pendentes.")
     now = timezone.now()
     FinancialAccount.objects.filter(pk=account.pk).update(archived_at=now)

@@ -2,10 +2,10 @@
 
 | Campo | Valor |
 |---|---|
-| Versão | 0.3 |
+| Versão | 0.4 |
 | Data | 06/11/2026 |
 | Etapa | 4 — Especificação (Fase B) |
-| Status | Versão 0.1 aprovada em 06/11/2026 (Fase B); versão 0.2 com detalhes da implementação da Fase 1A (§15); versão 0.3 com os ajustes da Fase 1D (§15), aprovada em 06/11/2026 |
+| Status | Versão 0.1 aprovada em 06/11/2026 (Fase B); versão 0.2 com detalhes da implementação da Fase 1A (§15); versão 0.3 com os ajustes da Fase 1D (§15), aprovada em 06/11/2026; versão 0.4 com os detalhes da Fase 2A (§15), a aprovar |
 | Documentos relacionados | `architecture.md` (§6, §7), `business-rules.md`, `reference-scenarios.md` |
 
 Banco: SQLite em modo WAL, com chaves estrangeiras ligadas (`PRAGMA foreign_keys = ON`) e transações em modo `IMMEDIATE` (ADR-014). Nomes de tabelas e colunas em inglês, como é comum no código; a correspondência com os termos do glossário está na §2.
@@ -642,3 +642,11 @@ Toda migração:
 | 0.2 | Testes que gravam de verdade no banco (concorrência) removem e recriam os gatilhos de exclusão só para limpar o banco de teste (`tests/conftest.py`) | O `flush` do Django usa `DELETE`, que os gatilhos bloqueiam. Em produção os gatilhos nunca são removidos |
 | 0.3 | `backup_record`: sem `retention_class` e `pruned_at` (a retenção é decidida pelos manifestos nas pastas, não pelo banco, que volta no tempo numa restauração); com `message`; gatilho `pre_restore` | Fase 1D: o banco restaurado não sabe quais arquivos existem hoje nas pastas |
 | 0.3 | `restore_test`: `file_name` no lugar de `backup_id`; tipo `restore` para restaurações reais | Fase 1D: o backup testado pode ter sido gerado por outro banco (nuvem, outro PC) |
+| 0.4 | `commitment.anticipates` e `recurrence_rule.anticipates` | RN-093 e F-030 pedem "antecipa"; o campo faltava na tabela |
+| 0.4 | `recurrence_rule.generated_until` | Marca até onde já materializou: ocorrência cancelada à mão não volta na renovação |
+| 0.4 | `recurrence_rule.debt_id` e `payment_method` | Consórcio como recorrência fixa; forma de pagamento herdada pelas ocorrências |
+| 0.4 | `settlement.amount_cents` guarda só a parte aplicada ao compromisso (nunca acima do aberto); o excedente fica nas pernas e em `excess_kind` | I-05 fica simples: liquidações ≤ planejado |
+| 0.4 | Trocar valor, categoria ou conta de um compromisso cancela e cria outro; `planned_amount_cents` é sempre igual às pernas pretendidas (conferido em I-05) | Pernas são imutáveis em qualquer estado (`posting_no_update`); ADR-039 |
+| 0.4 | A categoria do compromisso é lida das pernas pretendidas, sem coluna própria | Evita duas fontes para o mesmo dado |
+| 0.4 | Gatilhos novos: `settlement_no_update`, `settlement_no_delete`, `commitment_no_delete` | Nada é apagado, como no Ledger |
+| 0.4 | `holiday` carregada por `post_migrate`, só em anos sem nenhum feriado (2026 a 2040). Ano não carregado gera erro, nunca cálculo sem feriados | Não desfaz edições do usuário; sobrevive ao `flush` dos testes |

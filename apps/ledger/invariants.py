@@ -77,24 +77,30 @@ def check_all() -> list[Violation]:
            JOIN ledger_posting p ON p.transaction_id = o.id
               OR p.transaction_id IN (
                    SELECT l.from_transaction_id FROM transaction_link l
+                   JOIN ledger_transaction r ON r.id = l.from_transaction_id
                    WHERE l.to_transaction_id = o.id
-                     AND l.kind IN ('reverses', 'partially_reverses'))
+                     AND (l.kind IN ('reverses', 'partially_reverses')
+                          OR (l.kind = 'refunds' AND r.status = 'confirmed')))
            WHERE o.status = 'reversed'
            GROUP BY o.id, p.account_id HAVING SUM(p.amount_cents) <> 0"""
     ):
         violations.append(
             Violation("I-03", f"estorno da transação {txn_id} não espelha a conta {account_id}")
         )
-    # Estornos parciais nunca passam do valor original.
+    # Estornos parciais e reembolsos nunca passam do valor original (RN-121).
     for txn_id, partial, gross in _rows(
         """SELECT o.id,
                   (SELECT COALESCE(SUM(l.amount_cents), 0) FROM transaction_link l
-                    WHERE l.to_transaction_id = o.id AND l.kind = 'partially_reverses'),
+                    JOIN ledger_transaction r ON r.id = l.from_transaction_id
+                    WHERE l.to_transaction_id = o.id
+                      AND l.kind IN ('partially_reverses', 'refunds')
+                      AND r.status = 'confirmed'),
                   (SELECT COALESCE(SUM(p.amount_cents), 0) FROM ledger_posting p
                     WHERE p.transaction_id = o.id AND p.amount_cents > 0)
            FROM ledger_transaction o
            WHERE EXISTS (SELECT 1 FROM transaction_link l
-                         WHERE l.to_transaction_id = o.id AND l.kind = 'partially_reverses')"""
+                         WHERE l.to_transaction_id = o.id
+                           AND l.kind IN ('partially_reverses', 'refunds'))"""
     ):
         if partial > gross:
             violations.append(Violation("I-03", f"estornos parciais excedem a transação {txn_id}"))

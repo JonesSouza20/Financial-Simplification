@@ -15,7 +15,11 @@ from django.utils import timezone
 from apps.accounts.models import FinancialAccount
 from apps.categories.models import Category, CategoryKind
 from apps.ledger import services as ledger
-from apps.ledger.errors import InvalidStateError, InvalidTransactionError
+from apps.ledger.errors import (
+    InvalidStateError,
+    InvalidTransactionError,
+    ReversalLimitError,
+)
 from apps.ledger.models import (
     LedgerPosting,
     LedgerTransaction,
@@ -125,6 +129,52 @@ def record(entry, *, idempotency_key: str | None = None) -> LedgerTransaction:
     )
 
 
+def refund(
+    original: LedgerTransaction,
+    *,
+    amount: Money,
+    account: FinancialAccount,
+    on: datetime.date,
+    description: str = "",
+    idempotency_key: str | None = None,
+) -> LedgerTransaction:
+    """Reembolso (T20): volta dinheiro e reduz a despesa da categoria; nunca é receita (RN-024)."""
+    expense = (
+        original.postings.select_related("account")
+        .filter(account__owner_type="category", amount_cents__gt=0)
+        .order_by("id")
+        .first()
+    )
+    if expense is None:
+        raise InvalidStateError("Reembolso existe só para despesas pagas.")
+    paid_with_benefit = original.type == TransactionType.EXPENSE_BENEFIT
+    if paid_with_benefit != (account.asset_class == "benefit"):
+        raise InvalidTransactionError(
+            "Despesa paga com benefício é reembolsada no benefício, e as demais em conta comum."
+        )
+    refunded = -sum(
+        p.amount_cents
+        for p in LedgerPosting.objects.filter(
+            account=expense.account,
+            transaction__status=TransactionStatus.CONFIRMED,
+            transaction__links_out__kind=LinkKind.REFUNDS,
+            transaction__links_out__to_transaction=original,
+        )
+    )
+    if amount.cents + refunded > expense.amount_cents:
+        left = Money(expense.amount_cents - refunded)
+        raise ReversalLimitError(f"O reembolso ultrapassa a despesa. Ainda é possível {left}.")
+    legs = [Leg(account.ledger_account, amount), Leg(expense.account, -amount, "reembolso")]
+    return ledger.refund(
+        original,
+        legs=legs,
+        amount=amount,
+        operation_date=on,
+        description=description.strip() or f"Reembolso: {original.description}",
+        idempotency_key=idempotency_key,
+    )
+
+
 def possible_duplicate(entry) -> LedgerTransaction | None:
     """Mesma conta (ou cartão), mesmo valor e data, nas últimas 24 horas (RN-171). Só avisa."""
     since = timezone.now() - datetime.timedelta(hours=24)
@@ -211,7 +261,9 @@ def describe(txn: LedgerTransaction) -> EntryView:
         label=txn.get_type_display(),
         amount=gross,
         signed=gross,
-        editable=txn.type in EDITABLE_TYPES and txn.status == TransactionStatus.CONFIRMED,
+        editable=txn.type in EDITABLE_TYPES
+        and txn.status == TransactionStatus.CONFIRMED
+        and ledger.correction_blocker(txn) is None,
     )
     view.legs = [
         {
@@ -278,7 +330,10 @@ def movements(
 ):
     """Movimentações com filtros (RF-LAN-06). Por padrão oculta cancelados e pares estornados."""
     date_field = "competence_date" if by_competence else "operation_date"
-    qs = LedgerTransaction.objects.exclude(status=TransactionStatus.DRAFT)
+    # Só o que aconteceu de verdade: previstos e pendentes ficam na central de pagamentos.
+    qs = LedgerTransaction.objects.exclude(
+        status__in=[TransactionStatus.DRAFT, TransactionStatus.FORECAST, TransactionStatus.PENDING]
+    )
     if not show_all:
         is_reversal = TransactionLink.objects.filter(
             from_transaction=OuterRef("pk"),

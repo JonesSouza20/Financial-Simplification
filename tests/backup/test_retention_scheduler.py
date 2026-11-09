@@ -88,6 +88,7 @@ def test_falha_da_tarefa_fica_registrada():
 def test_tarefas_reais_registradas(monkeypatch):
     calls = []
     fake = [
+        jobs.Job("renew_recurrences", "Recorrências", jobs.daily_due, lambda: "ok"),
         jobs.Job(
             "daily_backup", "Backup diário", jobs.daily_due, lambda: calls.append("b") or "ok"
         ),
@@ -102,4 +103,4 @@ def test_tarefas_reais_registradas(monkeypatch):
     monkeypatch.setattr(jobs, "JOBS", fake)
     jobs.run_due()
     assert calls == ["b", "t"]
-    assert [run.status for _, run in jobs.last_runs()] == ["ok", "ok"]
+    assert [run.status for _, run in jobs.last_runs()] == ["ok", "ok", "ok"]

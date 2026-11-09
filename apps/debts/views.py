@@ -136,13 +136,26 @@ def pay(request, pk):
             form = PayConsortiumForm(request.POST, debt=debt)
             if form.is_valid():
                 d = form.cleaned_data
-                services.pay_consortium(
-                    debt=debt,
-                    account=d["account"],
-                    amount=d["amount"],
-                    on=d["on"],
-                    idempotency_key=d["idempotency_key"],
-                )
+                from apps.payables import services as payables
+
+                # Com parcela prevista, liquida o compromisso em vez de criar um segundo T19.
+                planned = payables.oldest_open_consortium(debt)
+                if planned is not None:
+                    payables.pay(
+                        planned,
+                        amount=d["amount"],
+                        account=d["account"],
+                        on=d["on"],
+                        idempotency_key=d["idempotency_key"],
+                    )
+                else:
+                    services.pay_consortium(
+                        debt=debt,
+                        account=d["account"],
+                        amount=d["amount"],
+                        on=d["on"],
+                        idempotency_key=d["idempotency_key"],
+                    )
         if form.is_valid():
             messages.success(request, "Parcela registrada.")
         else:

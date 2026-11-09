@@ -2,10 +2,10 @@
 
 | Campo | Valor |
 |---|---|
-| Versão | 0.1 |
+| Versão | 0.2 |
 | Data | 06/11/2026 |
 | Etapa | 4 — Especificação (Fase B) |
-| Status | Aprovado pelo usuário em 06/11/2026 (Fase B) |
+| Status | Versão 0.1 aprovada em 06/11/2026 (Fase B); versão 0.2 com os detalhes da Fase 2A (§22), a aprovar |
 | Documentos relacionados | `product-requirements.md` (glossário), `architecture.md` (§6), `decisions.md`, `database-design.md`, `reference-scenarios.md` |
 
 Cada regra tem um identificador (RN-xxx). O `testing-plan.md` liga cada regra a pelo menos um teste. Os cenários com números exatos estão em `reference-scenarios.md` (S00 a S14).
@@ -403,3 +403,13 @@ Verificadas por testes, no backup e na tela "Saúde dos dados" (`architecture.md
 | I-08 | Σ saldos de ativo − Σ saldos de passivo = Σ patrimônio (abertura + ajustes) + Σ receitas − Σ despesas (equação patrimonial; S14). |
 | I-09 | Nenhuma transação confirmada tem data anterior a 01/11/2026, exceto as de abertura. |
 | I-10 | Nenhum compromisso aponta para conta, cartão ou categoria arquivados com vencimento futuro em aberto. |
+
+## 22. Alterações após a aprovação
+
+| Regra | Detalhe definido na Fase 2A | Motivo |
+|---|---|---|
+| RN-052 | "Vira pendente ao entrar em H" vale só para **saídas**. Receita prevista continua prevista até ser recebida | RN-020 e RN-143: receita não entra no comprometido; o próprio salário define H |
+| §3.4 | Conta pendente, atrasada e já paga em parte aparece como **Atrasado** | É o que exige ação; "pago parcialmente" continua valendo para as não vencidas |
+| RN-042, RN-044 | Estornar a liquidação de uma conta encerrada desfaz o encerramento | O motivo do encerramento deixou de existir |
+| RN-122 | "Corrigir" é recusado em pagamento de conta e em despesa com reembolso. O caminho é estornar e lançar de novo | ADR-039 |
+| T20, RN-121 | Reembolso entra na competência da data do reembolso. Só existe para despesa paga (T02, T03). Benefício volta para benefício, e o restante para conta comum | Mesma lógica do estorno comercial (T13); benefício não vira dinheiro |

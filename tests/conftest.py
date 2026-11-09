@@ -167,11 +167,16 @@ def committed_db(transactional_db):
     yield
     from django.db import connection
 
+    from apps.payables import db_triggers as payables_triggers
+
     db_triggers.uninstall(connection, db_triggers.DELETE_BLOCKERS)
+    payables_triggers.uninstall(connection, payables_triggers.DELETE_BLOCKERS)
     with connection.cursor() as cursor:
         # Tabelas de outros módulos referenciam transações; o flush do Django as limpa depois.
         cursor.execute("PRAGMA foreign_keys = OFF")
         for table in (
+            "settlement",
+            "commitment",
             "transaction_note",
             "transaction_link",
             "ledger_posting",
@@ -182,6 +187,7 @@ def committed_db(transactional_db):
             cursor.execute(f"DELETE FROM {table}")  # noqa: S608
         cursor.execute("PRAGMA foreign_keys = ON")
     db_triggers.install(connection)
+    payables_triggers.install(connection)
 
 
 class MemoryKeyring(keyring.backend.KeyringBackend):

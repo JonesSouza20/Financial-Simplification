@@ -49,6 +49,11 @@ RECORDABLE_STATUSES = frozenset(
     {TransactionStatus.FORECAST, TransactionStatus.PENDING, TransactionStatus.CONFIRMED}
 )
 REVERSAL_LINK_KINDS = (LinkKind.REVERSES, LinkKind.PARTIALLY_REVERSES)
+# Reduzem o valor vivo de uma transação (RN-121; I-03). Só contam enquanto confirmados.
+REDUCING_LINK_KINDS = (LinkKind.PARTIALLY_REVERSES, LinkKind.REFUNDS)
+REFUNDABLE_TYPES = frozenset({TransactionType.EXPENSE_PAID, TransactionType.EXPENSE_BENEFIT})
+# Outros módulos registram aqui recusas de "Corrigir" (ex.: pagamento de conta, ADR-032).
+CORRECTION_GUARDS: list = []
 
 
 @dataclass(frozen=True)
@@ -134,6 +139,107 @@ def record(
         _remember(idempotency_key, "record", txn)
         audit.log("create", txn, after=audit.snapshot_transaction(txn))
     return txn
+
+
+def find_idempotent(key: str | None, operation: str = "record") -> LedgerTransaction | None:
+    """Transação já gravada com esta chave (RN-170), para repetir o resultado sem validar."""
+    return _idempotent_result(key, operation)
+
+
+def correction_blocker(txn: LedgerTransaction) -> str | None:
+    """Motivo pelo qual "Corrigir" não vale para esta transação, se houver."""
+    if txn.links_in.filter(
+        kind=LinkKind.REFUNDS, from_transaction__status=TransactionStatus.CONFIRMED
+    ).exists():
+        return "Este lançamento tem reembolso. Estorne o reembolso antes de corrigir."
+    for guard in CORRECTION_GUARDS:
+        message = guard(txn)
+        if message:
+            return message
+    return None
+
+
+def promote(txn: LedgerTransaction, *, expected_version: int | None = None) -> LedgerTransaction:
+    """Previsto passa a pendente (business-rules.md §3.2). Nunca a confirmado."""
+    with transaction.atomic():
+        current = LedgerTransaction.objects.get(pk=txn.pk)
+        _check_version(current, expected_version)
+        if current.status != TransactionStatus.FORECAST:
+            raise InvalidStateError("Só lançamentos previstos podem passar a pendente.")
+        before = audit.snapshot_transaction(current)
+        LedgerTransaction.objects.filter(pk=current.pk).update(
+            status=TransactionStatus.PENDING,
+            version=F("version") + 1,
+            updated_at=timezone.now(),
+        )
+        current.refresh_from_db()
+        audit.log("promote", current, before=before, after=audit.snapshot_transaction(current))
+    return current
+
+
+def reschedule(txn: LedgerTransaction, *, operation_date: datetime.date) -> LedgerTransaction:
+    """Muda a data de um previsto ou pendente (ex.: feriado novo). Nunca de um confirmado."""
+    with transaction.atomic():
+        current = LedgerTransaction.objects.get(pk=txn.pk)
+        if current.status not in (TransactionStatus.FORECAST, TransactionStatus.PENDING):
+            raise InvalidStateError("Só lançamentos previstos ou pendentes mudam de data.")
+        before = audit.snapshot_transaction(current)
+        fields = {"operation_date": operation_date}
+        if current.competence_date == current.operation_date:
+            fields["competence_date"] = operation_date
+        LedgerTransaction.objects.filter(pk=current.pk).update(
+            version=F("version") + 1, updated_at=timezone.now(), **fields
+        )
+        current.refresh_from_db()
+        audit.log("reschedule", current, before=before, after=audit.snapshot_transaction(current))
+    return current
+
+
+def refund(
+    txn: LedgerTransaction,
+    *,
+    legs: Sequence[Leg],
+    amount: Money,
+    operation_date: datetime.date,
+    description: str,
+    competence_date: datetime.date | None = None,
+    idempotency_key: str | None = None,
+) -> LedgerTransaction:
+    """Reembolso (T20) vinculado à despesa original (RF-LAN-05; RN-121)."""
+    with transaction.atomic():
+        existing = _idempotent_result(idempotency_key, "refund")
+        if existing is not None:
+            return existing
+        original = LedgerTransaction.objects.get(pk=txn.pk)
+        if original.status != TransactionStatus.CONFIRMED:
+            raise InvalidStateError("Só despesas confirmadas podem ser reembolsadas.")
+        if original.type not in REFUNDABLE_TYPES:
+            raise InvalidStateError("Reembolso existe só para despesas pagas.")
+        if not amount.is_positive:
+            raise InvalidTransactionError("O valor do reembolso deve ser maior que zero.")
+        total = _gross(original)
+        already = _partial_reversed_cents(original)
+        if already + amount.cents > total:
+            raise ReversalLimitError(
+                f"O reembolso ultrapassa a despesa. Ainda é possível {Money(total - already)}."
+            )
+        new = _create(
+            type=TransactionType.REFUND,
+            legs=legs,
+            status=TransactionStatus.CONFIRMED,
+            operation_date=operation_date,
+            competence_date=competence_date or operation_date,
+            description=description,
+        )
+        TransactionLink.objects.create(
+            kind=LinkKind.REFUNDS,
+            from_transaction=new,
+            to_transaction=original,
+            amount_cents=amount.cents,
+        )
+        audit.log("refund", original, after=audit.snapshot_transaction(new))
+        _remember(idempotency_key, "refund", new)
+    return new
 
 
 def cancel(txn: LedgerTransaction, *, reason: str, expected_version: int | None = None):
@@ -282,6 +388,9 @@ def correct(
         if existing is not None:
             return existing
         original = LedgerTransaction.objects.get(pk=txn.pk)
+        blocker = correction_blocker(original)
+        if blocker:
+            raise InvalidStateError(blocker)
         _reverse(original, reason=reason, mode="technical")
         _fault_point("correct_between")
         new_date = operation_date or original.operation_date
@@ -427,7 +536,7 @@ def _reverse(txn, *, reason: str, mode: str, operation_date=None) -> LedgerTrans
         if cents
     ]
     if len(legs) < 2:
-        raise ReversalLimitError("A compra já foi totalmente estornada por estornos parciais.")
+        raise ReversalLimitError("Este lançamento já foi totalmente estornado ou reembolsado.")
     op_date = operation_date or today()
     if mode == "technical":
         txn_type = TransactionType.TECHNICAL_REVERSAL
@@ -471,9 +580,9 @@ def _remaining_by_account(original: LedgerTransaction) -> list[tuple[LedgerAccou
     for p in original.postings.select_related("account").order_by("id"):
         totals[p.account_id] += p.amount_cents
         accounts[p.account_id] = p.account
-    partial_ids = original.links_in.filter(kind=LinkKind.PARTIALLY_REVERSES).values_list(
-        "from_transaction_id", flat=True
-    )
+    partial_ids = original.links_in.filter(
+        kind__in=REDUCING_LINK_KINDS, from_transaction__status=TransactionStatus.CONFIRMED
+    ).values_list("from_transaction_id", flat=True)
     for p in LedgerPosting.objects.filter(transaction_id__in=list(partial_ids)):
         totals[p.account_id] += p.amount_cents
     return [(accounts[acc_id], cents) for acc_id, cents in totals.items()]
@@ -484,7 +593,9 @@ def _gross(txn: LedgerTransaction) -> int:
 
 
 def _partial_reversed_cents(txn: LedgerTransaction) -> int:
-    agg = txn.links_in.filter(kind=LinkKind.PARTIALLY_REVERSES).aggregate(total=Sum("amount_cents"))
+    agg = txn.links_in.filter(
+        kind__in=REDUCING_LINK_KINDS, from_transaction__status=TransactionStatus.CONFIRMED
+    ).aggregate(total=Sum("amount_cents"))
     return agg["total"] or 0
 
 

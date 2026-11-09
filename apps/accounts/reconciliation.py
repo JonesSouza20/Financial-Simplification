@@ -69,6 +69,8 @@ def reconciled_after(account: FinancialAccount, on: datetime.date):
 
 def mark_stale(txn: LedgerTransaction) -> None:
     """Lançamento ou estorno com data em período conciliado: marco passa a 'a reconciliar'."""
+    if txn.status != "confirmed":  # previsto e pendente nunca afetam saldo real (RN-012)
+        return
     fin_ids = [
         p.account.owner_id
         for p in txn.postings.select_related("account")

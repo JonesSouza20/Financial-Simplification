@@ -64,7 +64,15 @@ def _monthly_restore_test() -> str:
     return f"teste de restauração de {test.file_name}: ok"
 
 
+def _renew_recurrences() -> str:
+    from apps.payables.recurrence import renew
+
+    return renew()
+
+
 JOBS = [
+    # Antes do backup do mesmo horário, para ele já levar as ocorrências novas.
+    Job("renew_recurrences", "Renovação de recorrências", daily_due, _renew_recurrences),
     Job("daily_backup", "Backup diário", daily_due, _daily_backup),
     Job("monthly_restore_test", "Teste mensal de restauração", monthly_due, _monthly_restore_test),
 ]

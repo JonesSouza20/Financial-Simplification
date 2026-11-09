@@ -22,16 +22,16 @@ Ordem sugerida de leitura:
 | # | Documento | Responde a | Versão e status |
 |---|---|---|---|
 | 1 | [product-requirements.md](product-requirements.md) | O que o sistema faz, para quem, em que ordem; glossário; MVP-1 a MVP-6 | 0.2, aprovado |
-| 2 | [business-rules.md](business-rules.md) | Como cada operação afeta saldos, faturas e relatórios; fórmulas; invariantes | 0.1, aprovado |
+| 2 | [business-rules.md](business-rules.md) | Como cada operação afeta saldos, faturas e relatórios; fórmulas; invariantes | 0.2 (detalhes da Fase 2A em §22, a aprovar) |
 | 3 | [reference-scenarios.md](reference-scenarios.md) | Exemplos com resultados exatos ao centavo (S00–S14) | 0.1, aprovado |
 | 4 | [functional-specification.md](functional-specification.md) | O que cada tela e ação faz (F-001 a F-100) | 0.1, aprovado |
 | 5 | [ui-ux-specification.md](ui-ux-specification.md) | Visual, cores, tipografia, navegação, componentes, esboços | 0.1, aprovado |
 | 6 | [architecture.md](architecture.md) | Tecnologias escolhidas e por quê; modelo do Ledger; backup; segurança técnica | 0.2, aprovado |
-| 7 | [database-design.md](database-design.md) | Tabelas, restrições e gatilhos de integridade | 0.3, aprovado (0.2 na Fase 1A; 0.3 na Fase 1D, ver §15) |
+| 7 | [database-design.md](database-design.md) | Tabelas, restrições e gatilhos de integridade | 0.4 (detalhes da Fase 2A em §15, a aprovar) |
 | 8 | [security-plan.md](security-plan.md) | Ameaças, controles, backup e restauração, resposta a incidentes | 0.2, aprovado (ajustes da Fase 1D em §13) |
 | 9 | [testing-plan.md](testing-plan.md) | Como cada regra é testada; critérios de aprovação de cada entrega | 0.1, aprovado |
-| 10 | [implementation-roadmap.md](implementation-roadmap.md) | Fases, tarefas, arquivos, dependências, mapa de módulos | 0.1, aprovado |
-| 11 | [decisions.md](decisions.md) | 38 decisões com alternativas e justificativas (ADR-001 a 038) | 0.3, aprovado (ADR-037 e 038 na Fase 1D) |
+| 10 | [implementation-roadmap.md](implementation-roadmap.md) | Fases, tarefas, arquivos, dependências, mapa de módulos | 0.2 (ver §8) |
+| 11 | [decisions.md](decisions.md) | 39 decisões com alternativas e justificativas (ADR-001 a 039) | 0.4 (ADR-039 proposta na Fase 2A) |
 
 ## 3. Resumo das decisões principais
 
