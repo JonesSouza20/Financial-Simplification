@@ -479,6 +479,11 @@ def pay(
         )
         if close_reason is not None and is_open(current):
             _close(current, close_reason)
+        if current.direction == Direction.IN:
+            # Receber o salário move o horizonte: as contas da nova janela valem já (RN-052).
+            from .recurrence import promote_due
+
+            promote_due()
     return settlement
 
 
