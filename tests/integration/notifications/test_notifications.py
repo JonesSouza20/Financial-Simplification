@@ -239,7 +239,7 @@ def test_tarefa_esta_no_agendador_e_roda_as_oito(setup_bot, bill):
 def test_volta_do_agendador_envia_a_fila(setup_bot, bill, net):
     services.collect()
     with travel_to(D(2026, 11, 20)):
-        jobs.tick(at(D(2026, 11, 20), 12), jobs_to_run=[])
+        jobs.flush_alerts(at(D(2026, 11, 20), 12))
     assert len(net) == 1
 
 

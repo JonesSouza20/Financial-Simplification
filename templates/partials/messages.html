@@ -2,7 +2,7 @@
 <div class="flex flex-col gap-2 mb-4" role="status" aria-live="polite">
   {% for message in messages %}
   <div x-data="toast" x-show="open" data-timeout="8000"
-       class="flex items-start gap-3 rounded-lg px-4 py-3 text-sm {% if message.level_tag == 'error' %}bg-negative-soft text-negative{% else %}bg-primary-soft text-text{% endif %}">
+       class="flex items-start gap-3 px-4 py-3 text-sm {% if message.level_tag == 'error' %}bg-negative-soft text-negative{% else %}bg-primary-soft text-text{% endif %}">
     <span class="mt-0.5">{% if message.level_tag == 'error' %}{% icon 'alert' 18 %}{% else %}{% icon 'check' 18 %}{% endif %}</span>
     <span class="flex-1">{{ message }}</span>
     {% if 'undo' in message.extra_tags %}

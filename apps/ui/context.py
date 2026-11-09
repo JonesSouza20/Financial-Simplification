@@ -31,6 +31,8 @@ def ui(request):
     tab = {"ui": "home", "payables": "payables", "entries": "entries"}.get(section, "more")
     if current in ("ui:more", "ui:appearance", "ui:origin"):
         tab = "more"
+    elif current == "entries:quick":  # Lançar tem o próprio bloco na barra
+        tab, section = "", ""
     return {
         "tab": tab,
         "nav": [

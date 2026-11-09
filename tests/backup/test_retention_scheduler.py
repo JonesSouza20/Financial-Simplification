@@ -98,9 +98,10 @@ def test_tarefas_reais_registradas(monkeypatch):
             jobs.monthly_due,
             lambda: calls.append("t") or "ok",
         ),
+        jobs.Job("telegram_alerts", "Avisos", jobs.alerts_due, lambda: "ok"),
     ]
     assert [j.name for j in jobs.JOBS] == [j.name for j in fake]
     monkeypatch.setattr(jobs, "JOBS", fake)
     jobs.run_due()
     assert calls == ["b", "t"]
-    assert [run.status for _, run in jobs.last_runs()] == ["ok", "ok", "ok"]
+    assert [run.status for _, run in jobs.last_runs()] == ["ok", "ok", "ok", "ok"]

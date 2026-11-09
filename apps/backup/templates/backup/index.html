@@ -3,7 +3,7 @@
 {% block content %}
 <div class="flex flex-col gap-6 max-w-3xl">
   <h1>Backup</h1>
-  {% if not has_passphrase %}<p class="rounded-lg bg-negative-soft text-negative text-sm px-4 py-3">Defina a senha de backup: sem ela nenhum backup é feito.</p>{% endif %}
+  {% if not has_passphrase %}<p class="bg-negative-soft text-negative text-sm px-4 py-3">Defina a senha de backup: sem ela nenhum backup é feito.</p>{% endif %}
   <form method="post" action="{% url 'backup:now' %}">{% csrf_token %}<button class="btn btn-primary" type="submit">Fazer backup agora</button></form>
   <section class="card">
     <h2 class="text-base mb-2">Backups disponíveis</h2>

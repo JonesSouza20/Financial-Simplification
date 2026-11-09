@@ -25,7 +25,7 @@
     {% for name, label, ic, active in nav_holdings %}<a href="{% url name %}" class="nav-link" {% if active %}aria-current="page"{% endif %}>{{ label }}</a>{% endfor %}
     <a href="{% url 'ui:settings' %}" class="nav-link mt-auto" {% if settings_active %}aria-current="page"{% endif %}>Ajustes</a>
   </aside>
-  <nav class="hidden sm:flex lg:hidden flex-wrap items-center gap-x-5 gap-y-1 px-4 py-2 border-b border-strong" aria-label="Navegação principal">
+  <nav class="hidden sm:flex lg:hidden flex-wrap items-center gap-x-4 gap-y-1 px-4 py-2 border-b border-strong text-sm" aria-label="Navegação principal">
     <a href="{% url 'ui:home' %}" class="font-serif font-medium text-xl tracking-tight mr-2">Finanças</a>
     {% for name, label, ic, active in nav %}<a href="{% url name %}" class="tab-top" {% if active %}aria-current="page"{% endif %}>{{ label }}</a>{% endfor %}
     {% for name, label, ic, active in nav_holdings %}<a href="{% url name %}" class="tab-top" {% if active %}aria-current="page"{% endif %}>{{ label }}</a>{% endfor %}

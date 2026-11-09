@@ -164,9 +164,10 @@ def test_laco_do_agendador_sobrevive_a_falhas(monkeypatch):
 
     monkeypatch.setattr(jobs, "_thread", None)
     monkeypatch.setattr(jobs, "run_due", run_due)
+    monkeypatch.setattr(jobs, "flush_alerts", lambda: calls.append(2))
     monkeypatch.setattr(jobs, "close_old_connections", lambda: None)
     monkeypatch.setattr(jobs.time, "sleep", sleep)
     monkeypatch.setattr(jobs.threading, "Thread", InlineThread)
     jobs.start()
     jobs.start()  # segunda chamada não cria outra thread
-    assert calls == [1]
+    assert calls == [1, 2]  # tarefa com falha não impede o envio dos avisos

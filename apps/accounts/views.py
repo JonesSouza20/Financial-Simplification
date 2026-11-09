@@ -45,7 +45,40 @@ def list_view(request):
         "reserve": Money.sum([b for a, b in rows if a.asset_class == "reserve"]),
         "benefit": Money.sum([b for a, b in rows if a.asset_class == "benefit"]),
     }
-    return render(request, "accounts/list.html", {"rows": rows, "totals": totals})
+    groups = (
+        ("seg-a", "Livres", ("free",)),
+        ("seg-b", "Reserva", ("reserve",)),
+        ("seg-c", "VR/VA", ("benefit",)),
+    )
+    amounts = [
+        (css, name, sum(b.cents for a, b in rows if a.asset_class in kinds))
+        for css, name, kinds in groups
+    ]
+    total = sum(cents for _, _, cents in amounts)
+    bar = []
+    if total > 0 and all(not b.is_negative for _, b in rows):
+        bar = [
+            {
+                "css": css,
+                "name": name,
+                "percent": (cents * 100 + total // 2) // total,
+                "text": cents * 8 >= total,
+            }
+            for css, name, cents in amounts
+            if cents
+        ]
+    return render(
+        request,
+        "accounts/list.html",
+        {
+            "free_rows": [(a, b) for a, b in rows if a.asset_class == "free"],
+            "other_rows": [(a, b) for a, b in rows if a.asset_class != "free"],
+            "rows": rows,
+            "totals": totals,
+            "bar": bar,
+            "bar_text": ", ".join(f"{s['name']} {s['percent']}%" for s in bar),
+        },
+    )
 
 
 @require_http_methods(["GET", "POST"])

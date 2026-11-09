@@ -1,20 +1,15 @@
 {% extends "base.html" %}{% load fin %}
 {% block title %}Contas{% endblock %}
 {% block content %}
-<div class="flex flex-col gap-6">
-  <div class="flex items-center justify-between"><h1>Contas</h1><a class="btn btn-primary" href="{% url 'accounts:create' %}">Nova conta</a></div>
-  <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
-    <div class="card"><span class="caption">Saldo bancário</span><div class="text-xl money {{ totals.bank|tone }}">{{ totals.bank|brl }}</div></div>
-    <div class="card"><span class="caption">Guardado</span><div class="text-xl money">{{ totals.reserve|brl }}</div></div>
-    <div class="card"><span class="caption">Benefícios</span><div class="text-xl money">{{ totals.benefit|brl }}</div></div>
-  </div>
-  <div class="card">
-    {% for a, b in rows %}
-      <a class="row" href="{% url 'accounts:detail' a.pk %}">
-        <span class="flex-1 min-w-0"><span class="font-medium">{{ a.name }}</span> <span class="text-xs text-text-3">{{ a.get_account_type_display }} · {{ a.get_asset_class_display }}</span></span>
-        <span class="money {{ b|tone }}">{{ b|brl }}</span>
-      </a>
-    {% empty %}<p class="text-sm text-text-3">Nenhuma conta ainda. Cadastre a primeira com o saldo de 01/11/2026.</p>{% endfor %}
-  </div>
-</div>
+<div class="flex items-baseline justify-between gap-3"><h1>Contas</h1><a class="btn btn-secondary" href="{% url 'accounts:create' %}">Nova conta</a></div>
+{% if bar %}
+<div class="split" role="img" aria-label="{{ bar_text }}">{% for s in bar %}<div class="{{ s.css }} wp-{{ s.percent }}">{% if s.text %}<b>{{ s.name }}</b>{% endif %}</div>{% endfor %}</div>
+{% endif %}
+<p class="sub mt-2">Saldo bancário <span class="money {{ totals.bank|tone }}">{{ totals.bank|brl }}</span> · Guardado <span class="money">{{ totals.reserve|brl }}</span> · Benefícios <span class="money">{{ totals.benefit|brl }}</span></p>
+{% if rows %}
+  {% if free_rows %}<h2 class="day">Contas livres</h2>
+  {% for a, b in free_rows %}<a class="row" href="{% url 'accounts:detail' a.pk %}"><span class="flex-1 min-w-0"><span class="font-semibold">{{ a.name }}</span><span class="block sub">{{ a.get_account_type_display }}</span></span><span class="money text-[17px] {{ b|tone }}">{{ b|num }}</span></a>{% endfor %}{% endif %}
+  {% if other_rows %}<h2 class="day">Fora do que pode gastar</h2>
+  {% for a, b in other_rows %}<a class="row" href="{% url 'accounts:detail' a.pk %}"><span class="flex-1 min-w-0"><span class="font-semibold">{{ a.name }}</span><span class="block sub">{{ a.get_asset_class_display }}</span></span><span class="money text-[17px] {{ b|tone }}">{{ b|num }}</span></a>{% endfor %}{% endif %}
+{% else %}<p class="sub mt-4">Nenhuma conta ainda. Cadastre a primeira com o saldo de 01/11/2026.</p>{% endif %}
 {% endblock %}

@@ -1,8 +1,8 @@
 {% load fin %}<a class="row" href="{% url 'entries:detail' v.txn.pk %}">
-  <span class="w-14 shrink-0 text-sm text-text-3">{{ v.txn.operation_date|date:"d/m" }}</span>
+  <span class="tile">{% if v.kind == 'transfer' %}{% icon 'arrow' 20 %}{% elif v.kind == 'card' %}{% icon 'card' 20 %}{% elif v.kind == 'income' %}{% icon 'income' 20 %}{% else %}{% icon 'list' 20 %}{% endif %}</span>
   <span class="flex-1 min-w-0">
-    <span class="block truncate font-medium">{{ v.txn.description }}</span>
-    <span class="block truncate text-xs text-text-3">{{ v.label }}{% if v.category %} · {{ v.category }}{% endif %}{% if v.account %} · {{ v.account }}{% endif %}{% if v.destination %} → {{ v.destination }}{% endif %}</span>
+    <span class="block truncate font-semibold">{{ v.txn.description }}</span>
+    <span class="block truncate sub">{{ v.label }}{% if v.category %} · {{ v.category }}{% endif %}{% if v.account %} · {{ v.account }}{% endif %}{% if v.destination %} → {{ v.destination }}{% endif %}</span>
   </span>
   {% if v.txn.status != 'confirmed' %}<span class="chip bg-surface-2 text-text-2">{{ v.txn.get_status_display }}</span>{% endif %}
   {% if v.kind == 'transfer' %}<span class="money text-text-2">{{ v.amount|brl }}</span>

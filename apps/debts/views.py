@@ -70,7 +70,15 @@ class PayConsortiumForm(IdempotentForm):
 def list_view(request):
     rows = [(d, services.balance(d)) for d in services.active()]
     total = Money.sum([b for d, b in rows])
-    return render(request, "debts/list.html", {"rows": rows, "total": total})
+    from apps.payables.presentation import debts_summary
+
+    context = {
+        "summary": debts_summary(),
+        "consortiums": [(d, b) for d, b in rows if d.kind != "loan"],
+        "rows": rows,
+        "total": total,
+    }
+    return render(request, "debts/list.html", context)
 
 
 @require_http_methods(["GET", "POST"])

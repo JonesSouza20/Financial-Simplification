@@ -482,6 +482,7 @@ def debts_summary() -> dict:
         rows.append(
             {
                 "name": debt.description,
+                "balance": balance,
                 "url": reverse("debts:detail", args=[debt.pk]),
                 "note": f"{_tenths_text(paid)} quitado" if paid is not None else "",
                 "percent": (paid + 5) // 10 if paid is not None else None,
@@ -498,6 +499,7 @@ def debts_summary() -> dict:
         rows.append(
             {
                 "name": card.name,
+                "balance": balance,
                 "url": reverse("cards:detail", args=[card.pk]),
                 "note": f"{_tenths_text(used)} do limite",
                 "percent": (used + 5) // 10,

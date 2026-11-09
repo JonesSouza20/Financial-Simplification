@@ -118,12 +118,11 @@ def run_due(now: datetime.datetime | None = None, jobs: list[Job] | None = None)
     return done
 
 
-def tick(now: datetime.datetime | None = None, jobs_to_run: list[Job] | None = None) -> None:
-    """Uma volta do agendador: tarefas devidas e, depois, a fila de avisos."""
+def flush_alerts(now: datetime.datetime | None = None) -> None:
+    """Envia a fila de avisos a cada volta do agendador, fora de restaurações."""
     from apps.backup import maintenance
     from apps.notifications.services import flush
 
-    run_due(now, jobs_to_run)
     if not maintenance.active():
         flush(now)
 
@@ -145,9 +144,13 @@ def start(interval_seconds: int = 60) -> None:
         while True:
             try:
                 close_old_connections()
-                tick()
+                run_due()
             except Exception:  # noqa: BLE001 - o agendador nunca derruba o serviço
                 log.exception("Falha no agendador")
+            try:
+                flush_alerts()
+            except Exception:  # noqa: BLE001 - tarefa com problema não segura os avisos
+                log.warning("Falha ao enviar a fila de avisos.")
             finally:
                 close_old_connections()
             time.sleep(interval_seconds)

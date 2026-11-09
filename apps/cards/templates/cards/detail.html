@@ -6,16 +6,21 @@
     <span class="caption">Cartão · fecha dia {{ card.closing_day }} · vence dia {{ card.due_day }}</span>
     <h1>{{ card.name }}</h1>
   </div>
-  <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
-    <div class="card"><span class="caption">Saldo devedor</span><div class="text-xl money">{{ owed|brl }}</div><span class="help">Inclui parcelas futuras.</span></div>
-    <div class="card"><span class="caption">Limite disponível</span><div class="text-xl money">{{ available|brl }}</div><span class="help">Limite total {{ limit|brl }}.</span></div>
-    <div class="card"><span class="caption">Ciclo atual</span><div class="text-sm">Fecha {{ next_closing|date:"d/m" }} · vence {{ next_due|date:"d/m" }}</div></div>
-  </div>
+  <section>
+    <div class="caption">Saldo devedor</div>
+    <div class="amount mt-1"><small>R$</small>{{ owed|num }}</div>
+    <p class="help">Inclui parcelas futuras.</p>
+    {% widthratio owed.cents limit.cents 100 as used %}{% widthratio available.cents limit.cents 100 as free %}
+    <div class="split" role="img" aria-label="Limite: {{ used }}% usado, {{ free }}% livre">
+      <div class="seg-comp wp-{{ used }}"><b>Usado</b></div><div class="seg-free wp-{{ free }}"><b>{{ available|brl }} livres</b></div>
+    </div>
+    <p class="sub mt-2">Limite total <span class="money">{{ limit|brl }}</span> · fecha {{ next_closing|date:"d/m" }} · vence {{ next_due|date:"d/m" }}</p>
+  </section>
   <section class="card flex flex-col gap-2">
     <div class="flex items-center gap-2"><h2 class="text-base">Faturas</h2><span class="chip bg-projection-soft text-projection">Estimativa</span></div>
     <p class="help">Calculadas pelas datas das compras até as faturas reais chegarem (MVP-3). A soma é igual ao saldo devedor.</p>
     {% for e in estimates %}
-      <div class="row text-sm"><span class="flex-1">Vence {{ e.due_date|date:"d/m/Y" }}{% if e.overdue %} <span class="chip bg-negative-soft text-negative">vencida</span>{% endif %}</span><span class="money text-projection italic">≈ {{ e.amount|brl }}</span></div>
+      <div class="row text-sm"><span class="flex-1">Vence {{ e.due_date|date:"d/m/Y" }}{% if e.overdue %} <span class="chip bg-negative-soft text-negative">vencida</span>{% endif %}</span><span class="money text-projection">≈ {{ e.amount|brl }}</span></div>
     {% empty %}<p class="text-sm text-text-3">Nada em aberto.</p>{% endfor %}
   </section>
   <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">

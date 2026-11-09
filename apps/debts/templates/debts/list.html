@@ -1,18 +1,20 @@
 {% extends "base.html" %}{% load fin %}
 {% block title %}Dívidas{% endblock %}
 {% block content %}
-<div class="flex flex-col gap-6">
-  <div class="flex flex-wrap items-center justify-between gap-3"><h1>Dívidas</h1>
-    <div class="flex gap-2"><a class="btn btn-secondary" href="{% url 'debts:create_consortium' %}">Novo consórcio</a><a class="btn btn-primary" href="{% url 'debts:create_loan' %}">Nova dívida</a></div></div>
-  <div class="card"><span class="caption">Saldo devedor (empréstimos)</span><div class="text-2xl money">{{ total|brl }}</div>
-    <span class="help">Cartões aparecem na tela de cartões. Consórcio não contemplado não é dívida: é compromisso mensal.</span></div>
-  <div class="card">
-    {% for d, b in rows %}
-      <a class="row" href="{% url 'debts:detail' d.pk %}">
-        <span class="flex-1 min-w-0"><span class="font-medium">{{ d.description }}</span> <span class="text-xs text-text-3">{{ d.creditor }} · {{ d.get_kind_display }}</span></span>
-        <span class="money">{% if d.kind == 'loan' %}{{ b|brl }}{% else %}{{ d.contract_installment_cents|brl }}/mês{% endif %}</span>
-      </a>
-    {% empty %}<p class="text-sm text-text-3">Nenhuma dívida cadastrada.</p>{% endfor %}
-  </div>
-</div>
+<div class="flex flex-wrap items-baseline justify-between gap-3"><h1>Dívidas</h1>
+  <div class="flex gap-2"><a class="btn btn-secondary" href="{% url 'debts:create_consortium' %}">Novo consórcio</a><a class="btn btn-secondary" href="{% url 'debts:create_loan' %}">Nova dívida</a></div></div>
+{% if summary.rows or consortiums %}
+  <div class="caption mt-4">Total que você deve</div>
+  <div class="amount mt-1"><small>R$</small>{{ summary.total|num }}</div>
+  {% for d in summary.rows %}
+    <section class="card mt-5">
+      <a class="dline mt-0!" href="{{ d.url }}"><span class="font-semibold text-[16.5px]">{{ d.name }}</span><span class="money">{{ d.balance|num }}</span></a>
+      {% if d.percent is not None %}<div class="pbar tall" role="img" aria-label="{{ d.name }}: {{ d.note }}"><i class="wp-{{ d.percent }}{% if d.done %} done{% endif %}"></i></div>{% endif %}
+      {% if d.note %}<div class="sub mt-1">{{ d.note }}</div>{% endif %}
+    </section>
+  {% endfor %}
+  {% for d, b in consortiums %}
+    <a class="row mt-3" href="{% url 'debts:detail' d.pk %}"><span class="flex-1 min-w-0"><span class="font-semibold">{{ d.description }}</span><span class="block sub">Compromisso mensal, não é dívida com juros</span></span><span class="money">{{ d.contract_installment_cents|brl }}/mês</span></a>
+  {% endfor %}
+{% else %}<p class="sub mt-4">Nenhuma dívida cadastrada.</p>{% endif %}
 {% endblock %}

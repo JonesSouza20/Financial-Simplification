@@ -195,6 +195,9 @@
   .strip .ev.pay .up { top: 0; bottom: auto; }
   .strip .ev.pay .lbl { top: -26px; white-space: nowrap; }
 
+  .day { font-family: var(--font-cond); font-size: 13px; font-weight: 500; letter-spacing: .05em; text-transform: uppercase; color: var(--text-2); margin-top: 20px; padding-bottom: 6px; border-bottom: 1px solid var(--strong); }
+  .seg-a { background: var(--text-2); color: var(--bg); } .seg-b { background: var(--surface-2); color: var(--text); } .seg-c { background: var(--weekend); color: var(--text); }
+  .pbar.tall { height: 18px; }
   .dline { display: flex; justify-content: space-between; align-items: baseline; margin-top: 13px; }
   .pbar { margin-top: 5px; }
   .cats { display: flex; gap: 2px; height: 30px; margin-top: 13px; }
