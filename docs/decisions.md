@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Versão | 0.6 |
+| Versão | 0.7 |
 | Data | 06/11/2026 |
 | Etapa | 3 — Arquitetura (Fase A) |
 | Status | Versão 0.1 aprovada em 06/11/2026 (ADR-001 a 031: "Proposta" passa a valer como aceita). Versão 0.2 acrescenta ADR-032 a 036 (Fase B), aprovada em 06/11/2026. Versão 0.3 acrescenta ADR-037 e 038 (Fase 1D), aprovada em 06/11/2026. Versão 0.4 acrescenta ADR-039 (Fase 2A), aprovada em 08/11/2026. Versões 0.5 e 0.6 acrescentam ADR-040 e 041, decisões do usuário em 08/11/2026 |
@@ -641,3 +641,23 @@ Comparação em `architecture.md`, seção 9.4.
 **Alternativa:** redefinir o disponível. Quebraria a regra aprovada, os cenários e os testes, sem ganho.
 
 **Consequências:** a Fase 2B implementa o indicador e seus estados. Quando o resultado ficar abaixo do mínimo ou o dinheiro não cobrir as contas, a tela não mostra um número negativo grande, e sim a situação em frase ("Abaixo do mínimo em R$ X", "Faltam R$ X até o salário").
+
+## ADR-042 — Ajustes da especificação ao implementar a Fase 2B
+
+**Status:** Proposta, aguardando a aprovação da Fase 2B pelo usuário.
+
+**Contexto:** o estudo de design aprovado (ADR-040) reorganizou as telas, e a implementação exigiu decisões que os documentos não detalhavam.
+
+**Decisão:**
+
+1. A central de pagamentos (F-034) agrupa por quando agir: atrasados, esta semana, até o salário e depois do salário, no lugar de abas. Agendados aparecem na lista com a data. Pagos ficam em Movimentações.
+2. No calendário (F-035), cada dia mostra marcas por tipo. A soma a pagar e a receber aparece na lista do dia escolhido.
+3. Pagar (F-031) tem dois botões: o principal paga sempre o valor em aberto; "Pagar este valor" usa o que foi digitado em outro valor. Assim o rótulo do botão nunca fica diferente do que será pago.
+4. Entram as três propostas do estudo: "Veja o que pode esperar" (só leva a Pagamentos), "Desfazer" por 2 minutos depois de pagar (estorno técnico, RN-122) e uma frase com o efeito de cada ação no "Pode gastar".
+5. Recorrências só salvam as datas que a pessoa viu: mudar qualquer campo depois da prévia pede nova prévia.
+6. Avisos entram numa fila (`notification`) e saem pelo agendador, a cada minuto. Login e telas nunca esperam a rede. Falha tenta de novo em 15 minutos; depois de 24 horas, o aviso expira e fica registrado.
+7. A CSP não aceita estilo inline, então larguras, posições e alturas calculadas viram classes geradas no CSS (`wp-*`, `lp-*`, `hb-*`, `tp-*`).
+
+**Alternativas:** abas na central (rejeitada no estudo: escondem o que vence); liberar `style-src 'unsafe-inline'` (rejeitada: enfraquece a CSP por conveniência visual); botão único com o valor atualizado por JavaScript (rejeitada: sem JavaScript o rótulo ficaria errado).
+
+**Consequências:** `functional-specification.md`, `database-design.md`, `security-plan.md`, `ui-ux-specification.md` e o roadmap registram as alterações. Aviso de fatura e de saldo projetado seguem para as Fases 3B e 6, como previsto.

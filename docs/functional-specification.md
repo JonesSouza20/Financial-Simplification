@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Versão | 0.1 |
+| Versão | 0.2 |
 | Data | 06/11/2026 |
 | Etapa | 4 — Especificação (Fase B) |
 | Status | Aprovado pelo usuário em 06/11/2026 (Fase B) |
@@ -493,3 +493,14 @@ Categorias de sistema, conforme `business-rules.md` §2: encargos de cartão, ju
 | Estorno repetido | "Esta transação já foi estornada em 04/11/2026." |
 | Projeção | "Projeção — baseada nos compromissos e receitas previstos. Não é saldo real." |
 | Simulação de dívida | Texto de RN-115 |
+
+## 16. Alterações após a aprovação
+
+| Versão | Seção | Alteração | Motivo |
+|---|---|---|---|
+| 0.2 | F-031 | Botão principal paga o valor em aberto; outro valor, juros, excedente e encerrar ficam num bloco recolhido, com botão próprio. "Desfazer" por 2 minutos depois de pagar | ADR-042 |
+| 0.2 | F-033 | Salvar exige ter visto as datas daquela combinação de campos | ADR-042 |
+| 0.2 | F-034 | Grupos por quando agir, no lugar de abas | ADR-040, ADR-042 |
+| 0.2 | F-035 | Marcas por tipo em cada dia; a soma fica na lista do dia. A visão de lista é a própria central | ADR-042 |
+| 0.2 | F-070 | O número principal é o "Pode gastar" (ADR-041); saldo bancário, guardado e benefícios ficam em Contas | ADR-040, ADR-041 |
+| 0.2 | F-080 | Fila com nova tentativa em 15 minutos e validade de 24 horas. Nesta fase: vencimento, atraso, backup e segurança | ADR-042 |

@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Versão | 0.3 |
+| Versão | 0.4 |
 | Data | 06/11/2026 |
 | Etapa | 4 — Especificação (Fase B) |
 | Status | Versão 0.1 aprovada em 06/11/2026 (Fase B); versão 0.2 com os ajustes da Fase 1D (§13), aprovada em 06/11/2026; versão 0.3 com o ajuste da Fase 2A (§13), aprovada em 08/11/2026 |
@@ -293,3 +293,4 @@ Logs nunca contêm senhas, PIN, tokens, cookies nem segredos (RN-192). O teste a
 | §4 | Verificação do Funnel lê `tailscale serve status --json`; "desligado" só com resposta válida, senão "não verificado" | Falha segura: dúvida nunca vira "tudo certo" |
 | §9 | Ordem do `update.ps1`: backup `pre_update`, `git pull`, `uv sync`, `pip-audit`, testes, `collectstatic`, backup `pre_migration`, migrações, invariantes. Em falha depois das migrações, o código volta primeiro e o backup `pre_migration` é restaurado em seguida | Testes antes de tocar no banco; restaurar com o código antigo evita banco antigo com código novo |
 | §7.2 | Restaurar backup de versão anterior aplica as migrações que faltam, ainda sob o bloqueio de manutenção. Backup de versão mais nova que o sistema é recusado antes de qualquer troca | A Fase 2A é a primeira mudança de esquema depois da instalação; sem isso, restaurar deixaria o sistema sem as tabelas novas |
+| §6, §10.2 | Tela em Ajustes → Avisos. Toda mensagem de erro do Telegram é limpa do token antes de log ou banco, e a exceção original não é encadeada, porque o token faz parte da URL da API | Fase 2B; ADR-042 |
