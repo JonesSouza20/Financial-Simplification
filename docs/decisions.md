@@ -60,7 +60,7 @@ Uma decisão aprovada só muda por nova ADR que a substitua, citando a anterior.
 | 037 | Arquivos estáticos servidos pelo próprio processo (WhiteNoise) | Aceita (aprovada pelo usuário na Fase 1D) |
 | 038 | Sistema em uso roda de um clone separado do código | Aceita (aprovada pelo usuário na Fase 1D) |
 | 039 | Compromisso é alterado por cancelamento e recriação; pagamento não se corrige | Aceita (aprovada pelo usuário na Fase 2A) |
-| 040 | Estudo de design e UI/UX antes da Fase 6 | Aceita (decisão do usuário) |
+| 040 | Estudo de design e UI/UX antes das próximas telas (Fase 2B) | Aceita (decisão do usuário) |
 
 ---
 
@@ -605,14 +605,14 @@ Comparação em `architecture.md`, seção 9.4.
 
 **Consequências:** o histórico guarda cada valor planejado, com motivo. As listas precisam ocultar os compromissos cancelados.
 
-## ADR-040 — Estudo de design e UI/UX antes da Fase 6
+## ADR-040 — Estudo de design e UI/UX antes das próximas telas (Fase 2B)
 
 **Status:** Aceita (decisão do usuário em 08/11/2026). Complementa o `ui-ux-specification.md`, que continua valendo até o estudo ser aprovado.
 
-**Contexto:** a Fase 6 entrega a tela principal do sistema. O usuário quer acrescentar itens novos e melhorar o que já existe.
+**Contexto:** a Fase 6 entrega a tela principal do sistema, e o usuário quer acrescentar itens novos e melhorar o que já existe. As Fases 2B a 5 criam muitas telas antes disso; se seguissem o visual atual, precisariam ser refeitas.
 
 **Decisão:**
-- A Fase 6 só começa depois de um estudo completo de design e UI/UX, aprovado pelo usuário.
+- A Fase 2B só começa depois de um estudo completo de design e UI/UX, aprovado pelo usuário. A Fase 6 aplica o estudo ao dashboard.
 - O sistema não pode ter "cara de IA": isso vale para cores, fontes, composição e demais escolhas visuais.
 - O dashboard não pode ser genérico: precisa ser robusto e, ao mesmo tempo, simplificado.
 - O estudo cobre as telas existentes, além do dashboard, e define o que muda em `ui-ux-specification.md`.

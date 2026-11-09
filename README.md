@@ -2,7 +2,7 @@
 
 Projeto completo em [`docs/`](docs/README.md). Roadmap em [`docs/implementation-roadmap.md`](docs/implementation-roadmap.md).
 
-Estado: **Fase 2A — Compromissos, liquidação, recorrências e calendário** concluída no desenvolvimento, sem telas. O sistema em uso segue na versão da Fase 1D até o fim da porta de validação do MVP-1. Próxima: Fase 2B.
+Estado: **Fase 2A — Compromissos, liquidação, recorrências e calendário** concluída no desenvolvimento, sem telas. O sistema em uso segue na versão da Fase 1D até o fim da porta de validação do MVP-1. Próximo: estudo de design e UI/UX (ADR-040), pré-requisito da Fase 2B.
 
 ## Requisitos
 
