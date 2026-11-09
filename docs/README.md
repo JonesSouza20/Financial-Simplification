@@ -31,6 +31,7 @@ Ordem sugerida de leitura:
 | 8 | [security-plan.md](security-plan.md) | Ameaças, controles, backup e restauração, resposta a incidentes | 0.3, aprovado (ajustes das Fases 1D e 2A em §13) |
 | 9 | [testing-plan.md](testing-plan.md) | Como cada regra é testada; critérios de aprovação de cada entrega | 0.1, aprovado |
 | 10 | [implementation-roadmap.md](implementation-roadmap.md) | Fases, tarefas, arquivos, dependências, mapa de módulos | 0.3 (ver §8) |
+| 12 | [design-study.md](design-study.md) | Estudo de design e UI/UX (ADR-040): referências, auditoria e direções | 0.1, Parte 1 em avaliação |
 | 11 | [decisions.md](decisions.md) | 40 decisões com alternativas e justificativas (ADR-001 a 040) | 0.5, aprovado (ADR-040: estudo de design antes da Fase 2B) |
 
 ## 3. Resumo das decisões principais
