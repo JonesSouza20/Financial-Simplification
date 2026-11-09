@@ -189,10 +189,10 @@ Os bancos brasileiros ocupam roxo, laranja, vermelho e amarelo. Essas cores são
 | Mínimo de segurança | Está separado? | hachura `#8A8D85` | — |
 | Previsão e estimativa | É certeza? | hachura `#4A43A0` | `#4A43A0` |
 | Ação | Onde toco? | `#1B3FAB` | `#1B3FAB` |
-| Categorias | Para onde foi? | `#6B2C8C`, `#3C8DA8`, `#5E7A2E`, hachura para Outros | — |
+| Categorias | Para onde foi? | `#2F6F73`, `#8E7CC3`, `#8C5A3C`, cinza sólido `#8A8D85` para Outros | — |
 
 Regras:
-- Cor representa **estado**, não sinal. O verde deixa de marcar todo valor positivo.
+- Cor representa **estado**, não sinal. O verde deixa de marcar todo valor positivo. A exceção é a linha do salário, um componente nomeado: ela marca o recebimento que divide o tempo.
 - Cobalto só para o que se toca.
 - No máximo três categorias com cor, mais Outros, sempre com o nome escrito no gráfico.
 
@@ -205,7 +205,7 @@ Medições por script:
 | Verde de texto × vermelho, com daltonismo | Diferença baixa (ΔE 8,1 em deuteranopia). Por isso o verde mais claro é usado nos preenchimentos (ΔE 18,4) |
 | Folga × atenção, com daltonismo | Baixa (ΔE 7,1 a 8,2). Os estados nunca aparecem lado a lado e sempre têm palavra e ícone |
 | Folga × mínimo, com daltonismo | Baixa (ΔE 4,9). O mínimo é hachurado, e o padrão faz a diferença |
-| Categorias, com daltonismo | Baixa (ΔE mínimo 6,1). Por isso o nome fica sempre escrito no gráfico |
+| Categorias, entre si e contra os papéis, com daltonismo | Trocadas para não colidir com verde, cobalto e violeta: ΔE mínimo de 8,8 contra os papéis e de 8,2 entre si. O nome fica sempre escrito no gráfico |
 
 O tema escuro entra na Parte 2.
 
@@ -280,8 +280,9 @@ Toda ação explica o efeito no que você pode gastar, em uma frase.
 | `--crit` / `--crit-t` | `#8F1D0B` / `#AE240E` | `#D2553C` / `#FF9A85` |
 | `--comp` | `#3A3F45` | `#6C7279` |
 | `--proj` | `#4A43A0` | `#B4AEF2` |
+| Categorias | `#2F6F73`, `#8E7CC3`, `#8C5A3C` | `#62AEB3`, `#B9ABE6`, `#C99673` |
 
-Contraste do tema escuro, medido: textos com mínimo de 5,59:1; preenchimentos com mínimo de 3,48:1.
+Contraste do tema escuro, medido: textos com mínimo de 5,59:1; preenchimentos com mínimo de 3,48:1. Texto sobre preenchimento, medido contra a listra mais desfavorável de cada hachura: mínimo de 4,62:1 nos dois temas.
 
 **Componentes:** botões (principal, secundário, perigo, desabilitado, foco); campos com erro; situação com palavra e sinal (Atrasado, Pendente, Agendado, Previsto, Pago em parte, Pago, Cancelado); barra do dinheiro; barra de progresso; linha de conta; linha do salário; linha do tempo; faixa de dias; aviso; estado vazio.
 
@@ -322,7 +323,7 @@ Os sete estados do número principal estão desenhados no quadro "Estados".
 | Item | Regra |
 |---|---|
 | Cor | Nunca sozinha: palavra, ícone, sinal ou hachura |
-| Contraste | Texto 4,5:1 e marcas 3:1, nos dois temas (medido) |
+| Contraste | Texto 4,5:1 sobre fundos e preenchimentos, marcas 3:1, nos dois temas (medido) |
 | Toque | 44 px no celular; 24 px no mínimo em tudo |
 | Foco | Anel de 2 px visível |
 | Leitor de tela | Barras e linha do tempo com descrição em texto |
@@ -337,6 +338,8 @@ Nada disso foi feito.
 2. Hospedar as fontes IBM Plex localmente (a CSP só aceita arquivos próprios) e remover Inter e Lucide.
 3. Levar os tokens para `tailwind/input.css` (`@theme`) e criar os componentes. O build Alpine CSP e o htmx continuam.
 4. Trocar o visual das telas existentes e construir as da 2B sobre o novo sistema.
+
+Propostas novas, fora dos requisitos atuais e a confirmar na implementação: "Veja o que pode esperar" no estado crítico; "Desfazer" logo depois de pagar (hoje existe para lançamentos); uma frase sobre o efeito no "Pode gastar" em cada ação.
 
 Limites deste estudo: os protótipos são estáticos, com dados fictícios; só ao usar de verdade dá para validar conforto e densidade.
 
