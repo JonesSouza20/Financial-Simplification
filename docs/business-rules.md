@@ -408,6 +408,7 @@ Verificadas por testes, no backup e na tela "Saúde dos dados" (`architecture.md
 
 | Regra | Detalhe definido na Fase 2A | Motivo |
 |---|---|---|
+| RN-051 | A janela móvel vai de hoje em diante. Recorrência criada com início no passado não gera ocorrência já vencida; o que aconteceu antes é lançado como movimentação | Evita salário "atrasado" e conta vencida que nunca existiram |
 | RN-052 | "Vira pendente ao entrar em H" vale só para **saídas**. Receita prevista continua prevista até ser recebida | RN-020 e RN-143: receita não entra no comprometido; o próprio salário define H |
 | §3.4 | Conta pendente, atrasada e já paga em parte aparece como **Atrasado** | É o que exige ação; "pago parcialmente" continua valendo para as não vencidas |
 | RN-042, RN-044 | Estornar a liquidação de uma conta encerrada desfaz o encerramento | O motivo do encerramento deixou de existir |

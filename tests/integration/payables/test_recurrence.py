@@ -98,7 +98,7 @@ def test_RN_055_dia_31_em_meses_curtos(conta, cats):
     [
         (
             {"frequency": Frequency.WEEKLY, "start_date": dt.date(2026, 11, 2), "end_date": None},
-            [dt.date(2026, 11, 2), dt.date(2026, 11, 9), dt.date(2026, 11, 16)],
+            [dt.date(2026, 11, 23), dt.date(2026, 11, 30), dt.date(2026, 12, 7)],
         ),
         (
             {"frequency": Frequency.YEARLY},
@@ -129,6 +129,16 @@ def test_primeira_ocorrencia_nao_antecede_o_inicio(conta, cats):
     assert live(rule)[0].due_date == dt.date(2026, 12, 10)
 
 
+def test_RN_051_inicio_no_passado_nao_cria_ocorrencia_vencida(conta, cats):
+    rule = monthly(conta, cats, day_value=10)  # início 01/11, hoje 20/11: 10/11 já passou
+    assert live(rule)[0].due_date == dt.date(2026, 12, 10)
+
+
+def test_RN_051_ocorrencia_de_hoje_entra(conta, cats):
+    rule = monthly(conta, cats, day_value=20)
+    assert live(rule)[0].due_date == TODAY
+
+
 def test_nada_antes_de_01_11_2026(conta, cats):
     rule = monthly(conta, cats, start_date=dt.date(2026, 9, 1))
     assert live(rule)[0].due_date == dt.date(2026, 11, 25)
@@ -149,12 +159,12 @@ def test_F033_previa_das_proximas_datas(conta, cats):
     )
     dates = recurrence.preview(rule)
     assert len(dates) == 12
-    assert dates[0] == dt.date(2026, 11, 9) and dates[1] == dt.date(2026, 12, 7)
+    assert dates[0] == dt.date(2026, 12, 7) and dates[1] == dt.date(2027, 1, 8)
     rule.remaining_count = 2
     assert len(recurrence.preview(rule)) == 2
     rule.remaining_count = None
-    rule.end_date = dt.date(2026, 12, 1)
-    assert recurrence.preview(rule) == [dt.date(2026, 11, 9)]
+    rule.end_date = dt.date(2026, 12, 10)
+    assert recurrence.preview(rule) == [dt.date(2026, 12, 7)]
 
 
 @pytest.mark.parametrize(
@@ -250,16 +260,16 @@ def test_RN_054_encerrar(conta, cats):
 # Horizonte e previsto → pendente -----------------------------------------------------------
 
 
-def salary(conta, start=dt.date(2026, 12, 1)):
+def salary(conta, start=START):
     return recurrence.create_salary(account=conta, amount=Money(500000), start_date=start)
 
 
 def test_RN_022_salario_no_quinto_dia_util(conta):
-    rule = salary(conta, START)
+    rule = salary(conta)
     assert [c.due_date for c in live(rule)][:3] == [
-        dt.date(2026, 11, 9),
-        dt.date(2026, 12, 7),
+        dt.date(2026, 12, 7),  # 09/11 já passou: o salário de novembro não vira "atrasado"
         dt.date(2027, 1, 8),
+        dt.date(2027, 2, 5),
     ]
     assert all(c.transaction.status == TransactionStatus.FORECAST for c in live(rule))
 
@@ -274,10 +284,16 @@ def test_RN_140_proximo_salario(conta):
     assert h.date == dt.date(2026, 12, 7) and not h.salary_late
 
 
+def test_RN_140_cadastrar_salario_com_inicio_passado_nao_atrasa(conta):
+    salary(conta)
+    assert not horizon.horizon().salary_late
+
+
 def test_RN_140_salario_atrasado_e_h_amanha(conta):
-    salary(conta, START)
-    h = horizon.horizon()
-    assert h.date == dt.date(2026, 11, 21) and h.salary_late
+    salary(conta)
+    with travel_to(dt.date(2026, 12, 8)):
+        h = horizon.horizon()
+    assert h.date == dt.date(2026, 12, 9) and h.salary_late
 
 
 def test_RN_140_dia_do_salario_antes_e_depois_do_recebi(conta):
@@ -296,7 +312,7 @@ def test_RN_140_modo_fim_do_mes(conta):
 
 def test_RN_052_fixa_vira_pendente_ao_entrar_em_h(conta, cats):
     salary(conta)  # H = 07/12
-    rule = monthly(conta, cats, day_value=5, start_date=dt.date(2026, 12, 1))
+    rule = monthly(conta, cats, day_value=5)
     occurrences = live(rule)
     assert occurrences[0].due_date == dt.date(2026, 12, 5)
     assert occurrences[0].transaction.status == TransactionStatus.PENDING
@@ -305,13 +321,13 @@ def test_RN_052_fixa_vira_pendente_ao_entrar_em_h(conta, cats):
 
 def test_RN_052_exclusivo_vencimento_igual_a_h_fica_previsto(conta, cats):
     salary(conta)
-    rule = monthly(conta, cats, day_value=7, start_date=dt.date(2026, 12, 1))
+    rule = monthly(conta, cats, day_value=7)
     assert live(rule)[0].transaction.status == TransactionStatus.FORECAST
 
 
 def test_RN_052_variavel_entrando_em_h_continua_prevista(conta, cats):
     salary(conta)
-    rule = monthly(conta, cats, day_value=5, value_type="variable", start_date=dt.date(2026, 12, 1))
+    rule = monthly(conta, cats, day_value=5, value_type="variable")
     assert live(rule)[0].transaction.status == TransactionStatus.FORECAST
 
 
@@ -323,7 +339,7 @@ def test_RN_020_receita_nunca_vira_pendente_sozinha(conta, cats):
 
 def test_renovacao_promove_quando_h_avanca(conta, cats):
     salary(conta)
-    rule = monthly(conta, cats, day_value=5, start_date=dt.date(2026, 12, 1))
+    rule = monthly(conta, cats, day_value=5)
     assert live(rule)[1].transaction.status == TransactionStatus.FORECAST
     with travel_to(dt.date(2026, 12, 7)):
         services.pay(horizon.oldest_open_salary(), amount=Money(500000))

@@ -24,7 +24,9 @@ from pathlib import Path
 
 import pyrage
 from django.conf import settings
+from django.core.management import call_command
 from django.db import connection, connections
+from django.db.migrations.loader import MigrationLoader
 from django.utils import timezone
 
 from apps.ledger.errors import LedgerError
@@ -303,6 +305,17 @@ def find(name: str) -> Entry:
 # Restauração ---------------------------------------------------------------------------
 
 
+def _known_migrations() -> set[tuple[str, str]]:
+    return set(MigrationLoader(None, ignore_no_migrations=True).graph.nodes)
+
+
+def _bring_schema_up_to_date(restored: set[tuple[str, str]]) -> None:
+    """Backup de versão anterior: aplica as migrações que faltam (ainda sob o bloqueio)."""
+    if _known_migrations() - restored:
+        call_command("migrate", interactive=False, verbosity=0)
+        connections.close_all()
+
+
 def _materialize(entry: Entry, passphrase: str, target: Path) -> dict:
     """Descriptografa para `target` e verifica tudo. Devolve detalhes; levanta em falha."""
     blob = entry.path.read_bytes()
@@ -318,6 +331,10 @@ def _materialize(entry: Entry, passphrase: str, target: Path) -> dict:
     counts = verify.counts(target)
     if counts != entry.manifest["counts"]:
         raise BackupError("As contagens não conferem com o manifesto.")
+    if verify.migrations(target) - _known_migrations():
+        raise BackupError(
+            "Este backup é de uma versão mais nova do sistema. Atualize o sistema antes."
+        )
     return {
         "counts": counts,
         "created_at": entry.manifest["created_at"],
@@ -361,6 +378,7 @@ def restore_live(entry: Entry, *, passphrase: str) -> dict:
         connections.close_all()
         details = restore_into(db_path(), entry, passphrase)
         connections.close_all()
+        _bring_schema_up_to_date(verify.migrations(db_path()))
     RestoreTest.objects.create(
         file_name=entry.name, kind="restore", passed=True, details_json=details
     )

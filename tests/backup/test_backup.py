@@ -165,3 +165,72 @@ def test_teste_mensal(with_passphrase, dirs, data):
         core.monthly_restore_test()
     core.create_backup()
     assert core.monthly_restore_test().passed
+
+
+def _old_version_backup(record, dirs, tmp_path):
+    """Regrava o backup como se viesse da Fase 1D: sem as tabelas e migrações da 2A."""
+    entry = core.find(record.file_name)
+    plain = gzip.decompress(pyrage.passphrase.decrypt(entry.path.read_bytes(), PASSPHRASE))
+    old = tmp_path / "antigo.db"
+    old.write_bytes(plain)
+    conn = sqlite3.connect(old)
+    for trigger in ("settlement_no_delete", "commitment_no_delete"):
+        conn.execute(f"DROP TRIGGER {trigger}")
+    for table in ("settlement", "commitment", "recurrence_rule", "holiday"):
+        conn.execute(f"DROP TABLE {table}")
+    conn.execute("DELETE FROM django_migrations WHERE app IN ('payables', 'calendar_br')")
+    conn.commit()
+    conn.close()
+    plain = old.read_bytes()
+    blob = core.encrypt(plain, PASSPHRASE)
+    entry.path.write_bytes(blob)
+    manifest_path = entry.path.with_name(entry.path.name.replace(".db.age", ".json"))
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["plain_sha256"] = core.sha256_bytes(plain)
+    manifest["encrypted_sha256"] = core.sha256_bytes(blob)
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+    return core.find(record.file_name)
+
+
+def test_restaurar_backup_de_versao_anterior_aplica_migracoes(
+    with_passphrase, dirs, data, tmp_path
+):
+    from apps.calendar_br.models import Holiday
+    from apps.ledger.invariants import check_all
+    from apps.payables.models import Commitment
+
+    entry = _old_version_backup(core.create_backup(), dirs, tmp_path)
+    core.restore_live(entry, passphrase=PASSPHRASE)
+    assert LedgerTransaction.objects.count() == data
+    assert Commitment.objects.count() == 0  # tabela recriada pela migração
+    assert Holiday.objects.filter(date=datetime.date(2026, 11, 20)).exists()
+    assert check_all() == []
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT COUNT(*) FROM sqlite_master WHERE name = 'commitment_no_delete'")
+        assert cursor.fetchone()[0] == 1
+
+
+def test_backup_de_versao_mais_nova_e_recusado(with_passphrase, dirs, data, tmp_path):
+    record = core.create_backup()
+    entry = core.find(record.file_name)
+    plain = gzip.decompress(pyrage.passphrase.decrypt(entry.path.read_bytes(), PASSPHRASE))
+    new = tmp_path / "novo.db"
+    new.write_bytes(plain)
+    conn = sqlite3.connect(new)
+    conn.execute(
+        "INSERT INTO django_migrations (app, name, applied) "
+        "VALUES ('ledger', '9999_x', '2030-01-01')"
+    )
+    conn.commit()
+    conn.close()
+    plain = new.read_bytes()
+    blob = core.encrypt(plain, PASSPHRASE)
+    entry.path.write_bytes(blob)
+    manifest_path = entry.path.with_name(entry.path.name.replace(".db.age", ".json"))
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["plain_sha256"] = core.sha256_bytes(plain)
+    manifest["encrypted_sha256"] = core.sha256_bytes(blob)
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+    with pytest.raises(core.BackupError, match="mais nova"):
+        core.restore_live(core.find(record.file_name), passphrase=PASSPHRASE)
+    assert LedgerTransaction.objects.count() == data

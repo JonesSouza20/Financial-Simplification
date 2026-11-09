@@ -105,6 +105,15 @@ def counts(path) -> dict:
         conn.close()
 
 
+def migrations(path) -> set[tuple[str, str]]:
+    """Migrações aplicadas na cópia, para comparar com as que o código conhece."""
+    conn = sqlite3.connect(f"file:{path}?mode=ro", uri=True)
+    try:
+        return set(conn.execute("SELECT app, name FROM django_migrations").fetchall())
+    finally:
+        conn.close()
+
+
 def schema(path) -> str:
     """Última migração aplicada, para conferir compatibilidade na restauração."""
     conn = sqlite3.connect(f"file:{path}?mode=ro", uri=True)

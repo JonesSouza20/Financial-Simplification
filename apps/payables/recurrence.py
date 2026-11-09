@@ -132,14 +132,17 @@ def occurrence_dates(rule: RecurrenceRule, until: datetime.date) -> list[datetim
     return dates
 
 
-def preview(rule: RecurrenceRule, count: int = 12) -> list[datetime.date]:
-    """Próximas datas antes de salvar: mostra o efeito de feriados e fins de semana (F-033)."""
+def preview(
+    rule: RecurrenceRule, count: int = 12, today: datetime.date | None = None
+) -> list[datetime.date]:
+    """Próximas datas que serão criadas: mostra o efeito de feriados e fins de semana (F-033)."""
     _validate(rule)
+    first = max(rule.start_date, today or ledger.today())
     dates = []
     for day in _raw_dates(rule):
         if len(dates) >= count or (rule.end_date and day > rule.end_date):
             break
-        if day >= rule.start_date:
+        if day >= first:
             dates.append(day)
     if rule.remaining_count is not None:
         dates = dates[: rule.remaining_count]
@@ -150,13 +153,17 @@ def _has_live_occurrence(rule: RecurrenceRule, day: datetime.date) -> bool:
     return rule.commitments.filter(due_date=day, transaction__status__in=services.PLANNED).exists()
 
 
-def _materialize(rule: RecurrenceRule, until: datetime.date) -> int:
-    """Cria o que falta até `until`, sempre como previsto (RN-051)."""
+def _materialize(rule: RecurrenceRule, until: datetime.date, today: datetime.date) -> int:
+    """Cria o que falta de hoje até `until`, sempre como previsto (RN-051).
+
+    A janela é móvel, de hoje em diante: início no passado não inventa ocorrência já vencida.
+    """
     if not rule.active:
         return 0
     start = max(
         settings.FINANCAS_START_DATE,
         rule.start_date,
+        today,
         (rule.generated_until + datetime.timedelta(days=1))
         if rule.generated_until
         else rule.start_date,
@@ -251,7 +258,7 @@ def create_rule(
     _validate(rule)
     with transaction.atomic():
         rule.save()
-        _materialize(rule, window_end(today))
+        _materialize(rule, window_end(today), today)
         promote_due(today)
         audit.log("create", rule, after={"name": rule.name, "amount_cents": rule.amount_cents})
     return rule
@@ -357,7 +364,7 @@ def update_rule(
         current.save()
         current.refresh_from_db()
         _cancel_future(current, start, CHANGED)
-        _materialize(current, window_end(today))
+        _materialize(current, window_end(today), today)
         promote_due(today)
         audit.log(
             "update",
@@ -397,7 +404,7 @@ def renew(today: datetime.date | None = None) -> str:
     for rule in RecurrenceRule.objects.filter(active=True):
         try:
             with transaction.atomic():
-                created += _materialize(rule, window_end(today))
+                created += _materialize(rule, window_end(today), today)
         except LedgerError as exc:
             problems.append(f"{rule.name}: {exc}")
     promoted = promote_due(today)
