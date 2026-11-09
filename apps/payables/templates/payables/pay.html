@@ -1,0 +1,45 @@
+{% extends "base.html" %}{% load fin %}
+{% block title %}{% if incoming %}Receber{% else %}Pagar{% endif %}{% endblock %}
+{% block content %}
+<form method="post" class="max-w-md flex flex-col gap-3">{% csrf_token %}
+  {{ form.idempotency_key }}
+  <div class="amount"><small>R$</small>{{ remaining|num }}</div>
+  <div>
+    <h1 class="text-[22px]!">{{ c.transaction.description }}</h1>
+    <p class="sub">{{ row.when }}{% if row.status %} · {{ row.status }}{% endif %}</p>
+  </div>
+  {% if has_payment %}<div class="pbar" role="img" aria-label="{{ row.paid_percent }}% pago"><i class="done wp-{{ row.paid_percent }}"></i></div>{% endif %}
+  {% include "partials/form_errors.html" %}
+  {% include "partials/field.html" with field=form.account %}
+  {% include "partials/field.html" with field=form.on %}
+  <button class="btn btn-primary w-full min-h-14 text-lg" type="submit" name="full" value="1">{% if incoming %}Recebi{% else %}Pagar{% endif %} {{ remaining|brl }}</button>
+  {% if note %}<p class="note">{{ note }}</p>{% endif %}
+  <details class="border-t border-border pt-2" {% if show_alternatives %}open{% endif %}>
+    <summary class="link cursor-pointer min-h-11 flex items-center">{% if incoming %}Receber outro valor{% else %}Pagar outro valor ou com juros{% endif %}</summary>
+    <div class="flex flex-col gap-3 pt-2">
+      {% include "partials/field.html" with field=form.amount %}
+      {% if not incoming %}
+        {% include "partials/field.html" with field=form.late_fee %}
+        {% include "partials/field.html" with field=form.excess_kind %}
+        {% include "partials/field.html" with field=form.close_reason %}
+        <p class="help">Valor menor que o da conta: ela continua na lista com o restante. Os juros ficam em categoria própria.</p>
+      {% endif %}
+      <button class="btn btn-secondary w-full" type="submit" name="custom" value="1">{% if incoming %}Receber este valor{% else %}Pagar este valor{% endif %}</button>
+    </div>
+  </details>
+</form>
+<div class="max-w-md mt-4 chiprow border-t border-border pt-1">
+  {% if can_schedule %}
+    {% if c.scheduled_debit_date %}
+      <form method="post" action="{% url 'payables:unschedule' c.pk %}">{% csrf_token %}<input type="hidden" name="version" value="{{ c.version }}"><button class="link min-h-11" type="submit">Remover agendamento</button></form>
+    {% else %}
+      <a href="{% url 'payables:schedule' c.pk %}">Agendar</a>
+    {% endif %}
+  {% endif %}
+  {% if has_payment %}
+    <a href="{% url 'payables:close' c.pk %}">Encerrar sem pagar o resto</a>
+  {% else %}
+    <a href="{% url 'payables:cancel' c.pk %}">Cancelar {% if incoming %}receita{% else %}conta{% endif %}</a>
+  {% endif %}
+</div>
+{% endblock %}

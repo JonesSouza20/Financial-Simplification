@@ -1,0 +1,26 @@
+{% extends "base.html" %}{% load fin %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<form method="post" class="max-w-md flex flex-col gap-3">{% csrf_token %}
+  <h1>{{ title }}</h1>
+  {% if intro %}<p class="text-text-2">{{ intro }}</p>{% endif %}
+  {% include "partials/form_errors.html" %}
+  {% if version %}<input type="hidden" name="version" value="{{ version }}">{% endif %}
+  {% for field in form.hidden_fields %}{{ field }}{% endfor %}
+  {% if form.basic_fields %}
+    {% for field in form.basic_fields %}{% include "partials/field.html" %}{% endfor %}
+    {% if form.advanced_fields %}
+    <details class="border-t border-border pt-2" {% if form.advanced_open %}open{% endif %}>
+      <summary class="link cursor-pointer min-h-11 flex items-center">Mais opções</summary>
+      <div class="flex flex-col gap-3 pt-2">{% for field in form.advanced_fields %}{% include "partials/field.html" %}{% endfor %}</div>
+    </details>
+    {% endif %}
+  {% else %}
+    {% for field in form.visible_fields %}{% include "partials/field.html" %}{% endfor %}
+  {% endif %}
+  <div class="flex gap-2">
+    <button class="btn {% if danger %}btn-danger{% else %}btn-primary{% endif %} flex-1" type="submit">{% if danger %}Confirmar{% else %}{{ submit }}{% endif %}</button>
+    <a class="btn btn-secondary" href="{% url back %}">Voltar</a>
+  </div>
+</form>
+{% endblock %}

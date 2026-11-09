@@ -9,7 +9,6 @@ from django.utils import timezone
 from django.views.decorators.http import require_GET
 
 from apps.accounts import services as accounts
-from apps.entries import services as entries
 from apps.money import Money
 
 
@@ -46,10 +45,12 @@ def _totals():
 
 @require_GET
 def home(request):
+    from apps.ledger import services as ledger
+    from apps.payables import presentation
+
     from . import models as prefs
 
-    context = _totals()
-    context["recent"] = [entries.describe(t) for t in entries.movements()[:5]]
+    context = presentation.home(ledger.today())
     context["opening_done"] = prefs.get("opening_done", False)
     return render(request, "ui/home.html", context)
 

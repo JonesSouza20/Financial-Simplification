@@ -5,7 +5,7 @@ from apps.accounts.services import active_accounts
 from apps.cards.models import Card
 from apps.cards.services import PurchaseInput, active_cards
 from apps.categories.models import Category, CategoryKind
-from apps.categories.services import selectable
+from apps.categories.services import most_used_first, selectable
 from apps.ledger.models import TransactionStatus
 from apps.persons import services as persons
 from apps.ui.forms import DateInput, IdempotentForm, MoneyField, StyledForm
@@ -84,6 +84,7 @@ class EntryForm(IdempotentForm):
         self.fields["card"].queryset = active_cards()
         self.people = list(persons.active().values_list("name", flat=True))
         self.fields["expense_category"].queryset = selectable(CategoryKind.EXPENSE)
+        most_used_first(self.fields["expense_category"])
         self.fields["income_category"].queryset = Category.objects.filter(
             kind=CategoryKind.INCOME, archived_at__isnull=True
         ).exclude(system_key="reserve_yield")

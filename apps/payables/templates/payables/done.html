@@ -1,0 +1,17 @@
+{% extends "base.html" %}{% load fin %}
+{% block title %}Pronto{% endblock %}
+{% block content %}
+<div class="max-w-md flex flex-col gap-3">
+  <h1 class="state ok text-[26px]!">{% icon 'check' 26 %}{{ c.transaction.description }} {% if incoming %}recebido{% elif still_open %}pago em parte{% else %}pago{% endif %}</h1>
+  <p class="text-text-2">{{ amount|brl }} {% if incoming %}entraram na{% else %}saíram da{% endif %} {{ account }}.{% if still_open %} Faltam {{ remaining|brl }}.{% endif %}</p>
+  {% if effect %}<p>{{ effect }}</p>{% endif %}
+  {% if can_undo %}
+    <form method="post" action="{% url 'entries:undo' %}">{% csrf_token %}
+      <input type="hidden" name="next" value="{% url 'payables:central' %}">
+      <button class="btn btn-secondary w-full" type="submit">Desfazer</button>
+    </form>
+    <p class="note">Desfazer fica disponível por 2 minutos. Depois disso, o caminho é estornar em Movimentações.</p>
+  {% endif %}
+  <a class="btn btn-primary w-full" href="{% url 'payables:central' %}">Voltar para Pagamentos</a>
+</div>
+{% endblock %}

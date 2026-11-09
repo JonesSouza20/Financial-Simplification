@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Feriados{% endblock %}
+{% block content %}
+<div class="flex items-baseline justify-between gap-3 flex-wrap">
+  <h1>Feriados de {{ year }}</h1>
+  <div class="chiprow"><a href="?ano={{ previous }}">{{ previous }}</a><a href="?ano={{ next }}">{{ next }}</a></div>
+</div>
+<div class="two mt-3">
+  <section>
+    {% for h in items %}
+    <div class="row">
+      <span class="money w-14 shrink-0">{{ h.date|date:"d/m" }}</span>
+      <span class="flex-1 min-w-0">{{ h.name }}<span class="block sub">{{ h.get_scope_display }}</span></span>
+      <form method="post" action="{% url 'payables:holiday_remove' h.date.isoformat %}">{% csrf_token %}<button class="link min-h-11" type="submit" aria-label="Remover {{ h.name }}">Remover</button></form>
+    </div>
+    {% empty %}<p class="sub mt-3">Nenhum feriado neste ano. Sem a tabela do ano, o sistema não calcula dias úteis.</p>{% endfor %}
+  </section>
+  <form method="post" class="flex flex-col gap-3">{% csrf_token %}
+    <h2 class="caption grp-head">Incluir feriado</h2>
+    {% include "partials/form_errors.html" %}
+    {% for field in form.visible_fields %}{% include "partials/field.html" %}{% endfor %}
+    <button class="btn btn-primary w-full" type="submit">Incluir</button>
+  </form>
+</div>
+{% endblock %}

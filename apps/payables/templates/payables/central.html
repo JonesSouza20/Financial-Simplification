@@ -1,0 +1,62 @@
+{% extends "base.html" %}{% load fin %}
+{% block title %}Pagamentos{% endblock %}
+{% block content %}
+<div class="flex items-baseline justify-between gap-3 flex-wrap">
+  <h1>Pagamentos</h1>
+  <div class="chiprow">
+    <a href="{% url 'payables:calendar' %}">Calendário</a>
+    <a href="{% url 'payables:recurrences' %}">Recorrências</a>
+    <a class="link" href="{% url 'payables:new_income' %}">Nova receita</a>
+    <a class="btn btn-secondary" href="{% url 'payables:new_bill' %}">Nova conta</a>
+  </div>
+</div>
+{% if empty and not salary %}
+  <p class="mt-4 text-text-2">Nenhuma conta nos próximos 60 dias. Cadastre uma conta ou uma recorrência para ver aqui.</p>
+{% else %}
+  <p class="sub mt-1">Até {{ words }} você ainda tem {% if to_pay_approx %}cerca de {% endif %}<span class="money text-text font-medium">{{ to_pay|brl }}</span> para pagar.</p>
+  <div class="cal" role="img" aria-label="Próximos 31 dias com contas e salário marcados. A lista abaixo traz cada data.">
+    {% for css in days %}<i class="{{ css }}"></i>{% endfor %}
+  </div>
+  <div class="calk sub"><span>Hoje</span>{% if salary %}<span>Salário, {{ salary.due_date|date:"d/m" }}</span>{% endif %}<span>{{ last_day|date:"d/m" }}</span></div>
+
+  {% if overdue %}
+  <section class="grp"><div class="grp-head"><h2 class="caption text-negative">Atrasados</h2></div>
+    {% for r in overdue %}{% include "payables/_row.html" %}{% endfor %}
+  </section>
+  {% endif %}
+  {% if week %}
+  <section class="grp"><div class="grp-head"><h2 class="caption">Esta semana</h2></div>
+    {% for r in week %}{% include "payables/_row.html" %}{% endfor %}
+  </section>
+  {% endif %}
+  {% if until_salary %}
+  <section class="grp"><div class="grp-head"><h2 class="caption">Até {{ words }}</h2></div>
+    {% for r in until_salary %}{% include "payables/_row.html" %}{% endfor %}
+  </section>
+  {% endif %}
+  {% if salary %}
+  <div class="item salary">
+    <span class="tile bg-positive!">{% icon 'income' 21 %}</span>
+    <div class="nm">Salário, {{ salary.due_date|date:"d/m" }}</div>
+    <div class="am">+{{ salary.amount|num }}<br><a class="link item-link" href="{{ salary.action_url }}">Recebi</a></div>
+    <a class="btn btn-secondary go" href="{{ salary.action_url }}">Recebi</a>
+  </div>
+  {% endif %}
+  {% if incomes %}
+  <section class="grp"><div class="grp-head"><h2 class="caption">Receitas previstas</h2></div>
+    {% for r in incomes %}{% include "payables/_row.html" %}{% endfor %}
+  </section>
+  {% endif %}
+  {% if later %}
+  <details class="later">
+    <summary>
+      <span class="spacer"></span>
+      <span class="flex items-center gap-3"><span class="caption">Depois {{ after_words }}</span><span class="minis" aria-hidden="true">{% for r in later_icons %}<span class="tile {{ r.tile }}">{% icon r.icon 14 %}</span>{% endfor %}</span></span>
+      <span class="am">{{ later_total|num }}</span>
+      <span class="link see justify-self-end">Ver {{ later|length }} conta{{ later|length|pluralize }}</span>
+    </summary>
+    {% for r in later %}{% include "payables/_row.html" %}{% endfor %}
+  </details>
+  {% endif %}
+{% endif %}
+{% endblock %}

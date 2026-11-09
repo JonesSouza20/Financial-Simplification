@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Dinheiro{% endblock %}
+{% block content %}
+<form method="post" class="max-w-md flex flex-col gap-3">{% csrf_token %}
+  <h1>Dinheiro</h1>
+  {% include "partials/form_errors.html" %}
+  {% for field in form.visible_fields %}{% include "partials/field.html" %}{% endfor %}
+  <button class="btn btn-primary w-full" type="submit">Salvar</button>
+</form>
+<nav class="card flex flex-col max-w-md mt-6" aria-label="Mais ajustes de dinheiro">
+  <a class="row" href="{% url 'payables:recurrences' %}">Recorrências</a>
+  <a class="row" href="{% url 'categories:list' %}">Categorias</a>
+  <a class="row" href="{% url 'payables:holidays' %}">Feriados</a>
+</nav>
+{% endblock %}

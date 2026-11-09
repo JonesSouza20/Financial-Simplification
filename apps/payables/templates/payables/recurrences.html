@@ -1,0 +1,33 @@
+{% extends "base.html" %}{% load fin %}
+{% block title %}Recorrências{% endblock %}
+{% block content %}
+<div class="flex items-baseline justify-between gap-3 flex-wrap">
+  <h1>Recorrências</h1>
+  <a class="btn btn-secondary" href="{% url 'payables:recurrence_new' %}">Nova recorrência</a>
+</div>
+{% if rows %}
+<div class="two mt-3">
+  <section>
+    {% for row in rows %}
+    <a class="item no-action" href="?r={{ row.rule.pk }}#datas"{% if selected.rule.pk == row.rule.pk %} aria-current="true"{% endif %}>
+      <span class="tile {{ row.tile }}">{% icon row.icon 21 %}</span>
+      <div class="min-w-0"><div class="nm">{{ row.rule.name }}</div><div class="sub">{{ row.when }}{% if row.variable %} · <span class="tag">valor varia</span>{% endif %}</div></div>
+      <div class="am{% if row.variable %} approx{% endif %}">{% if row.variable %}≈{% elif row.incoming %}+{% endif %}{{ row.amount|num }}</div>
+    </a>
+    {% endfor %}
+  </section>
+  <aside id="datas">
+    <h2 class="caption grp-head">{{ selected.rule.name }}: próximas datas</h2>
+    <div class="dates">{% for d in dates %}<span>{{ d|date:"d/m" }}</span>{% endfor %}</div>
+    <p class="sub mt-2">Já contam feriados e fins de semana.</p>
+    <div class="flex gap-2 mt-4">
+      <a class="btn btn-secondary flex-1" href="{% url 'payables:recurrence_edit' selected.rule.pk %}">Alterar</a>
+      <a class="btn btn-danger flex-1" href="{% url 'payables:recurrence_end' selected.rule.pk %}">Encerrar</a>
+    </div>
+    <p class="note">Alterar só muda daqui para a frente. O que já passou ou foi pago fica como está.</p>
+  </aside>
+</div>
+{% else %}
+<p class="mt-4 text-text-2">Nenhuma recorrência ainda. O salário e as contas de todo mês ficam aqui.</p>
+{% endif %}
+{% endblock %}

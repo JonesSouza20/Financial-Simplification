@@ -25,19 +25,26 @@
     {% for name, label, ic, active in nav_holdings %}<a href="{% url name %}" class="nav-link" {% if active %}aria-current="page"{% endif %}>{{ label }}</a>{% endfor %}
     <a href="{% url 'ui:settings' %}" class="nav-link mt-auto" {% if settings_active %}aria-current="page"{% endif %}>Ajustes</a>
   </aside>
-  <main class="flex-1 min-w-0 pb-28 lg:pb-10">
+  <nav class="hidden sm:flex lg:hidden flex-wrap items-center gap-x-5 gap-y-1 px-4 py-2 border-b border-strong" aria-label="Navegação principal">
+    <a href="{% url 'ui:home' %}" class="font-serif font-medium text-xl tracking-tight mr-2">Finanças</a>
+    {% for name, label, ic, active in nav %}<a href="{% url name %}" class="tab-top" {% if active %}aria-current="page"{% endif %}>{{ label }}</a>{% endfor %}
+    {% for name, label, ic, active in nav_holdings %}<a href="{% url name %}" class="tab-top" {% if active %}aria-current="page"{% endif %}>{{ label }}</a>{% endfor %}
+    <a href="{% url 'ui:settings' %}" class="tab-top" {% if settings_active %}aria-current="page"{% endif %}>Ajustes</a>
+    <a href="{% url 'entries:quick' %}" class="btn btn-primary ml-auto">Lançar</a>
+  </nav>
+  <main class="flex-1 min-w-0 pb-28 sm:pb-10">
     <div class="mx-auto max-w-[1180px] px-4 pt-6 lg:px-9">
       {% include "partials/messages.html" %}
       {% block content %}{% endblock %}
     </div>
   </main>
 </div>
-<nav class="lg:hidden fixed bottom-0 inset-x-0 bg-surface border-t border-strong grid grid-cols-[.8fr_1.15fr_1fr_1.3fr_.7fr] font-cond text-[13.5px] pb-[env(safe-area-inset-bottom)]" aria-label="Navegação principal">
-  <a href="{% url 'ui:home' %}" class="flex items-center justify-center min-h-14 text-text-2">Início</a>
-  <a href="{% url 'accounts:list' %}" class="flex items-center justify-center min-h-14 text-text-2">Contas</a>
+<nav class="sm:hidden fixed bottom-0 inset-x-0 bg-surface border-t border-strong grid grid-cols-[.8fr_1.15fr_1fr_1.3fr_.7fr] font-cond text-[13.5px] pb-[env(safe-area-inset-bottom)]" aria-label="Navegação principal">
+  <a href="{% url 'ui:home' %}" class="tab" {% if tab == 'home' %}aria-current="page"{% endif %}>Início</a>
+  <a href="{% url 'payables:central' %}" class="tab" {% if tab == 'payables' %}aria-current="page"{% endif %}>Pagamentos</a>
   <a href="{% url 'entries:quick' %}" class="flex items-center justify-center min-h-14 bg-primary text-on-primary font-semibold text-[15px]">Lançar</a>
-  <a href="{% url 'entries:list' %}" class="flex items-center justify-center min-h-14 text-text-2">Movimentações</a>
-  <a href="{% url 'ui:more' %}" class="flex items-center justify-center min-h-14 text-text-2">Mais</a>
+  <a href="{% url 'entries:list' %}" class="tab" {% if tab == 'entries' %}aria-current="page"{% endif %}>Movimentações</a>
+  <a href="{% url 'ui:more' %}" class="tab" {% if tab == 'more' %}aria-current="page"{% endif %}>Mais</a>
 </nav>
 {% endblock %}
 </body>

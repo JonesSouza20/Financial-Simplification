@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import datetime
 import uuid
 
 from django.db import transaction
@@ -86,6 +87,38 @@ def archive(category: Category) -> None:
 
 def by_key(key: str) -> Category:
     return Category.objects.get(system_key=key)
+
+
+def most_used_first(field, limit: int = 5, days: int = 90) -> None:
+    """Põe as categorias mais lançadas nos últimos dias num grupo no topo da lista."""
+    from django.db.models import Count
+
+    from apps.ledger import services as ledger
+    from apps.ledger.models import EFFECTIVE_STATUSES, LedgerPosting
+
+    options = list(field.queryset)
+    by_account = {c.ledger_account_id: c for c in options}
+    since = ledger.today() - datetime.timedelta(days=days)
+    counts = (
+        LedgerPosting.objects.filter(
+            account_id__in=by_account,
+            transaction__status__in=EFFECTIVE_STATUSES,
+            transaction__operation_date__gte=since,
+        )
+        .values("account_id")
+        .annotate(total=Count("id"))
+        .order_by("-total", "account_id")[:limit]
+    )
+    top = [by_account[row["account_id"]] for row in counts]
+    if len(top) < 2:
+        return
+    label = field.label_from_instance
+    chosen = {c.pk for c in top}
+    field.choices = [
+        ("", field.empty_label or ""),
+        ("Mais usadas", [(c.pk, label(c)) for c in top]),
+        ("Todas", [(c.pk, label(c)) for c in options if c.pk not in chosen]),
+    ]
 
 
 def selectable(kind: str, *, benefit: bool = False):

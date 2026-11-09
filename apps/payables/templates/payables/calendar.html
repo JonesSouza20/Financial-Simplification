@@ -1,0 +1,31 @@
+{% extends "base.html" %}{% load fin %}
+{% block title %}Calendário{% endblock %}
+{% block content %}
+<div class="flex items-baseline justify-between gap-3 flex-wrap">
+  <h1>{{ first|date:"F \d\e Y"|capfirst }}</h1>
+  <div class="chiprow">
+    <a href="?mes={{ previous|date:'Y-m' }}" aria-label="Mês anterior">Anterior</a>
+    <a href="?mes={{ next|date:'Y-m' }}" aria-label="Próximo mês">Próximo</a>
+    <a href="{% url 'payables:central' %}">Lista</a>
+  </div>
+</div>
+<div class="two mt-1">
+  <section>
+    <div class="mon">
+      {% for w in weekdays %}<div class="wk">{{ w }}</div>{% endfor %}
+      {% for cell in cells %}
+        {% if cell.blank %}<div class="d blank"></div>
+        {% else %}<a class="d{% if cell.closed %} closed{% endif %}{% if cell.selected %} sel{% endif %}{% if cell.today %} today{% endif %}" href="?mes={{ first|date:'Y-m' }}&amp;dia={{ cell.number }}" aria-label="Dia {{ cell.number }}{% if cell.count %}, {{ cell.count }} item{{ cell.count|pluralize:'ns' }}{% endif %}"{% if cell.selected %} aria-current="date"{% endif %}><b class="font-medium font-mono">{{ cell.number }}</b>{% for k in cell.marks %}<i class="mk {{ k }}"></i>{% endfor %}</a>{% endif %}
+      {% endfor %}
+    </div>
+  </section>
+  <aside class="mt-3">
+    <h2 class="caption grp-head">{{ day|date:"l, j \d\e F"|capfirst }}</h2>
+    {% if holiday %}<p class="sub mt-2">{{ holiday.name }}</p>{% endif %}
+    {% for r in rows %}{% include "payables/_row.html" %}{% empty %}<p class="sub mt-3">Nada neste dia.</p>{% endfor %}
+    {% if rows %}<p class="sub mt-3">{% if to_pay.is_positive %}A pagar <span class="money">{{ to_pay|brl }}</span>{% endif %}{% if to_pay.is_positive and to_receive.is_positive %} · {% endif %}{% if to_receive.is_positive %}A receber <span class="money">{{ to_receive|brl }}</span>{% endif %}</p>{% endif %}
+    <div class="flex gap-4 mt-4 sub flex-wrap"><span><i class="mk key-mark c"></i>Conta</span><span><i class="mk key-mark g"></i>Entrada</span><span><i class="mk key-mark e"></i>Estimativa</span></div>
+    <p class="sub mt-2">Sábados, domingos e feriados aparecem mais escuros.</p>
+  </aside>
+</div>
+{% endblock %}

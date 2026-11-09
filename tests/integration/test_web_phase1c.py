@@ -315,6 +315,6 @@ def test_inicio_mostra_banner_de_abertura_e_totais(web, card_a, cats):
         )
     )
     body = web.get("/").content.decode()
-    assert "Comece pela abertura" in body and "R$ 200,00" in body
+    assert "Comece pela abertura" in body and "200,00" in body
     origin = web.get("/origem/cartoes/").content.decode()
     assert "Cartão A" in origin and "R$ 200,00" in origin

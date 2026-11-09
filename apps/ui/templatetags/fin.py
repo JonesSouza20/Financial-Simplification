@@ -31,6 +31,20 @@ ICONS = {
     "users": '<circle cx="9" cy="8" r="3.25"/><path d="M3 19c.8-3.2 3.2-5 6-5s5.2 1.8 6 5"/>'
     '<path d="M16 5.2a3 3 0 0 1 0 5.6M18 14.3c1.6.7 2.6 2.3 3 4.7"/>',
     "debt": '<path d="M4 19h16M6 16V9M10 16V9M14 16V9M18 16V9M3 9l9-5 9 5"/>',
+    "bolt": '<path d="M13.5 2.5 6 13.5h6l-1.5 8L18 10.5h-6z"/>',
+    "drop": '<path d="M12 3.5c3.5 4.5 6 7.4 6 10.7a6 6 0 0 1-12 0c0-3.3 2.5-6.2 6-10.7z"/>',
+    "flame": '<path d="M12 3c.6 3.2 5.5 5.4 5.5 10.5a5.5 5.5 0 0 1-11 0c0-2.3 1.2-3.8 2.5-5 '
+    '.3 1.6 1 2.5 2 3 .2-3 .1-5.8 1-8.5z"/>',
+    "wifi": '<path d="M3 9.5c5.2-4.5 12.8-4.5 18 0M6.8 14c3-2.4 7.4-2.4 10.4 0M12 18.5v.5"/>',
+    "phone": '<rect x="7" y="2.5" width="10" height="19"/><path d="M11 18.5h2"/>',
+    "meal": '<path d="M7 3v7a2.5 2.5 0 0 0 5 0V3M9.5 3v18"/>'
+    '<path d="M17 3c-2 1.5-2.5 4-2.5 7 0 1.5 1 2.5 2.5 2.5V21"/>',
+    "market": '<path d="M3 4h3l2.2 11h10L20 7.5H6.8"/><path d="M9.5 19.5v.5M17 19.5v.5"/>',
+    "bus": '<rect x="4" y="3.5" width="16" height="14"/>'
+    '<path d="M4 11h16M7.5 17.5V20M16.5 17.5V20"/>',
+    "car": '<path d="M3 14.5 5.2 8h13.6l2.2 6.5v4.5H3zM6.5 19v2M17.5 19v2M3 14.5h18"/>',
+    "income": '<path d="M12 20V4.5M6 10.5l6-6 6 6"/>',
+    "other": '<rect x="4.5" y="4.5" width="15" height="15"/><path d="M8.5 12h7"/>',
 }
 
 
@@ -53,6 +67,13 @@ def brl(value):
     if isinstance(value, int):
         return Money(value).format_brl()
     return value
+
+
+@register.filter
+def num(value):
+    """Valor sem o símbolo: '1.234,56'. Usado em listas e nos números grandes."""
+    money = value if isinstance(value, Money) else Money(int(value or 0))
+    return money.format_brl().replace("R$ ", "")
 
 
 @register.filter

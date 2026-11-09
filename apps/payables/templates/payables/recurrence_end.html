@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Encerrar recorrência{% endblock %}
+{% block content %}
+<form method="post" class="max-w-md flex flex-col gap-3">{% csrf_token %}
+  <h1>Encerrar {{ rule.name }}?</h1>
+  <p class="text-text-2">As próximas ocorrências sem pagamento serão canceladas. O que já foi pago fica como está.</p>
+  <input type="hidden" name="version" value="{{ rule.version }}">
+  <div class="flex gap-2">
+    <button class="btn btn-danger flex-1" type="submit">Encerrar</button>
+    <a class="btn btn-secondary" href="{% url 'payables:recurrences' %}">Voltar</a>
+  </div>
+</form>
+{% endblock %}
