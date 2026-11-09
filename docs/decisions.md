@@ -615,6 +615,16 @@ Comparação em `architecture.md`, seção 9.4.
 - A Fase 2B só começa depois de um estudo completo de design e UI/UX, aprovado pelo usuário. A Fase 6 aplica o estudo ao dashboard.
 - O sistema não pode ter "cara de IA": isso vale para cores, fontes, composição e demais escolhas visuais.
 - O dashboard não pode ser genérico: precisa ser robusto e, ao mesmo tempo, simplificado.
-- O estudo cobre as telas existentes, além do dashboard, e define o que muda em `ui-ux-specification.md`.
+- O resultado precisa ter personalidade, aparência de software profissional e excelente usabilidade. Um dashboard apenas bonito não atende.
+- O estudo define o que muda em `ui-ux-specification.md` e cobre, obrigatoriamente:
+  1. pesquisa de referências e benchmarking de produtos financeiros;
+  2. arquitetura da informação e organização dos módulos;
+  3. fluxos de navegação e experiência do usuário;
+  4. design system: cores, tipografia, espaçamento, ícones e componentes;
+  5. dashboard: visualização densa de informações sem perder simplicidade;
+  6. telas existentes e telas novas;
+  7. responsividade para desktop, tablet e celular;
+  8. acessibilidade, consistência e usabilidade;
+  9. protótipos ou referências visuais para aprovação.
 
 **Consequências:** mudanças no `ui-ux-specification.md` entram por seção de alterações após a aprovação do estudo. O escopo exato dos itens novos sai do estudo, com o usuário.
