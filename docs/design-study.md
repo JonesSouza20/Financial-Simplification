@@ -2,9 +2,9 @@
 
 | Campo | Valor |
 |---|---|
-| Versão | 0.2 |
+| Versão | 0.3 |
 | Data | 08/11/2026 |
-| Status | Direção B escolhida em 08/11/2026. Estudo de cores e revisão de Início e Pagamentos em avaliação. A Parte 2 começa depois dessa aprovação |
+| Status | Direção B escolhida e revisão de Início e Pagamentos aceita em 08/11/2026. Parte 2 (seções 10 a 17) em avaliação |
 | Decisão | ADR-040: pré-requisito da Fase 2B |
 | Protótipos | Canvas da direção B, guardado fora do repositório |
 
@@ -98,7 +98,7 @@ Conferido no navegador, em cada candidata: largura igual de todos os dígitos e 
 | Aprovadas | IBM Plex Sans, Sans Condensed, Mono e Serif; Archivo; Archivo Narrow; Barlow; Barlow Semi Condensed; B612; B612 Mono; Source Serif 4; Schibsted Grotesk; Public Sans; Hanken Grotesk; Spline Sans Mono; Red Hat Mono; Newsreader; Atkinson Hyperlegible Next; Fira Sans; Fira Sans Condensed; Sometype Mono |
 | Reprovadas por dígitos de largura variável | Libre Franklin, Commissioner |
 
-Pendência: `≈` e `→` não vieram nos recortes do Google Fonts de nenhuma candidata. O sistema usa `≈` nas projeções, então é preciso conferir no arquivo completo da fonte escolhida, antes de hospedá-la localmente. Licenças abertas também serão confirmadas arquivo a arquivo.
+Pendência: (Resolvida na seção 12: a família IBM Plex tem `≈` e `→`.) `≈` e `→` não vieram nos recortes padrão do Google Fonts de nenhuma candidata. O sistema usa `≈` nas projeções, então é preciso conferir no arquivo completo da fonte escolhida, antes de hospedá-la localmente. Licenças abertas também serão confirmadas arquivo a arquivo.
 
 Excluídas de propósito, por já parecerem padrão de IA: Inter, Space Grotesk, DM Sans, Instrument Serif, Fraunces.
 
@@ -216,3 +216,133 @@ O tema escuro entra na Parte 2.
 3. **Texto para quando o disponível ficar abaixo do mínimo.** Proposta: "Abaixo do mínimo em R$ X", com o número em atenção, sem valor negativo grande.
 
 Fontes adicionais: [CFPB, cor em visualização de dados](https://cfpb.github.io/design-manual-archive/data-visualization/color.html); [Hue Got It, 4imprint](https://info.4imprint.co.uk/blue-paper/how-brand-colours-influence-trust-customer-behaviour-market-report).
+
+# Parte 2 — Sistema completo
+
+Protótipos: canvas, guardado fora do repositório, com 18 quadros e dados fictícios do cenário S14.
+
+## 10. Arquitetura da informação
+
+| Grupo | Itens | Entrega |
+|---|---|---|
+| O dia a dia | Início, Pagamentos (com Calendário e Recorrências), Movimentações | 2B |
+| O que devo e tenho | Cartões, Dívidas, A receber, Contas | Existem; ganham o novo visual |
+| Olhar à frente | Planejamento, Relatórios | Pós-MVP. Entram nesse grupo, sem reorganizar o resto |
+| Ajustes | Dinheiro (mínimo, horizonte, categorias, recorrências, feriados), Avisos, Sistema (segurança, backup, saúde, aparência) | 2B |
+
+Mudanças em relação à navegação atual: Categorias, Segurança, Backup, Saúde e Aparência saem da barra principal e vão para Ajustes. Pagamentos entra na barra do celular.
+
+## 11. Fluxos
+
+| Fluxo | Como fica |
+|---|---|
+| Pagar | Abre com o valor cheio, e confirmar é um toque. "Pagar outro valor ou com juros" abre as outras opções. Depois: confirmação e "Desfazer" por 2 minutos |
+| Pagar uma parte | A barra mostra o que foi e o que falta. A conta continua na lista |
+| Pagar com juros | Juros em linha própria e categoria própria (RN-034) |
+| Valor acima do aberto | Recusado até dizer se são juros ou valor maior (RN-043) |
+| Informar valor real | Só para conta variável. Passa de estimativa a pendente (RN-052) |
+| Agendar | Marca a data. No dia, pergunta se o débito aconteceu (RN-035) |
+| Recebi (salário) | Faixa verde na lista e no Início. Move o horizonte para o próximo salário (RN-140) |
+| Lançar | Tipo, valor, categoria das mais usadas e conta na primeira tela, sem rolar |
+| Estornar | Só em Movimentações, com motivo. Reabre a conta se era pagamento (RN-044) |
+| Abertura | Mantém o fluxo atual, com o novo visual |
+
+Toda ação explica o efeito no que você pode gastar, em uma frase.
+
+## 12. Design system
+
+**Tipografia:** IBM Plex em quatro vozes. Serif no número principal e nos títulos de tela; Sans na interface; Sans Condensed nos rótulos; Mono nos valores. Conferido no arquivo da fonte: `≈ → − · ã ç` existem nas quatro versões. `⌫` não existe e virou ícone próprio.
+
+| Token | Uso | Fonte e tamanho |
+|---|---|---|
+| `display` | Número principal | Serif 500, 88 px (computador), 60 px (celular) |
+| `title` | Título de tela | Serif 500, 30 px |
+| `mid` | Totais de seção | Serif 500, 30 px |
+| `name` | Nome em lista | Sans 600, 16,5 px |
+| `body` | Texto | Sans 400, 15/21 px; formulário no celular em 16 px |
+| `sub` | Apoio | Sans 400, 13,5 px |
+| `label` | Rótulos | Condensed 500, 13 px, maiúsculas |
+| `value` | Valores | Mono 13 a 19 px, números tabulares |
+
+**Espaço:** 4, 8, 12, 16, 24, 32, 48 px. **Canto:** 1 px em marcas, 0 em barras. **Sombra e degradê:** nenhum. **Separação:** réguas de 1 e 2 px.
+
+**Cores:** seção 9 para o tema claro. Tema escuro:
+
+| Token | Claro | Escuro |
+|---|---|---|
+| `--bg` | `#F0F1EC` | `#121416` |
+| `--panel` | `#FAFAF6` | `#1A1D20` |
+| `--ink` | `#14171A` | `#ECEBE5` |
+| `--ink2` | `#4C5258` | `#B1B6BB` |
+| `--action` | `#1B3FAB` | `#8FA8F0` |
+| `--ok` / `--ok-t` | `#2A9D5C` / `#17693F` | `#3FB374` / `#6BD69A` |
+| `--warn` / `--warn-t` | `#B07A12` / `#8A5200` | `#C8922E` / `#E3B056` |
+| `--crit` / `--crit-t` | `#8F1D0B` / `#AE240E` | `#D2553C` / `#FF9A85` |
+| `--comp` | `#3A3F45` | `#6C7279` |
+| `--proj` | `#4A43A0` | `#B4AEF2` |
+
+Contraste do tema escuro, medido: textos com mínimo de 5,59:1; preenchimentos com mínimo de 3,48:1.
+
+**Componentes:** botões (principal, secundário, perigo, desabilitado, foco); campos com erro; situação com palavra e sinal (Atrasado, Pendente, Agendado, Previsto, Pago em parte, Pago, Cancelado); barra do dinheiro; barra de progresso; linha de conta; linha do salário; linha do tempo; faixa de dias; aviso; estado vazio.
+
+**Ícones:** conjunto próprio de traço reto, no lugar do Lucide. 14 desenhados; os demais seguem o mesmo traço.
+
+**Gráficos:** barras, linha do tempo e faixas. Sem pizza, rosca ou medidor. Nome escrito no próprio gráfico; previsão hachurada ou tracejada, com etiqueta. No ECharts, as cores vêm dos mesmos tokens.
+
+## 13. Dashboard: do 2B à Fase 6
+
+| Bloco | Fase 2B | Fase 6 |
+|---|---|---|
+| Pode gastar, barra e "Como calculamos" | Sim | Sim |
+| Linha do tempo até o salário | Sim | Sim |
+| Dívidas | Total e barras | Com "de onde vem" |
+| Para onde foi | Barra do mês | Com comparação entre meses |
+| Comprometimento de 12 meses | Não | Sim, em barras simples |
+| Projeção de 7, 15 e 30 dias | Não | Sim |
+
+Os sete estados do número principal estão desenhados no quadro "Estados".
+
+## 14. Telas
+
+| Tela | Situação |
+|---|---|
+| Início, Pagamentos, Lançar, Calendário, Recorrências, Movimentações, Cartões, Dívidas, A receber, Contas, Ajustes | Desenhadas |
+| Login, PIN, formulários de cadastro, abertura, backup, saúde, faturas detalhadas (Fase 3A) | Seguem os mesmos componentes, sem quadro próprio |
+
+## 15. Responsividade
+
+| Largura | Regras |
+|---|---|
+| Computador, 1.024 px ou mais | Barra lateral de texto, conteúdo até 1.180 px |
+| Tablet, 640 a 1.023 px | Navegação no topo; linha do tempo mantida; colunas em uma só abaixo de 860 px |
+| Celular, abaixo de 640 px | Barra inferior com Lançar fixo; linha do tempo vira lista das próximas contas; barra sem texto dentro, com legenda abaixo |
+
+## 16. Acessibilidade e consistência
+
+| Item | Regra |
+|---|---|
+| Cor | Nunca sozinha: palavra, ícone, sinal ou hachura |
+| Contraste | Texto 4,5:1 e marcas 3:1, nos dois temas (medido) |
+| Toque | 44 px no celular; 24 px no mínimo em tudo |
+| Foco | Anel de 2 px visível |
+| Leitor de tela | Barras e linha do tempo com descrição em texto |
+| Movimento | Respeita `prefers-reduced-motion` |
+| Texto | Linguagem comum: nunca "débito", "crédito" ou "perna" |
+
+## 17. Para implementar, depois da aprovação
+
+Nada disso foi feito.
+
+1. Atualizar `ui-ux-specification.md` pela seção de alterações.
+2. Hospedar as fontes IBM Plex localmente (a CSP só aceita arquivos próprios) e remover Inter e Lucide.
+3. Levar os tokens para `tailwind/input.css` (`@theme`) e criar os componentes. O build Alpine CSP e o htmx continuam.
+4. Trocar o visual das telas existentes e construir as da 2B sobre o novo sistema.
+
+Limites deste estudo: os protótipos são estáticos, com dados fictícios; só ao usar de verdade dá para validar conforto e densidade.
+
+### Pendências de decisão
+
+1. Conta variável antes do salário entra no "Pode gastar"? (seção 9)
+2. "Cerca de R$ 91 por dia" fica?
+3. Textos dos estados no quadro "Estados" (seção 9).
+4. Coisas novas para a Fase 6.
