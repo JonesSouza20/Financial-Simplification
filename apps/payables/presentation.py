@@ -267,6 +267,11 @@ def _short(amount: Money, estimated: bool) -> str:
     return f"≈{num(amount).removesuffix(',00')}" if estimated else num(amount)
 
 
+def _kept_label(p: balances.Position) -> str:
+    """Abaixo do mínimo, o que sobra depois das contas não é o mínimo inteiro."""
+    return "Resta" if p.state == balances.BELOW_MINIMUM else "Mínimo"
+
+
 def _money_lines(p: balances.Position) -> list:
     """Linhas fixas e estimadas da barra: no máximo quatro, para continuar legível."""
     lines = [*p.invoices, *p.pending]
@@ -289,7 +294,7 @@ def money_bar(p: balances.Position) -> list[dict]:
     else:
         kept = p.minimum if p.state != balances.BELOW_MINIMUM else p.minimum - p.shortfall
         if kept.is_positive:
-            parts.append(("seg-min", "Mínimo", kept, False))
+            parts.append(("seg-min", _kept_label(p), kept, False))
         if p.can_spend.is_positive:
             parts.append(("seg-free", "Livre para gastar", p.can_spend, False))
     total = sum(amount.cents for _, _, amount, _ in parts)
@@ -321,7 +326,7 @@ def legend(p: balances.Position) -> list[dict]:
         return items
     kept = p.minimum if p.state != balances.BELOW_MINIMUM else p.minimum - p.shortfall
     if kept.is_positive:
-        items.append({"css": "seg-min", "name": "Mínimo", "value": num(kept)})
+        items.append({"css": "seg-min", "name": _kept_label(p), "value": num(kept)})
     if p.can_spend.is_positive:
         items.append({"css": "seg-free", "name": "Livre", "value": num(p.can_spend)})
     return items

@@ -338,3 +338,11 @@ def test_mensagem_de_teste_com_erro_explica(web, setup_bot, monkeypatch):
     monkeypatch.setattr(telegram, "urlopen", fail)
     html = web.post("/ajustes/avisos/teste/", follow=True).content.decode()
     assert "recusou o token" in html and TOKEN not in html
+
+
+def test_agendado_que_nao_debitou_avisa_atraso(setup_bot, bill):
+    payables.schedule(bill, debit_date=D(2026, 11, 23))
+    with travel_to(D(2026, 11, 24)):
+        services.collect()
+    late = Notification.objects.get(kind="overdue")
+    assert late.dedup_key == f"late:{bill.pk}"

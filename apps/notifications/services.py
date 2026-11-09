@@ -84,7 +84,6 @@ def _due_alerts(today: datetime.date, days: int) -> int:
         direction=Direction.OUT,
         transaction__status__in=payables.PLANNED,
         closed_at__isnull=True,
-        scheduled_debit_date__isnull=True,
         due_date__lte=limit,
     ).select_related("transaction")
     for c in candidates:
@@ -95,7 +94,7 @@ def _due_alerts(today: datetime.date, days: int) -> int:
             text = f"Atrasado: {name} {_value(c)}, venceu em {c.effective_due_date:%d/%m}."
             created += enqueue(NotificationKind.OVERDUE, text, f"late:{c.pk}")
             continue
-        if c.effective_due_date < today:
+        if c.effective_due_date < today or c.scheduled_debit_date:
             continue
         moment = "today" if c.due_date <= today else "soon"
         weekday = WEEKDAYS[c.due_date.weekday()]

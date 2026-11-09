@@ -370,6 +370,10 @@ def test_inicio_abaixo_do_minimo(web, bill, salary):
     html = home(web)
     assert "Abaixo do mínimo em R$ 500,00" in html
     assert "Restam R$ 2.000,00 depois das contas" in html
+    p = balances.position()
+    assert "Resta" in [s["name"] for s in presentation.money_bar(p)]
+    names = [s["name"] for s in [*presentation.money_bar(p), *presentation.legend(p)]]
+    assert "Mínimo" not in names
 
 
 def test_inicio_sem_cobertura(web, funded, cats, salary):
@@ -430,3 +434,33 @@ def test_barra_cabe_em_100(funded, cats, salary):
     bar = presentation.money_bar(balances.position())
     assert 98 <= sum(s["percent"] for s in bar) <= 102
     assert [s["css"] for s in bar] == ["seg-comp", "seg-min", "seg-free"]
+
+
+def test_barra_sem_cobertura_mostra_o_que_falta(funded, cats, salary):
+    payables.create_bill(
+        description="Conserto",
+        category=cats.aluguel,
+        account=funded.corrente,
+        amount=Money(340000),
+        due_date=D(2026, 11, 25),
+    )
+    p = balances.position()
+    assert [s["css"] for s in presentation.money_bar(p)] == ["seg-comp", "seg-crit"]
+    assert presentation.legend(p)[-1] == {"css": "seg-crit", "name": "Faltam", "value": "400,00"}
+
+
+@pytest.mark.parametrize(
+    ("changes", "expected"),
+    [
+        ({"frequency": "weekly"}, "Toda semana"),
+        ({"frequency": "weekly", "interval": 2}, "A cada 2 semanas"),
+        ({"day_rule": "last_day"}, "Todo último dia"),
+        ({"day_rule": "nth_business_day", "day_value": 5}, "Todo 5º dia útil"),
+        ({"frequency": "yearly", "day_value": 10}, "Todo dia 10, uma vez por ano"),
+        ({"frequency": "every_n_months", "interval": 3}, "Todo dia 10, a cada 3 meses"),
+        ({"remaining_count": 40}, "Todo dia 10 · 40 ocorrências"),
+    ],
+)
+def test_regra_em_uma_frase(changes, expected):
+    base = {"frequency": "monthly", "interval": 1, "day_rule": "fixed_day", "day_value": 10}
+    assert presentation.describe_rule(RecurrenceRule(**{**base, **changes})) == expected

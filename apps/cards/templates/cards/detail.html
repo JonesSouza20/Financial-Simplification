@@ -10,7 +10,6 @@
     <div class="caption">Saldo devedor</div>
     <div class="amount mt-1"><small>R$</small>{{ owed|num }}</div>
     <p class="help">Inclui parcelas futuras.</p>
-    {% widthratio owed.cents limit.cents 100 as used %}{% widthratio available.cents limit.cents 100 as free %}
     <div class="split" role="img" aria-label="Limite: {{ used }}% usado, {{ free }}% livre">
       <div class="seg-comp wp-{{ used }}"><b>Usado</b></div><div class="seg-free wp-{{ free }}"><b>{{ available|brl }} livres</b></div>
     </div>

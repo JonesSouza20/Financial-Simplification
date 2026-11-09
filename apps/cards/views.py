@@ -101,6 +101,9 @@ def detail(request, pk):
     card = get_object_or_404(Card, pk=pk)
     today = timezone.localdate()
     next_cycle = cycle.closing_date(today, card.closing_day, card.closing_day_goes_next)
+    # A barra fica entre 0 e 100 mesmo com crédito no cartão ou compra acima do limite.
+    limit = card.credit_limit_cents
+    used = min(max((services.liability(card).cents * 100 + limit // 2) // limit, 0), 100)
     return render(
         request,
         "cards/detail.html",
@@ -109,6 +112,8 @@ def detail(request, pk):
             "owed": services.liability(card),
             "available": services.available_limit(card),
             "limit": Money(card.credit_limit_cents),
+            "used": used,
+            "free": 100 - used,
             "estimates": services.estimate(card, today),
             "purchases": services.recent_purchases(card),
             "payments": [
