@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Versão | 0.2 |
+| Versão | 0.3 |
 | Data | 06/11/2026 |
 | Etapa | 6 — Planejamento (Fase B) |
 | Status | Aprovado pelo usuário em 06/11/2026 (Fase B) |
@@ -310,8 +310,8 @@ Programa Financeiro/
 | Funcionalidades | RF-DSH-03 a 06; RF-PRJ-01; RF-REC-07; RF-CAR-13; RF-LED-12 (todos); F-070, F-071, F-090, F-091; F-080 (saldo abaixo do mínimo) |
 | Tarefas | Saldo projetado e projeções de 7/15/30 dias com gráfico diário; comprometimento de 12 meses; indicadores do mês; total de dívidas; gráficos receitas × despesas e por categoria; "de onde vem" em todos os números; alerta de saldo projetado |
 | Arquivos | `apps/balances/projections.py`, `apps/dashboard/*`, `static/js/charts/*` |
-| Dependências | Porta MVP-5 |
-| Critérios de aceitação | Todos os indicadores de S14 corretos e explicáveis |
+| Dependências | Porta MVP-5; estudo de design e UI/UX aprovado pelo usuário (ADR-040) |
+| Critérios de aceitação | Todos os indicadores de S14 corretos e explicáveis; interface conforme o estudo aprovado |
 | Testes | S14 completo; E2E completos (§12) |
 | Resultado esperado | **Porta MVP-6** — fim do MVP |
 
@@ -367,3 +367,4 @@ Ordem proposta segundo as prioridades do usuário (quitar dívidas → parar de 
 |---|---|---|
 | 08/11/2026 | A Fase 2A foi iniciada antes do fim da Porta MVP-1, por decisão do usuário. A porta continua valendo e corre em paralelo: a 2A fica só no repositório de desenvolvimento e **não vai para o sistema em uso** (`update.ps1`) até a porta terminar | A 2A não tem telas; publicá-la no meio da validação misturaria duas versões |
 | 08/11/2026 | Fase 2A entregue como domínio, serviços e testes, sem telas. O cadastro editável de feriados (RF-CFG-03) ficou como serviço; a tela entra com as demais da 2B | As telas de pagamentos, calendário, recorrências e configurações já estavam na 2B |
+| 08/11/2026 | A Fase 6 passa a depender de um estudo completo de design e UI/UX, aprovado pelo usuário antes do início da fase. A fase inclui itens novos e melhorias nas telas existentes | ADR-040 (decisão do usuário) |

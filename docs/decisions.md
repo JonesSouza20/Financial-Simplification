@@ -2,10 +2,10 @@
 
 | Campo | Valor |
 |---|---|
-| Versão | 0.4 |
+| Versão | 0.5 |
 | Data | 06/11/2026 |
 | Etapa | 3 — Arquitetura (Fase A) |
-| Status | Versão 0.1 aprovada em 06/11/2026 (ADR-001 a 031: "Proposta" passa a valer como aceita). Versão 0.2 acrescenta ADR-032 a 036 (Fase B), aprovada em 06/11/2026. Versão 0.3 acrescenta ADR-037 e 038 (Fase 1D), aprovada em 06/11/2026. Versão 0.4 acrescenta ADR-039 (Fase 2A), aprovada em 08/11/2026 |
+| Status | Versão 0.1 aprovada em 06/11/2026 (ADR-001 a 031: "Proposta" passa a valer como aceita). Versão 0.2 acrescenta ADR-032 a 036 (Fase B), aprovada em 06/11/2026. Versão 0.3 acrescenta ADR-037 e 038 (Fase 1D), aprovada em 06/11/2026. Versão 0.4 acrescenta ADR-039 (Fase 2A), aprovada em 08/11/2026. Versão 0.5 acrescenta ADR-040, decisão do usuário em 08/11/2026 |
 | Documentos relacionados | `product-requirements.md`, `architecture.md` |
 
 Formato: cada decisão (ADR) tem status, contexto, decisão, alternativas consideradas e consequências.
@@ -60,6 +60,7 @@ Uma decisão aprovada só muda por nova ADR que a substitua, citando a anterior.
 | 037 | Arquivos estáticos servidos pelo próprio processo (WhiteNoise) | Aceita (aprovada pelo usuário na Fase 1D) |
 | 038 | Sistema em uso roda de um clone separado do código | Aceita (aprovada pelo usuário na Fase 1D) |
 | 039 | Compromisso é alterado por cancelamento e recriação; pagamento não se corrige | Aceita (aprovada pelo usuário na Fase 2A) |
+| 040 | Estudo de design e UI/UX antes da Fase 6 | Aceita (decisão do usuário) |
 
 ---
 
@@ -603,3 +604,17 @@ Comparação em `architecture.md`, seção 9.4.
 - Fazer o "Corrigir" mover a liquidação para a transação nova: cobre o caso comum, mas traz regras novas para pagamento parcial e juros.
 
 **Consequências:** o histórico guarda cada valor planejado, com motivo. As listas precisam ocultar os compromissos cancelados.
+
+## ADR-040 — Estudo de design e UI/UX antes da Fase 6
+
+**Status:** Aceita (decisão do usuário em 08/11/2026). Complementa o `ui-ux-specification.md`, que continua valendo até o estudo ser aprovado.
+
+**Contexto:** a Fase 6 entrega a tela principal do sistema. O usuário quer acrescentar itens novos e melhorar o que já existe.
+
+**Decisão:**
+- A Fase 6 só começa depois de um estudo completo de design e UI/UX, aprovado pelo usuário.
+- O sistema não pode ter "cara de IA": isso vale para cores, fontes, composição e demais escolhas visuais.
+- O dashboard não pode ser genérico: precisa ser robusto e, ao mesmo tempo, simplificado.
+- O estudo cobre as telas existentes, além do dashboard, e define o que muda em `ui-ux-specification.md`.
+
+**Consequências:** mudanças no `ui-ux-specification.md` entram por seção de alterações após a aprovação do estudo. O escopo exato dos itens novos sai do estudo, com o usuário.
