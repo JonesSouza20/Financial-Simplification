@@ -636,8 +636,8 @@ Comparação em `architecture.md`, seção 9.4.
 
 **Contexto:** a tela inicial deve responder primeiro quanto o usuário pode gastar até receber de novo, considerando o saldo mínimo de segurança. A RN-145 define o disponível sem esse desconto, e o cenário S14 e os testes dependem dela.
 
-**Decisão:** a RN-145 não muda. Entra um indicador derivado, "Pode gastar" = disponível − saldo mínimo (RN-154), que é o número principal. O disponível aparece na explicação do cálculo.
+**Decisão:** a RN-145 não muda. Entra um indicador derivado, "Pode gastar" = disponível − saldo mínimo − contas previstas (estimadas) que vencem antes do salário (RN-154), que é o número principal. O disponível aparece na explicação do cálculo. As estimativas são descontadas por prudência e continuam com a etiqueta.
 
 **Alternativa:** redefinir o disponível. Quebraria a regra aprovada, os cenários e os testes, sem ganho.
 
-**Consequências:** a Fase 2B implementa o indicador e seus estados. Quando o disponível estiver abaixo do mínimo, a tela não mostra um número negativo grande, e sim a situação em palavras (texto a aprovar na Parte 2).
+**Consequências:** a Fase 2B implementa o indicador e seus estados. Quando o resultado ficar abaixo do mínimo ou o dinheiro não cobrir as contas, a tela não mostra um número negativo grande, e sim a situação em frase ("Abaixo do mínimo em R$ X", "Faltam R$ X até o salário").

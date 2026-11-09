@@ -408,7 +408,7 @@ Verificadas por testes, no backup e na tela "Saúde dos dados" (`architecture.md
 
 | Regra | Detalhe definido na Fase 2A | Motivo |
 |---|---|---|
-| RN-154 (novo, ADR-041) | **Pode gastar** = disponível (RN-145) − saldo mínimo de segurança. É o número principal da tela inicial. O disponível continua existindo, igual, e aparece na conta. Enquanto o mínimo não estiver configurado (Fase 2B), pode gastar = disponível | Decisão do usuário em 08/11/2026 |
+| RN-154 (novo, ADR-041) | **Pode gastar** = disponível (RN-145) − saldo mínimo de segurança − Σ aberto dos compromissos de saída **previstos** com vencimento original < H (ex.: conta variável estimada). É o número principal da tela inicial. O disponível e o comprometido (RN-143) não mudam, e o disponível aparece na conta. Sem mínimo configurado, o mínimo vale zero. Se o resultado ficar abaixo do mínimo ou o dinheiro não cobrir as contas, a tela mostra a situação em frase, sem número negativo grande | Decisões do usuário em 08/11/2026 |
 | RN-051 | A janela móvel vai de hoje em diante. Recorrência criada com início no passado não gera ocorrência já vencida; o que aconteceu antes é lançado como movimentação | Evita salário "atrasado" e conta vencida que nunca existiram |
 | RN-052 | "Vira pendente ao entrar em H" vale só para **saídas**. Receita prevista continua prevista até ser recebida | RN-020 e RN-143: receita não entra no comprometido; o próprio salário define H |
 | §3.4 | Conta pendente, atrasada e já paga em parte aparece como **Atrasado** | É o que exige ação; "pago parcialmente" continua valendo para as não vencidas |

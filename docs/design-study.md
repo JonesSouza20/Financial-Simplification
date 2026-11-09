@@ -211,9 +211,11 @@ O tema escuro entra na Parte 2.
 
 ### Pontos a confirmar
 
-1. **Conta variável antes do salário.** A Luz estimada (R$ 180,00) vence antes do salário, mas a RN-143 não a desconta. O número principal pode parecer maior do que a realidade.
-2. **"Cerca de R$ 91 por dia".** Proposta nova, fora dos requisitos: pode gastar ÷ dias até o salário.
-3. **Texto para quando o disponível ficar abaixo do mínimo.** Proposta: "Abaixo do mínimo em R$ X", com o número em atenção, sem valor negativo grande.
+Decididos pelo usuário em 08/11/2026:
+
+1. Conta variável estimada que vence antes do salário entra no desconto do "Pode gastar" (RN-154). Nos protótipos, R$ 1.559,40 passou a R$ 1.379,40.
+2. "Cerca de R$ 91 por dia" foi retirado.
+3. Abaixo do mínimo ou sem cobertura: frase em vez de número negativo grande.
 
 Fontes adicionais: [CFPB, cor em visualização de dados](https://cfpb.github.io/design-manual-archive/data-visualization/color.html); [Hue Got It, 4imprint](https://info.4imprint.co.uk/blue-paper/how-brand-colours-influence-trust-customer-behaviour-market-report).
 
@@ -345,7 +347,4 @@ Limites deste estudo: os protótipos são estáticos, com dados fictícios; só 
 
 ### Pendências de decisão
 
-1. Conta variável antes do salário entra no "Pode gastar"? (seção 9)
-2. "Cerca de R$ 91 por dia" fica?
-3. Textos dos estados no quadro "Estados" (seção 9).
-4. Coisas novas para a Fase 6.
+1. Coisas novas para a Fase 6. Não bloqueia a Fase 2B.
