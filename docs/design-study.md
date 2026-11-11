@@ -6,7 +6,7 @@
 | Data | 08/11/2026 |
 | Status | Aprovado pelo usuário em 09/11/2026 (Partes 1 e 2). As propostas da seção 17 entram na implementação |
 | Decisão | ADR-040: pré-requisito da Fase 2B |
-| Protótipos | Canvas da direção B, guardado fora do repositório |
+| Protótipos | Canvas de design da direção B, guardado fora do repositório |
 
 Nenhuma tela do sistema muda antes da aprovação. Mudanças em `ui-ux-specification.md` entram por seção de alterações, depois do estudo aprovado.
 
@@ -221,7 +221,7 @@ Fontes adicionais: [CFPB, cor em visualização de dados](https://cfpb.github.io
 
 # Parte 2 — Sistema completo
 
-Protótipos: canvas, guardado fora do repositório, com 18 quadros e dados fictícios do cenário S14.
+Protótipos: canvas de design guardado fora do repositório, com 18 quadros e dados fictícios do cenário S14.
 
 ## 10. Arquitetura da informação
 

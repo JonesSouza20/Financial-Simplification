@@ -32,3 +32,6 @@ ops/config.ps1
 ops/service/financas.xml
 ops/service/*.exe
 ops/service/*.log
+
+# Logotipos dos bancos: marcas registradas, baixados por ops/logos_bancos.py (ADR-043)
+static/img/bancos/*.svg

@@ -1,12 +1,16 @@
 """Banco e cor do cartão desenhado na tela (ADR-043). Só aparência: não entra em cálculo.
 
-Os logotipos são marcas dos bancos, usados só neste sistema pessoal
-(origem em static/img/bancos/ORIGEM.txt).
+Os logotipos são marcas dos bancos e ficam fora do repositório: `ops/logos_bancos.py` baixa
+e limpa os arquivos. Sem eles, o cartão aparece só com a cor.
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass
+from functools import cache
+from pathlib import Path
+
+from django.conf import settings
 
 
 @dataclass(frozen=True)
@@ -55,9 +59,15 @@ BANK_CHOICES = [("", "Outro ou não informar")] + sorted(
 COLOR_CHOICES = [("", "Cor do banco")] + [(slug, name) for slug, (name, _) in COLORS.items()]
 
 
+@cache
+def has_logo(slug: str) -> bool:
+    return (Path(settings.BASE_DIR) / "static" / "img" / "bancos" / f"{slug}.svg").is_file()
+
+
 def face(card) -> dict:
     """Classe de cor, logotipo e se o texto do cartão é escuro."""
     bank = BANKS.get(card.bank or "")
+    logo = bool(bank) and has_logo(card.bank)
     if card.color in COLORS:
         key, hex_color = f"c-{card.color}", COLORS[card.color][1]
     elif bank is not None:
@@ -67,8 +77,8 @@ def face(card) -> dict:
     return {
         "css": f"face-{key}",
         "dark_text": hex_color in LIGHT,
-        "logo": f"img/bancos/{card.bank}.svg" if bank else "",
-        "badge": bool(bank and not bank.white_logo),
+        "logo": f"img/bancos/{card.bank}.svg" if logo else "",
+        "badge": logo and not bank.white_logo,
         "bank_name": bank.name if bank else "",
     }
 

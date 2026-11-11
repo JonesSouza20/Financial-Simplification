@@ -1,7 +1,11 @@
 Logotipos dos bancos em static/img/bancos
 
-Origem: https://github.com/Tgentil/Bancos-em-SVG (baixados em 11/11/2026, com autorizacao do usuario).
-O repositorio nao tem licenca. Os logotipos sao marcas registradas dos respectivos bancos e
-sao usados apenas para identificar o cartao neste sistema pessoal, que nao e publicado.
-Cada arquivo foi limpo antes de entrar no projeto: so formas e estilos, sem script, sem
-referencia externa e sem imagem embutida. Sao exibidos apenas como <img>.
+Os arquivos .svg desta pasta não fazem parte do repositório. Para baixar e limpar:
+
+    uv run python ops/logos_bancos.py
+
+Origem: https://github.com/Tgentil/Bancos-em-SVG. O repositório de origem não tem licença.
+Os logotipos são marcas registradas dos respectivos bancos e servem só para identificar o
+cartão no sistema pessoal de quem os baixa. Cada arquivo é limpo antes de gravar: só formas
+e estilos, sem script, sem referência externa e sem imagem embutida. São exibidos apenas
+como imagem. Sem os arquivos, o cartão aparece só com a cor.
