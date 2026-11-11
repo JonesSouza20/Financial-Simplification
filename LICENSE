@@ -19,15 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
--------------------------------------------------------------------------------
-
-Third-party components keep their own licenses:
-
-- IBM Plex fonts (static/fonts): SIL Open Font License 1.1, see
-  static/fonts/LICENSE-IBM-Plex.txt.
-- htmx (static/vendor/htmx.min.js): BSD license.
-- Alpine.js CSP build (static/vendor/alpine-csp.min.js): MIT license.
-- Python dependencies listed in pyproject.toml and uv.lock: their own licenses.
-- Bank logos are NOT part of this repository. They are registered trademarks of
-  their owners and are downloaded locally by ops/logos_bancos.py.

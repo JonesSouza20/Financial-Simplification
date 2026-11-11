@@ -313,7 +313,7 @@ tests/           unidade, integração, propriedade, cenários, backup, seguran�
 
 ## Licença
 
-Código sob a licença [MIT](LICENSE). As fontes IBM Plex seguem a SIL Open Font License 1.1
-(`static/fonts/LICENSE-IBM-Plex.txt`); htmx e Alpine.js seguem as próprias licenças. Os
+Código sob a licença [MIT](LICENSE). Componentes de terceiros (fontes IBM Plex, htmx, Alpine.js)
+seguem as próprias licenças, listadas em [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md). Os
 logotipos dos bancos não fazem parte do repositório: são marcas registradas dos respectivos
 bancos.
