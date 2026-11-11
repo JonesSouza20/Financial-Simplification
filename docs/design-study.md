@@ -341,7 +341,7 @@ Nada disso foi feito.
 3. Levar os tokens para `tailwind/input.css` (`@theme`) e criar os componentes. O build Alpine CSP e o htmx continuam.
 4. Trocar o visual das telas existentes e construir as da 2B sobre o novo sistema.
 
-Propostas novas, fora dos requisitos atuais e a confirmar na implementação: "Veja o que pode esperar" no estado crítico; "Desfazer" logo depois de pagar (hoje existe para lançamentos); uma frase sobre o efeito no "Pode gastar" em cada ação.
+Propostas novas, fora dos requisitos atuais e a confirmar na implementação: "Veja o que pode esperar" no estado crítico; "Desfazer" logo depois de pagar (hoje existe para lançamentos); uma frase sobre o efeito no "Pode gastar" em cada ação. Confirmadas pelo usuário em 11/11/2026, junto com a aprovação da Fase 2B (ADR-042).
 
 Limites deste estudo: os protótipos são estáticos, com dados fictícios; só ao usar de verdade dá para validar conforto e densidade.
 

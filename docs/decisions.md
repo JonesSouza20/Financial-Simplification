@@ -644,7 +644,7 @@ Comparação em `architecture.md`, seção 9.4.
 
 ## ADR-042 — Ajustes da especificação ao implementar a Fase 2B
 
-**Status:** Proposta, aguardando a aprovação da Fase 2B pelo usuário.
+**Status:** Aceita (aprovação da Fase 2B pelo usuário em 11/11/2026, com as três propostas do item 4).
 
 **Contexto:** o estudo de design aprovado (ADR-040) reorganizou as telas, e a implementação exigiu decisões que os documentos não detalhavam.
 
