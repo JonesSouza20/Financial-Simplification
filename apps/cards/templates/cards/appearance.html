@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Aparência do cartão{% endblock %}
+{% block content %}
+<div class="max-w-xl flex flex-col gap-4">
+  <h1>Aparência do {{ f.card.name }}</h1>
+  {% include "cards/_face.html" with big=True %}
+  <form method="post" class="card flex flex-col gap-4">{% csrf_token %}
+    {% include "partials/form_errors.html" %}
+    {% include "cards/_appearance_fields.html" %}
+    <div class="flex gap-2">
+      <button class="btn btn-primary flex-1" type="submit">Salvar</button>
+      <a class="btn btn-secondary" href="{% url 'cards:detail' f.card.pk %}">Voltar</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

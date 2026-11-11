@@ -1,0 +1,13 @@
+{% load static fin %}<div class="ccard {{ f.css }}{% if f.dark_text %} ink{% endif %}{% if big %} lg{% endif %}">
+  <div class="top">
+    <span class="flex items-center gap-2 min-w-0">{% if f.logo %}<span class="{% if f.badge %}logo-badge{% else %}logo-plain{% endif %}"><img src="{% static f.logo %}" alt="{{ f.bank_name }}"></span>{% endif %}<span class="nm truncate">{{ f.card.name }}</span></span>
+  </div>
+  <div class="mid2">
+    <svg width="38" height="30" viewBox="0 0 38 30" aria-hidden="true"><rect x="0.5" y="0.5" width="37" height="29" rx="5" fill="#E9C978" stroke="#B88E3A"/><path d="M0.5 10h12M0.5 20h12M25.5 10h12M25.5 20h12M12.5 0.5v29M25.5 0.5v29" stroke="#B88E3A" fill="none"/></svg>
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-opacity=".8" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M8 7.5a6 6 0 0 1 0 9M12 5a10 10 0 0 1 0 14M16 2.5a14 14 0 0 1 0 19"/></svg>
+  </div>
+  <div class="bot">
+    <div><small>Vence</small><b>{% if f.next %}{{ f.next.due_date|date:"d/m" }}{% else %}dia {{ f.card.due_day }}{% endif %}</b></div>
+    <div class="text-right"><small>Limite livre</small><b>{{ f.available|brl }}</b></div>
+  </div>
+</div>

@@ -1,9 +1,9 @@
-{% load fin %}<div class="item{% if not r.action_url %} no-action{% endif %}">
-  <span class="tile {{ r.tile }}">{% icon r.icon 21 %}</span>
+{% load static fin %}<div class="item{% if not r.action_url %} no-action{% endif %}">
+  <img class="i3d md" src="{% static r.icon3d %}" alt="">
   <div class="min-w-0">
     <div class="nm">{{ r.name }}</div>
     <div class="sub">{{ r.when }}{% if r.tag %} · <span class="tag">{{ r.tag }}</span>{% endif %}{% if r.overdue %} · <span class="state crit">{{ r.status }}</span>{% elif r.status %} · {{ r.status }}{% endif %}</div>
-    {% if r.paid_percent %}<div class="pbar" role="img" aria-label="{{ r.paid_percent }}% pago"><i class="done wp-{{ r.paid_percent }}"></i></div>{% endif %}
+    {% if r.paid_percent %}<div class="pb2" role="img" aria-label="{{ r.paid_percent }}% pago"><i class="done wp-{{ r.paid_percent }}"></i></div>{% endif %}
   </div>
   <div class="am{% if r.approx %} approx{% endif %}">{% if r.approx %}≈{% elif r.incoming %}+{% endif %}{{ r.amount|num }}{% if r.action_url %}<br><a class="link item-link" href="{{ r.action_url }}">{{ r.action_label }}</a>{% endif %}</div>
   {% if r.action_url %}<a class="btn btn-secondary go" href="{{ r.action_url }}">{{ r.action_label }}</a>{% endif %}

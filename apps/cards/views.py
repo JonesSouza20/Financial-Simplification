@@ -11,8 +11,9 @@ from apps.ledger.errors import LedgerError
 from apps.money import Money
 from apps.ui.forms import DateInput, IdempotentForm, MoneyField, StyledForm
 
-from . import cycle, services
+from . import brands, cycle, services
 from .models import Card, OpeningKind
+from .presentation import card_view
 
 
 class CardForm(StyledForm):
@@ -24,10 +25,27 @@ class CardForm(StyledForm):
     default_payment_account = forms.ModelChoiceField(
         label="Conta que paga a fatura", queryset=active_accounts(), required=False
     )
+    bank = forms.ChoiceField(label="Banco", choices=brands.BANK_CHOICES, required=False)
+    color = forms.ChoiceField(
+        label="Cor do cartão",
+        choices=brands.COLOR_CHOICES,
+        required=False,
+        widget=forms.RadioSelect,
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["default_payment_account"].queryset = active_accounts()
+
+
+class AppearanceForm(StyledForm):
+    bank = forms.ChoiceField(label="Banco", choices=brands.BANK_CHOICES, required=False)
+    color = forms.ChoiceField(
+        label="Cor do cartão",
+        choices=brands.COLOR_CHOICES,
+        required=False,
+        widget=forms.RadioSelect,
+    )
 
 
 class PayForm(IdempotentForm):
@@ -68,19 +86,28 @@ class OpeningItemForm(StyledForm):
 @require_http_methods(["GET"])
 def list_view(request):
     today = timezone.localdate()
-    rows = []
-    for card in services.active_cards():
-        estimates = services.estimate(card, today)
-        upcoming = next((e for e in estimates if e.due_date >= today), None)
-        rows.append(
-            {
-                "card": card,
-                "owed": services.liability(card),
-                "available": services.available_limit(card),
-                "next": upcoming,
-            }
-        )
+    rows = [card_view(card, today) for card in services.active_cards()]
     return render(request, "cards/list.html", {"rows": rows})
+
+
+@require_http_methods(["GET", "POST"])
+def appearance(request, pk):
+    """Banco e cor do cartão desenhado (ADR-043). Não altera nenhum valor."""
+    card = get_object_or_404(Card, pk=pk)
+    form = AppearanceForm(request.POST or None, initial={"bank": card.bank, "color": card.color})
+    if request.method == "POST" and form.is_valid():
+        try:
+            services.set_appearance(card, **form.cleaned_data)
+        except LedgerError as exc:
+            form.add_error(None, str(exc))
+        else:
+            messages.success(request, "Aparência do cartão salva.")
+            return redirect("cards:detail", pk=card.pk)
+    return render(
+        request,
+        "cards/appearance.html",
+        {"form": form, "f": card_view(card, timezone.localdate())},
+    )
 
 
 @require_http_methods(["GET", "POST"])
@@ -109,6 +136,7 @@ def detail(request, pk):
         "cards/detail.html",
         {
             "card": card,
+            "f": card_view(card, today),
             "owed": services.liability(card),
             "available": services.available_limit(card),
             "limit": Money(card.credit_limit_cents),

@@ -1,0 +1,8 @@
+{% include "partials/field.html" with field=form.bank %}
+<fieldset class="field">
+  <legend class="label mb-1">Cor do cartão</legend>
+  <div class="swatches">
+    {% for radio in form.color %}<label>{{ radio.tag }}<span class="chipc {% if radio.data.value %}face-c-{{ radio.data.value }}{% else %}auto{% endif %}" aria-hidden="true"></span>{{ radio.choice_label }}</label>{% endfor %}
+  </div>
+  <span class="help">"Cor do banco" usa a cor do banco escolhido. Só muda a aparência; nenhum valor é alterado.</span>
+</fieldset>

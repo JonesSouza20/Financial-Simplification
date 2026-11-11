@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Versão | 0.5 |
+| Versão | 0.6 |
 | Data | 06/11/2026 |
 | Etapa | 4 — Especificação (Fase B) |
 | Status | Versão 0.1 aprovada em 06/11/2026 (Fase B); versão 0.2 com detalhes da implementação da Fase 1A (§15); versão 0.3 com os ajustes da Fase 1D (§15), aprovada em 06/11/2026; versão 0.4 com os detalhes da Fase 2A (§15), aprovada em 08/11/2026 |
@@ -651,3 +651,4 @@ Toda migração:
 | 0.4 | Gatilhos novos: `settlement_no_update`, `settlement_no_delete`, `commitment_no_delete` | Nada é apagado, como no Ledger |
 | 0.4 | `holiday` carregada por `post_migrate`, só em anos sem nenhum feriado (2026 a 2040). Ano não carregado gera erro, nunca cálculo sem feriados | Não desfaz edições do usuário; sobrevive ao `flush` dos testes |
 | 0.5 | `notification`: `next_try_at` e `last_error`, para a fila de envio; `status` é `pending`, `sent` ou `failed` | Fase 2B: falha de rede tenta de novo sem repetir aviso (ADR-042) |
+| 0.6 | `card.bank` e `card.color` (texto, vazio por padrão): banco do logotipo e cor do cartão desenhado. Só aparência; validados contra a lista em `apps/cards/brands.py` | ADR-043 |

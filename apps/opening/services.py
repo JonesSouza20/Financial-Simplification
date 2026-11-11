@@ -120,6 +120,8 @@ def commit(draft: dict) -> None:
                 credit_limit=Money(c["limit"]),
                 closing_day=c["closing_day"],
                 due_day=c["due_day"],
+                bank=c.get("bank", ""),
+                color=c.get("color", ""),
             )
         )
     for i in draft["items"]:

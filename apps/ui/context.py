@@ -2,7 +2,7 @@
 
 NAV = [
     ("ui:home", "Início", "home"),
-    ("payables:central", "Pagamentos", "clock"),
+    ("payables:central", "Pagamentos", "calendar"),
     ("entries:list", "Movimentações", "list"),
 ]
 NAV_HOLDINGS = [

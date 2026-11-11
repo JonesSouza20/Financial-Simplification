@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Versão | 0.7 |
+| Versão | 0.8 |
 | Data | 06/11/2026 |
 | Etapa | 3 — Arquitetura (Fase A) |
 | Status | Versão 0.1 aprovada em 06/11/2026 (ADR-001 a 031: "Proposta" passa a valer como aceita). Versão 0.2 acrescenta ADR-032 a 036 (Fase B), aprovada em 06/11/2026. Versão 0.3 acrescenta ADR-037 e 038 (Fase 1D), aprovada em 06/11/2026. Versão 0.4 acrescenta ADR-039 (Fase 2A), aprovada em 08/11/2026. Versões 0.5 e 0.6 acrescentam ADR-040 e 041, decisões do usuário em 08/11/2026 |
@@ -661,3 +661,21 @@ Comparação em `architecture.md`, seção 9.4.
 **Alternativas:** abas na central (rejeitada no estudo: escondem o que vence); liberar `style-src 'unsafe-inline'` (rejeitada: enfraquece a CSP por conveniência visual); botão único com o valor atualizado por JavaScript (rejeitada: sem JavaScript o rótulo ficaria errado).
 
 **Consequências:** `functional-specification.md`, `database-design.md`, `security-plan.md`, `ui-ux-specification.md` e o roadmap registram as alterações. Aviso de fatura e de saldo projetado seguem para as Fases 3B e 6, como previsto.
+
+## ADR-043 — Proposta 2 do visual: blocos, carteira, cartões desenhados e ícones com volume
+
+**Status:** Aceita (decisão do usuário em 11/11/2026, depois do protótipo "Proposta 2" no canvas do estudo). Ajusta a ADR-040.
+
+**Contexto:** o usuário trouxe uma referência com cartões arredondados, carteira, cartões de crédito desenhados e ícones 3D, e pediu algo parecido, sem cópia. A referência contraria três regras do estudo aprovado: sem sombra, sem degradê decorativo e sem cartões arredondados.
+
+**Decisão:**
+
+1. Mistura: Início, Pagamentos e Cartões ganham blocos com canto de 14 px e sombra leve, cartões de crédito desenhados, carteira e ícones com volume. O resto do sistema herda os blocos. Tipografia IBM Plex, cor por estado e previsão hachurada com etiqueta continuam.
+2. Ícones com volume desenhados em SVG para o projeto (`static/img/3d`), sem serviço externo nem pacote pago.
+3. Cada cartão tem banco e cor, escolhidos no cadastro, na abertura ou em "Banco e cor". A cor padrão é a do banco. Banco e cor são só aparência e nunca entram em cálculo.
+4. Logotipos de 17 bancos baixados de github.com/Tgentil/Bancos-em-SVG, com autorização do usuário. O repositório não tem licença e os logotipos são marcas dos bancos: uso restrito a este sistema pessoal. Cada arquivo foi limpo (sem script, referência externa ou imagem embutida) e aparece só como imagem. Origem em `static/img/bancos/ORIGEM.txt`.
+5. Degradê só no cartão de crédito, porque representa um objeto físico. Cores de banco muito claras levam texto escuro.
+
+**Alternativas:** sistema todo no estilo novo (rejeitada pelo usuário); ícones gerados por IA (rejeitada: custo e serviço externo); só a cor, sem logotipo (rejeitada pelo usuário).
+
+**Consequências:** colunas `card.bank` e `card.color` (migração aditiva). A estética fica mais próxima de painéis comuns; o que mantém a identidade é a tipografia, a cor por estado e a linha do tempo.

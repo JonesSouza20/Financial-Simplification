@@ -70,7 +70,7 @@ def relogin(web):
 def test_central_agrupa_e_soma(web, bill, salary):
     html = web.get(url("central")).content.decode()
     assert "Esta semana" in html and "Aluguel" in html
-    assert "R$ 1.000,00" in html
+    assert '<span class="cur">R$</span>1.000,00' in html
     assert "Salário, 07/12" in html
     assert 'style="' not in html
 
@@ -446,7 +446,8 @@ def test_barra_sem_cobertura_mostra_o_que_falta(funded, cats, salary):
     )
     p = balances.position()
     assert [s["css"] for s in presentation.money_bar(p)] == ["seg-comp", "seg-crit"]
-    assert presentation.legend(p)[-1] == {"css": "seg-crit", "name": "Faltam", "value": "400,00"}
+    last = presentation.legend(p)[-1]
+    assert (last["css"], last["name"], last["value"]) == ("seg-crit", "Faltam", "400,00")
 
 
 @pytest.mark.parametrize(

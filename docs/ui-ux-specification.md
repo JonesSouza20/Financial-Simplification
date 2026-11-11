@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Versão | 0.3 |
+| Versão | 0.4 |
 | Data | 06/11/2026 |
 | Etapa | 4 — Especificação (Fase B) |
 | Status | Versão 0.1 aprovada em 06/11/2026 (Fase B); versão 0.2 substitui a identidade visual pelo estudo de design aprovado em 09/11/2026 (§18) |
@@ -341,3 +341,4 @@ O `design-study.md` (ADR-040, aprovado em 09/11/2026) substitui os trechos abaix
 | §10, §11 | Esboços e regras de gráficos substituídos pelos quadros e pela seção 12 do estudo |
 | §15, §16 | Regras de largura e tema das seções 12, 15 e 16 do estudo |
 | §8 | Ajustes ganha Dinheiro, Feriados e Avisos. Recorrências e Calendário ficam dentro de Pagamentos. Tablet com navegação no topo | Fase 2B; ADR-042 |
+| §9, §12 | Blocos com canto de 14 px e sombra leve; menu lateral em bloco com ícones; cartão de crédito desenhado com cor e logotipo do banco; ícones com volume em SVG no Início, em Pagamentos e em Cartões. Quadros "Proposta 2" no canvas do estudo | ADR-043 |

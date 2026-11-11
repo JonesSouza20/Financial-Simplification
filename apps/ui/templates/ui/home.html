@@ -1,66 +1,103 @@
-{% extends "base.html" %}{% load fin %}
+{% extends "base.html" %}{% load static fin %}
 {% block title %}Início{% endblock %}
 {% block content %}
-<div class="flex flex-col gap-7">
+<div class="flex flex-col gap-4">
+  <header class="card topb py-3!">
+    <span class="font-serif font-medium text-[26px] tracking-tight">{{ p.today|date:"F"|capfirst }} <span class="text-text-3">{{ p.today|date:"Y" }}</span></span>
+    <a class="btn btn-primary" href="{% url 'entries:quick' %}">+ Lançar</a>
+  </header>
+
   {% if not opening_done %}
-  <a href="{% url 'opening:step' 'contas' %}" class="flex items-center gap-3 border border-primary bg-primary-soft px-3 py-2">
+  <a href="{% url 'opening:step' 'contas' %}" class="card flex items-center gap-3 border-primary! bg-primary-soft!">
     <span class="flex-1"><span class="font-semibold">Comece pela abertura</span><span class="block sub">Registre saldos, cartões, dívidas e valores a receber de 01/11/2026.</span></span>
     {% icon 'arrow' %}
   </a>
   {% endif %}
 
-  <section>
-    <h1 class="caption">Pode gastar até {{ words }}</h1>
-    {% if p.state == 'below_minimum' %}
-      <div class="phrase text-warning">Abaixo do mínimo em {{ p.shortfall|brl }}</div>
-      <div class="state warn">{% icon 'alert' 17 %}Restam {{ left_after_bills|brl }} depois das contas</div>
-    {% elif p.state == 'uncovered' %}
-      <div class="phrase text-negative">Faltam {{ p.shortfall|brl }} até {{ words }}</div>
-      <a class="state crit min-h-11" href="{% url 'payables:central' %}">{% icon 'alert' 17 %}Veja o que pode esperar</a>
-    {% else %}
-      <div class="display mt-1 mb-2{% if p.state == 'ok' and not p.salary_late and not no_salary %} text-positive{% endif %}"><small>R$</small>{{ p.can_spend|num }}</div>
-      {% if p.salary_late %}
-        <span class="state warn">{% icon 'alert' 17 %}Salário atrasado</span>
-        <a class="link ml-3" href="{{ salary.action_url }}">Recebi</a>
-      {% elif p.state == 'at_limit' %}
-        <span class="state warn">{% icon 'alert' 17 %}No limite: gastar agora usa o mínimo</span>
-      {% elif p.state == 'ok' %}
-        {% if p.minimum.is_positive %}<span class="state ok">{% icon 'check' 17 %}Com folga</span>{% else %}<a class="link" href="{% url 'payables:money_settings' %}">Definir mínimo de segurança</a>{% endif %}
+  <div class="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+    <section class="card">
+      <div class="blk-h">
+        <div class="min-w-0">
+          <h1 class="blk-t">Pode gastar até {{ words }}</h1>
+          {% if p.state == 'below_minimum' %}
+            <div class="phrase text-warning">Abaixo do mínimo em {{ p.shortfall|brl }}</div>
+            <span class="pill warn">{% icon 'alert' 13 %}Restam {{ left_after_bills|brl }} depois das contas</span>
+          {% elif p.state == 'uncovered' %}
+            <div class="phrase text-negative">Faltam {{ p.shortfall|brl }} até {{ words }}</div>
+            <a class="pill crit min-h-8" href="{% url 'payables:central' %}">{% icon 'alert' 13 %}Veja o que pode esperar</a>
+          {% else %}
+            <div class="hero{% if p.state == 'ok' and not p.salary_late and not no_salary %} ok{% endif %}"><span class="cur">R$</span>{{ p.can_spend|num }}</div>
+            <div class="flex items-center gap-2 flex-wrap">
+              {% if p.salary_late %}
+                <span class="pill warn">{% icon 'alert' 13 %}Salário atrasado</span><a class="link" href="{{ salary.action_url }}">Recebi</a>
+              {% elif p.state == 'at_limit' %}
+                <span class="pill warn">{% icon 'alert' 13 %}No limite: gastar agora usa o mínimo</span>
+              {% elif p.state == 'ok' %}
+                {% if p.minimum.is_positive %}<span class="pill ok">{% icon 'check' 13 %}Com folga</span>{% else %}<a class="link" href="{% url 'payables:money_settings' %}">Definir mínimo de segurança</a>{% endif %}
+              {% endif %}
+              {% if words == 'o salário' %}<span class="sub">{% if p.days_to_horizon == 0 %}Salário hoje{% elif p.days_to_horizon == 1 %}Salário amanhã{% else %}Salário em {{ p.days_to_horizon }} dias{% endif %}{% if salary %}, {{ salary.due_date|date:"d/m" }}{% endif %}</span>{% endif %}
+            </div>
+            {% if no_salary and not month_mode %}
+              <p class="sub mt-2">Sem salário previsto, a conta vai até o fim do mês. <a class="link" href="{% url 'payables:recurrence_new' %}?tipo=salario">Cadastrar salário</a></p>
+            {% endif %}
+          {% endif %}
+        </div>
+        <img class="i3d xl" src="{% static 'img/3d/carteira.svg' %}" alt="">
+      </div>
+      {% if legend %}
+      <div class="mbar" role="img" aria-label="Das contas livres: {% for l in legend %}{{ l.name }} {{ l.value }}{% if not forloop.last %}, {% endif %}{% endfor %}">
+        {% for l in legend %}<i class="{{ l.css }} wp-{{ l.percent }}"></i>{% endfor %}
+      </div>
+      <div class="mleg">
+        {% for l in legend %}<div><span><i class="{{ l.css }}"></i>{{ l.name }}</span><b class="{% if l.css == 'seg-free' %}text-positive{% elif l.css == 'seg-est' %}text-projection{% elif l.css == 'seg-crit' %}text-negative{% endif %}">{{ l.value }}</b></div>{% endfor %}
+      </div>
       {% endif %}
-      {% if words == 'o salário' %}<span class="sub ml-2">{% if p.days_to_horizon == 0 %}Salário hoje{% elif p.days_to_horizon == 1 %}Salário amanhã{% else %}Salário em {{ p.days_to_horizon }} dias{% endif %}</span>{% endif %}
-      {% if no_salary and not month_mode %}
-        <div class="mt-1"><a class="link" href="{% url 'payables:recurrence_new' %}?tipo=salario">Cadastrar salário</a></div>
-        <p class="sub mt-1">Sem salário previsto, a conta vai até o fim do mês.</p>
-      {% endif %}
-    {% endif %}
+      <div class="foot">
+        <a class="sub min-h-11 inline-flex items-center hover:text-text" href="{% url 'ui:origin' 'livre' %}">De {{ p.free|brl }} nas suas contas livres</a>
+        <details class="calc">
+          <summary>Como calculamos</summary>
+          <table><tbody>
+            {% for row in calculation %}
+            <tr{% if row.strong %} class="font-semibold"{% endif %}>
+              <td>{% if row.url %}<a class="hover:text-primary" href="{{ row.url }}">{{ row.label }}</a>{% else %}{{ row.label }}{% endif %}{% if row.estimated %} <span class="tag">estimativa</span>{% endif %}</td>
+              <td>{{ row.amount|num }}</td>
+            </tr>
+            {% endfor %}
+          </tbody></table>
+        </details>
+      </div>
+    </section>
 
-    {% if bar %}
-    <div class="split" role="img" aria-label="Barra do dinheiro: {{ bar_text }}">
-      {% for s in bar %}<div class="{{ s.css }} wp-{{ s.percent }}">{% if s.text %}<b>{{ s.name }}</b><span class="money text-[13px]">{{ s.value }}</span>{% endif %}</div>{% endfor %}
-    </div>
-    <div class="leg sm:hidden">
-      {% for l in legend %}<i class="{{ l.css }}"></i><span>{{ l.name }}</span><span class="money">{{ l.value }}</span>{% endfor %}
-    </div>
-    {% endif %}
-    <div class="flex items-start justify-between gap-4 flex-wrap mt-2">
-      <a class="sub min-h-11 inline-flex items-center hover:text-text" href="{% url 'ui:origin' 'livre' %}">De {{ p.free|brl }} nas suas contas livres</a>
-      <details class="calc sm:text-right">
-        <summary>Como calculamos</summary>
-        <table class="text-left"><tbody>
-          {% for row in calculation %}
-          <tr{% if row.strong %} class="font-semibold"{% endif %}>
-            <td>{% if row.url %}<a class="hover:text-primary" href="{{ row.url }}">{{ row.label }}</a>{% else %}{{ row.label }}{% endif %}{% if row.estimated %} <span class="tag">estimativa</span>{% endif %}</td>
-            <td>{{ row.amount|num }}</td>
-          </tr>
-          {% endfor %}
-        </tbody></table>
-      </details>
-    </div>
-  </section>
+    <section class="card">
+      <div class="blk-h">
+        <div>
+          <h2 class="blk-t">Contas até {{ words }}</h2>
+          <div class="amt">{% if bills_approx %}<span class="cur">≈</span>{% endif %}<span class="cur">R$</span>{{ bills_total|num }}</div>
+          <span class="sub">{{ bills|length }} conta{{ bills|length|pluralize }}</span>
+        </div>
+        <img class="i3d lg" src="{% static 'img/3d/calendario.svg' %}" alt="">
+      </div>
+      {% if due_days %}
+      <div class="days" aria-label="Próximos vencimentos">
+        {% for d in due_days %}<span class="{% if d.first %}first{% elif d.salary %}sal{% endif %}" aria-label="{{ d.label }}{% if d.salary %}, salário{% endif %}">{{ d.day }}<i>{% for _ in d.dots %}<b></b>{% empty %}<b></b>{% endfor %}</i></span>{% endfor %}
+      </div>
+      {% endif %}
+      <div class="mt-2">
+        {% for r in bills|slice:":5" %}
+        <a class="crow" href="{{ r.action_url }}">
+          <img class="i3d sm" src="{% static r.icon3d %}" alt="">
+          <span class="min-w-0"><span class="block truncate font-medium">{{ r.name }}</span><span class="pc">{{ r.when }}{% if r.tag %} · estimativa{% endif %}{% if r.overdue %} · <span class="text-negative font-semibold">Atrasado</span>{% endif %}</span></span>
+          <span class="am{% if r.approx %} approx{% endif %}">{% if r.approx %}≈{% endif %}{{ r.amount|num }}</span>
+        </a>
+        {% empty %}<p class="sub mt-3">Nada para pagar até {{ words }}.</p>{% endfor %}
+      </div>
+      {% if bills|length > 5 %}<a class="link min-h-11 inline-flex items-center" href="{% url 'payables:central' %}">Ver todas</a>{% endif %}
+    </section>
+  </div>
 
   {% if attention %}
-  <section>
-    <div class="sect-head"><h2 class="caption">Atenção</h2></div>
+  <section class="card">
+    <h2 class="blk-t">Atenção</h2>
     {% for a in attention %}
     <div class="row">
       <span class="flex-1">{{ a.text }}</span>
@@ -71,53 +108,84 @@
   </section>
   {% endif %}
 
-  {% if timeline.points or next_rows %}
-  <section class="max-sm:hidden">
-    <div class="sect-head"><h2 class="caption">Seu caminho até {{ words }}</h2><a class="link" href="{% url 'payables:central' %}">Ver pagamentos</a></div>
-    <div class="strip hb-{{ timeline.height }}" role="img" aria-label="Linha do tempo: {{ timeline.summary }}">
-      <div class="base"></div>
-      <div class="hoje sub">Hoje</div>
-      {% for pt in timeline.points %}
-      <div class="ev lp-{{ pt.left }}">
-        <div class="b hb-{{ pt.height }}{% if pt.tag %} est{% endif %}"></div>
-        <div class="lbl tp-{{ pt.top }}{% if pt.right %} r{% endif %}">
-          <div class="nm">{{ pt.name }}</div>
-          <div class="sub"><span class="money">{{ pt.amount }}</span> · {% if pt.tag %}<span class="tag">estimativa</span>{% else %}{{ pt.days }}{% endif %}</div>
+  <div class="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+    {% if timeline.points %}
+    <section class="card max-sm:hidden">
+      <div class="blk-h"><h2 class="blk-t">Seu caminho até {{ words }}</h2><a class="link" href="{% url 'payables:central' %}">Ver pagamentos</a></div>
+      <div class="strip hb-{{ timeline.height }}" role="img" aria-label="Linha do tempo: {{ timeline.summary }}">
+        <div class="base"></div>
+        <div class="hoje sub">Hoje</div>
+        {% for pt in timeline.points %}
+        <div class="ev lp-{{ pt.left }}">
+          <div class="b hb-{{ pt.height }}{% if pt.tag %} est{% endif %}"></div>
+          <div class="lbl tp-{{ pt.top }}{% if pt.right %} r{% endif %}">
+            <div class="nm flex items-center gap-1.5{% if pt.right %} justify-end{% endif %}"><img src="{% static pt.icon3d %}" width="28" height="28" alt="">{{ pt.name }}</div>
+            <div class="sub"><span class="money">{{ pt.amount }}</span> · {% if pt.tag %}<span class="tag">estimativa</span>{% else %}{{ pt.days }}{% endif %}</div>
+          </div>
         </div>
-      </div>
-      {% endfor %}
-      {% if timeline.salary %}
-      <div class="ev pay lp-100"><div class="up"></div>
-        <div class="lbl r"><span class="font-semibold text-positive">Salário</span> <span class="sub money">+{{ timeline.salary.amount|num }}</span></div>
-      </div>
-      {% endif %}
-    </div>
-  </section>
-  <section class="sm:hidden">
-    <div class="sect-head"><h2 class="caption">Próximas contas</h2><a class="link" href="{% url 'payables:central' %}">Todas</a></div>
-    {% for r in next_rows %}{% include "payables/_row.html" %}{% endfor %}
-  </section>
-  {% endif %}
-
-  <div class="grid grid-cols-1 gap-7 md:grid-cols-2 md:gap-11">
-    <section>
-      <div class="sect-head"><h2 class="caption">Dívidas</h2><a class="link" href="{% url 'debts:list' %}">Ver dívidas</a></div>
-      {% if debts.rows %}
-        <div class="mid mt-3"><small>R$</small>{{ debts.total|num }}</div>
-        {% for d in debts.rows %}
-          <a class="dline" href="{{ d.url }}"><span>{{ d.name }}</span><span class="sub">{{ d.note }}</span></a>
-          {% if d.percent is not None %}<div class="pbar" role="img" aria-label="{{ d.name }}: {{ d.note }}"><i class="wp-{{ d.percent }}{% if d.done %} done{% endif %}"></i></div>{% endif %}
         {% endfor %}
-      {% else %}<p class="sub mt-3">Nenhuma dívida cadastrada.</p>{% endif %}
-    </section>
-    <section>
-      <div class="sect-head"><h2 class="caption">Para onde foi em {{ categories.month|date:"F" }}</h2><a class="link" href="{% url 'entries:list' %}">Detalhes</a></div>
-      {% if categories.items %}
-        <div class="mid mt-3"><small>R$</small>{{ categories.total|num }}</div>
-        <div class="cats" role="img" aria-label="{% for c in categories.items %}{{ c.name }} {{ c.percent }}%{% if not forloop.last %}, {% endif %}{% endfor %}">
-          {% for c in categories.items %}<div class="{{ c.css }} wp-{{ c.percent }}"></div>{% endfor %}
+        {% if timeline.salary %}
+        <div class="ev pay lp-100"><div class="up"></div>
+          <div class="lbl r"><span class="font-semibold text-positive">Salário</span> <span class="sub money">+{{ timeline.salary.amount|num }}</span></div>
         </div>
-        <div class="clab">{% for c in categories.items %}<span><i class="{{ c.css }}"></i>{{ c.name }} <em>{{ c.percent }}%</em></span>{% endfor %}</div>
+        {% endif %}
+      </div>
+    </section>
+    {% endif %}
+
+    <section class="card">
+      <div class="blk-h">
+        <div><h2 class="blk-t">Dívidas</h2>{% if debts.rows %}<div class="amt"><span class="cur">R$</span>{{ debts.total|num }}</div>{% endif %}</div>
+        <img class="i3d lg" src="{% static 'img/3d/banco.svg' %}" alt="">
+      </div>
+      {% for d in debts.rows %}
+        <a class="dl2" href="{{ d.url }}"><b class="font-semibold">{{ d.name }}</b><span class="money">{{ d.balance|num }}</span></a>
+        {% if d.percent is not None %}<div class="pb2" role="img" aria-label="{{ d.name }}: {{ d.note }}"><i class="wp-{{ d.percent }}{% if d.done %} done{% endif %}"></i></div>{% endif %}
+        {% if d.note %}<div class="sub mt-1">{{ d.note }}</div>{% endif %}
+      {% empty %}<p class="sub mt-3">Nenhuma dívida cadastrada.</p>{% endfor %}
+      <a class="link min-h-11 inline-flex items-center mt-1" href="{% url 'debts:list' %}">Ver dívidas</a>
+    </section>
+  </div>
+
+  <div class="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+    <section class="card">
+      <div class="blk-h">
+        <div>
+          <h2 class="blk-t">Cartões</h2>
+          {% if cards_block.first.next %}<span class="sub">Próxima fatura do {{ cards_block.first.card.name }}</span>
+          <div class="amt"><span class="cur">R$</span>{{ cards_block.first.next.amount|num }}</div><span class="tag">estimativa</span>{% endif %}
+        </div>
+        <a class="btn btn-secondary" href="{% url 'cards:list' %}">Ver cartões</a>
+      </div>
+      {% if cards_block.cards %}
+      <div class="flex flex-col gap-5 mt-4">
+        <div class="cards-row">{% for f in cards_block.cards %}<a href="{% url 'cards:detail' f.card.pk %}">{% include "cards/_face.html" %}</a>{% endfor %}</div>
+        {% if cards_block.invoices %}
+        <div>
+          <div class="caption text-xs!">Próximas faturas · {{ cards_block.first.card.name }}</div>
+          <div class="inv max-w-[520px]">
+            {% for i in cards_block.invoices %}<div{% if i.first %} class="cur"{% endif %}><span class="m">{{ i.month }}</span><span class="col"><i class="hp-{{ i.height }}{% if i.first %} est{% endif %}"></i></span><span class="v">{% if i.first %}≈{% endif %}{{ i.value }}</span></div>{% endfor %}
+          </div>
+          <p class="sub mt-2">Depois da primeira, só parcelas já contratadas</p>
+        </div>
+        {% endif %}
+      </div>
+      {% else %}<p class="sub mt-3">Nenhum cartão cadastrado.</p>{% endif %}
+    </section>
+
+    <section class="card">
+      <div class="blk-h">
+        <div><h2 class="blk-t">Para onde foi em {{ categories.month|date:"F" }}</h2>{% if categories.items %}<div class="amt"><span class="cur">R$</span>{{ categories.total|num }}</div>{% endif %}</div>
+        <img class="i3d lg" src="{% static 'img/3d/cesta.svg' %}" alt="">
+      </div>
+      {% if categories.items %}
+        <div class="cbar" role="img" aria-label="{% for c in categories.items %}{{ c.name }} {{ c.percent }}%{% if not forloop.last %}, {% endif %}{% endfor %}">
+          {% for c in categories.items %}<i class="{{ c.css }} wp-{{ c.percent }}"></i>{% endfor %}
+        </div>
+        <div class="mt-2">
+          {% for c in categories.items %}<div class="crow"><img class="i3d sm" src="{% static c.icon3d %}" alt=""><span><span class="sw {{ c.css }}"></span>{{ c.name }}</span><span class="am">{{ c.amount|num }}<span class="pc">{{ c.percent }}%</span></span></div>{% endfor %}
+        </div>
+        <a class="link min-h-11 inline-flex items-center" href="{% url 'entries:list' %}">Ver movimentações</a>
       {% else %}<p class="sub mt-3">Sem gastos neste mês ainda.</p>{% endif %}
     </section>
   </div>

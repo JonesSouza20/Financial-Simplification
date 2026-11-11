@@ -44,6 +44,9 @@ ICONS = {
     '<path d="M4 11h16M7.5 17.5V20M16.5 17.5V20"/>',
     "car": '<path d="M3 14.5 5.2 8h13.6l2.2 6.5v4.5H3zM6.5 19v2M17.5 19v2M3 14.5h18"/>',
     "income": '<path d="M12 20V4.5M6 10.5l6-6 6 6"/>',
+    "calendar": '<rect x="3.5" y="5" width="17" height="15"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',
+    "gear": '<path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><rect x="14" y="5" width="4" height="4"/>'
+    '<rect x="8" y="15" width="4" height="4"/>',
     "other": '<rect x="4.5" y="4.5" width="15" height="15"/><path d="M8.5 12h7"/>',
 }
 

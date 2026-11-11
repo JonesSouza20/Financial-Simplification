@@ -3,6 +3,7 @@
 from django import forms
 
 from apps.accounts.models import DEFAULT_CLASS, AccountType, AssetClassChoice
+from apps.cards import brands
 from apps.cards.models import OpeningKind
 from apps.ui.forms import DateInput, MoneyField, StyledForm
 
@@ -43,6 +44,8 @@ class CardDraftForm(StyledForm):
     credit_limit = MoneyField(label="Limite total")
     closing_day = forms.IntegerField(label="Dia de fechamento", min_value=1, max_value=31)
     due_day = forms.IntegerField(label="Dia de vencimento", min_value=1, max_value=31)
+    bank = forms.ChoiceField(label="Banco", choices=brands.BANK_CHOICES, required=False)
+    color = forms.ChoiceField(label="Cor do cartão", choices=brands.COLOR_CHOICES, required=False)
 
     def clean(self):
         d = super().clean()
@@ -60,6 +63,8 @@ class CardDraftForm(StyledForm):
             "limit": d["credit_limit"].cents,
             "closing_day": d["closing_day"],
             "due_day": d["due_day"],
+            "bank": d.get("bank", ""),
+            "color": d.get("color", ""),
         }
 
 

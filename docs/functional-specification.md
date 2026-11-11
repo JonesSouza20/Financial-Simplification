@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Versão | 0.2 |
+| Versão | 0.3 |
 | Data | 06/11/2026 |
 | Etapa | 4 — Especificação (Fase B) |
 | Status | Aprovado pelo usuário em 06/11/2026 (Fase B) |
@@ -504,3 +504,4 @@ Categorias de sistema, conforme `business-rules.md` §2: encargos de cartão, ju
 | 0.2 | F-035 | Marcas por tipo em cada dia; a soma fica na lista do dia. A visão de lista é a própria central | ADR-042 |
 | 0.2 | F-070 | O número principal é o "Pode gastar" (ADR-041); saldo bancário, guardado e benefícios ficam em Contas | ADR-040, ADR-041 |
 | 0.2 | F-080 | Fila com nova tentativa em 15 minutos e validade de 24 horas. Nesta fase: vencimento, atraso, backup e segurança | ADR-042 |
+| 0.3 | Cadastro de cartão e abertura | Banco e cor do cartão, com tela "Banco e cor" para mudar depois | ADR-043 |

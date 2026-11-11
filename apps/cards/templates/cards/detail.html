@@ -1,20 +1,28 @@
 {% extends "base.html" %}{% load fin %}
 {% block title %}{{ card.name }}{% endblock %}
 {% block content %}
-<div class="flex flex-col gap-6">
-  <div>
-    <span class="caption">Cartão · fecha dia {{ card.closing_day }} · vence dia {{ card.due_day }}</span>
+<div class="flex flex-col gap-4">
+  <div class="flex items-baseline justify-between gap-3 flex-wrap">
     <h1>{{ card.name }}</h1>
+    <a class="btn btn-secondary" href="{% url 'cards:appearance' card.pk %}">Banco e cor</a>
   </div>
-  <section>
-    <div class="caption">Saldo devedor</div>
-    <div class="amount mt-1"><small>R$</small>{{ owed|num }}</div>
-    <p class="help">Inclui parcelas futuras.</p>
-    <div class="split" role="img" aria-label="Limite: {{ used }}% usado, {{ free }}% livre">
-      <div class="seg-comp wp-{{ used }}"><b>Usado</b></div><div class="seg-free wp-{{ free }}"><b>{{ available|brl }} livres</b></div>
-    </div>
-    <p class="sub mt-2">Limite total <span class="money">{{ limit|brl }}</span> · fecha {{ next_closing|date:"d/m" }} · vence {{ next_due|date:"d/m" }}</p>
-  </section>
+  <div class="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
+    <section class="card flex flex-col gap-3">
+      <div class="cards-row">{% include "cards/_face.html" with big=True %}</div>
+      <div class="dl2"><b>Limite usado</b><span class="money">{{ owed|num }} de {{ limit|num }}</span></div>
+      <div class="pb2" role="img" aria-label="Limite: {{ used }}% usado, {{ free }}% livre"><i class="wp-{{ used }}"></i></div>
+      <p class="sub">Fecha {{ next_closing|date:"d/m" }} · vence {{ next_due|date:"d/m" }} · compra no dia do fechamento vai para a fatura seguinte</p>
+    </section>
+    <section class="card">
+      <div class="blk-h">
+        <div><h2 class="blk-t">Saldo devedor</h2><span class="sub">Inclui parcelas futuras</span>
+          <div class="amt"><span class="cur">R$</span>{{ owed|num }}</div></div>
+        <img class="i3d lg" src="{% load static %}{% static 'img/3d/cartao.svg' %}" alt="">
+      </div>
+      {% if f.next %}<p class="sub mt-3">Próxima fatura, vence {{ f.next.due_date|date:"d/m" }}: <span class="money text-projection">≈ {{ f.next.amount|brl }}</span> <span class="tag">estimativa</span></p>{% endif %}
+      <a class="btn btn-primary w-full mt-4" href="#pagar">Pagar cartão</a>
+    </section>
+  </div>
   <section class="card flex flex-col gap-2">
     <div class="flex items-center gap-2"><h2 class="text-base">Faturas</h2><span class="chip bg-projection-soft text-projection">Estimativa</span></div>
     <p class="help">Calculadas pelas datas das compras até as faturas reais chegarem (MVP-3). A soma é igual ao saldo devedor.</p>
@@ -23,7 +31,7 @@
     {% empty %}<p class="text-sm text-text-3">Nada em aberto.</p>{% endfor %}
   </section>
   <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-    <form method="post" action="{% url 'cards:pay' card.pk %}" class="card flex flex-col gap-4">{% csrf_token %}
+    <form method="post" action="{% url 'cards:pay' card.pk %}" class="card flex flex-col gap-4" id="pagar">{% csrf_token %}
       <h2 class="text-base">Pagar cartão</h2>
       {{ pay_form.idempotency_key }}
       {% include "partials/field.html" with field=pay_form.account %}

@@ -40,6 +40,34 @@ ICONS = {
     "Transporte": "bus",
 }
 LATER_DAYS = 60
+# Desenho com volume para cada ícone de linha (static/img/3d; ADR-043)
+ICONS_3D = {
+    "bolt": "luz",
+    "wifi": "internet",
+    "phone": "internet",
+    "home": "casa",
+    "drop": "casa",
+    "flame": "casa",
+    "meal": "cesta",
+    "market": "cesta",
+    "bus": "carro",
+    "car": "carro",
+    "card": "cartao",
+    "income": "moedas",
+    "other": "moedas",
+}
+GROUP_3D = {
+    "Moradia": "casa",
+    "Contas da casa": "luz",
+    "Alimentação": "cesta",
+    "Transporte": "carro",
+}
+
+
+def icon3d(name: str) -> str:
+    return f"img/3d/{ICONS_3D.get(name, 'moedas')}.svg"
+
+
 LABEL_WIDTH_PERCENT = 20  # largura aproximada de uma etiqueta na linha do tempo
 LABEL_HEIGHT = 44
 MONTHS = 24  # o calendário navega até dois anos para cada lado
@@ -61,6 +89,10 @@ class Row:
     paid_percent: int | None = None
     due_date: datetime.date | None = None
     incoming: bool = False
+
+    @property
+    def icon3d(self) -> str:
+        return icon3d(self.icon)
 
 
 def relative(due: datetime.date, today: datetime.date) -> str:
@@ -316,19 +348,54 @@ def legend(p: balances.Position) -> list[dict]:
     """Legenda da barra no celular, onde não cabe texto dentro dela."""
     items = []
     if p.committed.is_positive:
-        items.append({"css": "seg-comp", "name": "Já tem dono", "value": num(p.committed)})
+        items.append(
+            {
+                "css": "seg-comp",
+                "name": "Já tem dono",
+                "value": num(p.committed),
+                "cents": p.committed.cents,
+            }
+        )
     if p.estimated_total.is_positive:
         items.append(
-            {"css": "seg-est", "name": "Estimativas", "value": _short(p.estimated_total, True)}
+            {
+                "css": "seg-est",
+                "name": "Estimativas",
+                "value": _short(p.estimated_total, True),
+                "cents": p.estimated_total.cents,
+            }
         )
     if p.state == balances.UNCOVERED:
-        items.append({"css": "seg-crit", "name": "Faltam", "value": num(p.shortfall)})
-        return items
+        items.append(
+            {
+                "css": "seg-crit",
+                "name": "Faltam",
+                "value": num(p.shortfall),
+                "cents": p.shortfall.cents,
+            }
+        )
+        return _shares(items)
     kept = p.minimum if p.state != balances.BELOW_MINIMUM else p.minimum - p.shortfall
     if kept.is_positive:
-        items.append({"css": "seg-min", "name": _kept_label(p), "value": num(kept)})
+        items.append(
+            {"css": "seg-min", "name": _kept_label(p), "value": num(kept), "cents": kept.cents}
+        )
     if p.can_spend.is_positive:
-        items.append({"css": "seg-free", "name": "Livre", "value": num(p.can_spend)})
+        items.append(
+            {
+                "css": "seg-free",
+                "name": "Livre",
+                "value": num(p.can_spend),
+                "cents": p.can_spend.cents,
+            }
+        )
+    return _shares(items)
+
+
+def _shares(items: list[dict]) -> list[dict]:
+    total = sum(item["cents"] for item in items)
+    for item in items:
+        item["percent"] = max(_share(item["cents"], total), 1) if total else 0
     return items
 
 
@@ -370,9 +437,14 @@ def timeline(p: balances.Position, salary: Commitment | None, words: str) -> dic
     largest = max((line.amount.cents for line in lines), default=1)
     placed: list[tuple[int, int, int]] = []
     points = []
-    for line in lines:
-        percent = min((line.due_date - p.today).days * 100 // span, 100)
-        height = _snap(max(line.amount.cents * 56 // largest, 8))
+    bars = [
+        (
+            min((line.due_date - p.today).days * 100 // span, 100),
+            _snap(max(line.amount.cents * 56 // largest, 8)),
+        )
+        for line in lines
+    ]
+    for line, (percent, height) in zip(lines, bars, strict=True):
         right = percent > 55
         start, end = (
             (percent - LABEL_WIDTH_PERCENT, percent)
@@ -380,13 +452,16 @@ def timeline(p: balances.Position, salary: Commitment | None, words: str) -> dic
             else (percent, percent + LABEL_WIDTH_PERCENT)
         )
         top = height + 8
-        clashes = [
-            other_top
-            for other_start, other_end, other_top in placed
-            if start < other_end and other_start < end
-        ]
-        while any(abs(top - other) < LABEL_HEIGHT for other in clashes):
-            top = max(other for other in clashes if abs(top - other) < LABEL_HEIGHT) + LABEL_HEIGHT
+        moved = True
+        while moved:
+            moved = False
+            for other_start, other_end, other_top in placed:
+                if start < other_end and other_start < end and abs(top - other_top) < LABEL_HEIGHT:
+                    top, moved = other_top + LABEL_HEIGHT, True
+            for bar_left, bar_height in bars:
+                inside = start - 3 < bar_left < end + 3 and bar_left != percent
+                if inside and top < bar_height + 8:
+                    top, moved = bar_height + 8, True
         top = _snap(top)
         placed.append((start, end, top))
         points.append(
@@ -401,6 +476,7 @@ def timeline(p: balances.Position, salary: Commitment | None, words: str) -> dic
                 "right": right,
                 "top": top,
                 "days": relative(line.due_date, p.today).lower(),
+                "icon3d": icon3d(_mark(line.commitment)[0]) if line.commitment else icon3d("card"),
             }
         )
     bottom = max((top for _, _, top in placed), default=0) + LABEL_HEIGHT
@@ -413,7 +489,7 @@ def timeline(p: balances.Position, salary: Commitment | None, words: str) -> dic
     }
 
 
-def next_rows(today: datetime.date, p: balances.Position, count: int = 3) -> list[Row]:
+def next_rows(today: datetime.date, p: balances.Position, count: int | None = 3) -> list[Row]:
     """Lista que substitui a linha do tempo no celular."""
     rows = [commitment_row(c, today) for c in _planned(Direction.OUT, due_date__lt=p.horizon)]
     rows += _invoice_rows(today, p.horizon)
@@ -449,7 +525,13 @@ def categories_summary(today: datetime.date) -> dict:
     if not total:
         return {"total": Money(0), "items": [], "month": today}
     items = [
-        {"name": name, "percent": _share(cents, total), "css": f"fill-c{index + 1}"}
+        {
+            "name": name,
+            "percent": _share(cents, total),
+            "css": f"fill-c{index + 1}",
+            "amount": Money(cents),
+            "icon3d": f"img/3d/{GROUP_3D.get(name, 'moedas')}.svg",
+        }
         for index, (name, cents) in enumerate(positive[:3])
     ]
     if positive[3:]:
@@ -458,6 +540,8 @@ def categories_summary(today: datetime.date) -> dict:
                 "name": "Outros",
                 "percent": max(100 - sum(i["percent"] for i in items), 0),
                 "css": "fill-c4",
+                "amount": Money(sum(cents for _, cents in positive[3:])),
+                "icon3d": "img/3d/moedas.svg",
             }
         )
     return {"total": Money(total), "items": items, "month": today}
@@ -555,12 +639,64 @@ def attention(today: datetime.date, overdue: int = 0) -> list[dict]:
     return items
 
 
+MONTHS_SHORT = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"]
+
+
+def cards_block(today: datetime.date) -> dict:
+    """Cartões desenhados e as próximas faturas do primeiro (ADR-043)."""
+    from apps.cards.presentation import card_view
+
+    views = [card_view(card, today) for card in cards.active_cards()]
+    if not views:
+        return {"cards": [], "invoices": []}
+    upcoming = [e for e in views[0]["estimates"] if e.due_date >= today and e.amount.is_positive][
+        :4
+    ]
+    largest = max((e.amount.cents for e in upcoming), default=1)
+    invoices = [
+        {
+            "month": MONTHS_SHORT[e.due_date.month - 1].capitalize(),
+            "value": num(e.amount).removesuffix(",00"),
+            "height": max(_share(e.amount.cents, largest), 6),
+            "first": index == 0,
+        }
+        for index, e in enumerate(upcoming)
+    ]
+    return {"cards": views, "invoices": invoices, "first": views[0]}
+
+
+def due_days(rows: list[Row], salary: Commitment | None, limit: datetime.date) -> list[dict]:
+    """Próximas datas de vencimento em quadradinhos; o salário em verde."""
+    counts: dict[datetime.date, int] = {}
+    for row in rows:
+        counts[row.due_date] = counts.get(row.due_date, 0) + 1
+    if salary is not None and salary.due_date <= limit:
+        counts.setdefault(salary.due_date, 0)
+    days = sorted(counts)[:5]
+    return [
+        {
+            "day": f"{day:%d}",
+            "label": f"{day:%d/%m}",
+            "dots": range(min(counts[day], 3)),
+            "first": index == 0 and counts[day] > 0,
+            "salary": salary is not None and day == salary.due_date,
+        }
+        for index, day in enumerate(days)
+    ]
+
+
 def home(today: datetime.date) -> dict:
     p = balances.position(today)
     salary = horizons.oldest_open_salary()
     words = horizon_words(p, salary)
     overdue = sum(1 for r in central(today)["overdue"])
+    bills = next_rows(today, p, count=None)
     return {
+        "bills": bills,
+        "bills_total": Money.sum([r.amount for r in bills]),
+        "bills_approx": any(r.approx for r in bills),
+        "due_days": due_days(bills, salary, p.horizon),
+        "cards_block": cards_block(today),
         "p": p,
         "words": words,
         "salary": commitment_row(salary, today) if salary else None,

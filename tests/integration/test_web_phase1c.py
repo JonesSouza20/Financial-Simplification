@@ -315,7 +315,7 @@ def test_inicio_mostra_banner_de_abertura_e_totais(web, card_a, cats):
         )
     )
     body = web.get("/").content.decode()
-    assert "Comece pela abertura" in body and "<small>R$</small>200,00" in body
+    assert "Comece pela abertura" in body and '<span class="cur">R$</span>200,00' in body
     origin = web.get("/origem/cartoes/").content.decode()
     assert "Cartão A" in origin and "R$ 200,00" in origin
 
@@ -324,4 +324,4 @@ def test_inicio_mostra_banner_de_abertura_e_totais(web, card_a, cats):
 def test_barra_do_limite_fica_entre_0_e_100(web, card_a, cats, monkeypatch, cents, used):
     monkeypatch.setattr("apps.cards.services.liability", lambda card: Money(cents))
     body = web.get(f"/cartoes/{card_a.pk}/").content.decode()
-    assert f"seg-comp wp-{used}" in body and f"seg-free wp-{100 - used}" in body
+    assert f'aria-label="Limite: {used}% usado, {100 - used}% livre"><i class="wp-{used}"' in body

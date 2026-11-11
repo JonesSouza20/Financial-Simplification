@@ -13,6 +13,7 @@ from dataclasses import dataclass, field
 
 from django.conf import settings
 from django.db import transaction
+from django.db.models import F
 from django.utils import timezone
 
 from apps.accounts.models import FinancialAccount
@@ -36,6 +37,25 @@ from .models import Card, CardPurchase, CardPurchaseShare, OpeningKind
 
 
 @transaction.atomic
+def _check_appearance(bank: str, color: str) -> None:
+    from .brands import BANKS, COLORS
+
+    if bank and bank not in BANKS:
+        raise InvalidTransactionError("Banco desconhecido.")
+    if color and color not in COLORS:
+        raise InvalidTransactionError("Cor desconhecida.")
+
+
+def set_appearance(card: Card, *, bank: str, color: str) -> Card:
+    """Troca banco e cor do cartão desenhado. Não mexe em nenhum valor."""
+    _check_appearance(bank, color)
+    before = {"bank": card.bank, "color": card.color}
+    Card.objects.filter(pk=card.pk).update(bank=bank, color=color, version=F("version") + 1)
+    card.refresh_from_db()
+    audit.log("appearance", card, before=before, after={"bank": bank, "color": color})
+    return card
+
+
 def create_card(
     *,
     name: str,
@@ -47,8 +67,11 @@ def create_card(
     default_payment_account: FinancialAccount | None = None,
     closing_day_goes_next: bool = True,
     remainder_on: str = "first",
+    bank: str = "",
+    color: str = "",
 ) -> Card:
     name = name.strip()
+    _check_appearance(bank, color)
     if not name:
         raise InvalidTransactionError("Informe o nome do cartão.")
     if not credit_limit.is_positive:
@@ -65,6 +88,8 @@ def create_card(
     )
     card = Card.objects.create(
         name=name,
+        bank=bank,
+        color=color,
         issuer=issuer.strip(),
         brand=brand.strip(),
         credit_limit_cents=credit_limit.cents,

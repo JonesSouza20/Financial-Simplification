@@ -1,4 +1,4 @@
-{% extends "base.html" %}{% load fin %}
+{% extends "base.html" %}{% load static fin %}
 {% block title %}Pagamentos{% endblock %}
 {% block content %}
 <div class="flex items-baseline justify-between gap-3 flex-wrap">
@@ -13,45 +13,52 @@
 {% if empty and not salary %}
   <p class="mt-4 text-text-2">Nenhuma conta nos próximos 60 dias. Cadastre uma conta ou uma recorrência para ver aqui.</p>
 {% else %}
-  <p class="sub mt-1">Até {{ words }} você ainda tem {% if to_pay_approx %}cerca de {% endif %}<span class="money text-text font-medium">{{ to_pay|brl }}</span> para pagar.</p>
+  <section class="card mt-4">
+  <div class="blk-h">
+    <div><h2 class="blk-t">Até {{ words }} você ainda paga</h2>
+      <div class="amt">{% if to_pay_approx %}<span class="cur">≈</span>{% endif %}<span class="cur">R$</span>{{ to_pay|num }}</div>
+      <span class="sub">{% if to_pay_approx %}Cerca de, porque há estimativas{% else %}Valores certos{% endif %}{% if salary %} · salário em {{ salary.due_date|date:"d/m" }}{% endif %}</span></div>
+    <img class="i3d lg" src="{% static 'img/3d/calendario.svg' %}" alt="">
+  </div>
   <div class="cal" role="img" aria-label="Próximos 31 dias com contas e salário marcados. A lista abaixo traz cada data.">
     {% for css in days %}<i class="{{ css }}"></i>{% endfor %}
   </div>
   <div class="calk sub"><span>Hoje</span>{% if salary %}<span>Salário, {{ salary.due_date|date:"d/m" }}</span>{% endif %}<span>{{ last_day|date:"d/m" }}</span></div>
+  </section>
 
   {% if overdue %}
-  <section class="grp"><div class="grp-head"><h2 class="caption text-negative">Atrasados</h2></div>
+  <section class="card grp"><div class="grp-head"><h2 class="caption text-negative">Atrasados</h2></div>
     {% for r in overdue %}{% include "payables/_row.html" %}{% endfor %}
   </section>
   {% endif %}
   {% if week %}
-  <section class="grp"><div class="grp-head"><h2 class="caption">Esta semana</h2></div>
+  <section class="card grp"><div class="grp-head"><h2 class="caption">Esta semana</h2></div>
     {% for r in week %}{% include "payables/_row.html" %}{% endfor %}
   </section>
   {% endif %}
   {% if until_salary %}
-  <section class="grp"><div class="grp-head"><h2 class="caption">Até {{ words }}</h2></div>
+  <section class="card grp"><div class="grp-head"><h2 class="caption">Até {{ words }}</h2></div>
     {% for r in until_salary %}{% include "payables/_row.html" %}{% endfor %}
   </section>
   {% endif %}
   {% if salary %}
   <div class="item salary">
-    <span class="tile bg-positive!">{% icon 'income' 21 %}</span>
+    <img class="i3d md" src="{% static 'img/3d/moedas.svg' %}" alt="">
     <div class="nm">Salário, {{ salary.due_date|date:"d/m" }}</div>
     <div class="am">+{{ salary.amount|num }}<br><a class="link item-link" href="{{ salary.action_url }}">Recebi</a></div>
     <a class="btn btn-secondary go" href="{{ salary.action_url }}">Recebi</a>
   </div>
   {% endif %}
   {% if incomes %}
-  <section class="grp"><div class="grp-head"><h2 class="caption">Receitas previstas</h2></div>
+  <section class="card grp"><div class="grp-head"><h2 class="caption">Receitas previstas</h2></div>
     {% for r in incomes %}{% include "payables/_row.html" %}{% endfor %}
   </section>
   {% endif %}
   {% if later %}
-  <details class="later">
+  <details class="card later mt-4">
     <summary>
       <span class="spacer"></span>
-      <span class="flex items-center gap-3"><span class="caption">Depois {{ after_words }}</span><span class="minis" aria-hidden="true">{% for r in later_icons %}<span class="tile {{ r.tile }}">{% icon r.icon 14 %}</span>{% endfor %}</span></span>
+      <span class="flex items-center gap-3"><span class="caption">Depois {{ after_words }}</span><span class="minis" aria-hidden="true">{% for r in later_icons %}<img class="i3d" width="28" height="28" src="{% static r.icon3d %}" alt="">{% endfor %}</span></span>
       <span class="am">{{ later_total|num }}</span>
       <span class="link see justify-self-end">Ver {{ later|length }} conta{{ later|length|pluralize }}</span>
     </summary>

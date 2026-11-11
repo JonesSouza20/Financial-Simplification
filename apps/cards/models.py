@@ -12,6 +12,9 @@ class Card(models.Model):
     name = models.CharField(max_length=60)
     issuer = models.CharField(max_length=60, blank=True, default="")
     brand = models.CharField(max_length=30, blank=True, default="")
+    # Só aparência (ADR-043): banco do logotipo e cor do cartão desenhado.
+    bank = models.CharField(max_length=20, blank=True, default="")
+    color = models.CharField(max_length=20, blank=True, default="")
     credit_limit_cents = models.BigIntegerField()
     closing_day = models.PositiveSmallIntegerField()
     due_day = models.PositiveSmallIntegerField()
