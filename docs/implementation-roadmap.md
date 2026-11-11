@@ -372,3 +372,4 @@ Ordem proposta segundo as prioridades do usuário (quitar dívidas → parar de 
 | 09/11/2026 | Fase 2B entregue na branch `fase-2a`, aguardando aprovação. Continua fora do sistema em uso até a Porta MVP-1 terminar. A Porta MVP-2 só começa depois disso: pede um ciclo de salário completo em uso real | ADR-042 |
 | 11/11/2026 | Proposta 2 do visual aprovada e aplicada na branch `fase-2a`: blocos, carteira, cartões desenhados com banco e cor, ícones com volume | ADR-043 |
 | 11/11/2026 | Fase 2B aprovada pelo usuário, com as três propostas do estudo (Desfazer depois de pagar, "Veja o que pode esperar" e a frase do efeito) e a ADR-042. Continua na branch `fase-2a`, fora do sistema em uso, até a Porta MVP-1 terminar | ADR-042, ADR-043 |
+| 11/11/2026 | O sistema passa a se chamar NEXORA, com o lema "Your finances. In perspective." Nomes internos (pastas, banco, serviço, cofre) não mudam | ADR-044 |

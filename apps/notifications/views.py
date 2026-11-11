@@ -66,7 +66,7 @@ def alert_settings(request):
 @require_POST
 def send_test(request):
     try:
-        telegram.send("Teste do sistema Finanças: os avisos vão chegar aqui.")
+        telegram.send("Teste da NEXORA: os avisos vão chegar aqui.")
         messages.success(request, "Mensagem de teste enviada. Confira o Telegram.")
     except telegram.TelegramError as exc:
         messages.error(request, str(exc))

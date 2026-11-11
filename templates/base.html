@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#F0F1EC">
   <meta name="htmx-config" content='{"includeIndicatorStyles": false}'>
-  <title>{% block title %}Finanças{% endblock %} · Finanças</title>
+  <title>{% block title %}NEXORA{% endblock %} · NEXORA</title>
   <link rel="manifest" href="{% url 'ui:manifest' %}">
   <link rel="icon" href="{% static 'img/icon.svg' %}" type="image/svg+xml">
   <link rel="stylesheet" href="{% static 'css/app.css' %}">
@@ -18,7 +18,7 @@
 {% block body %}
 <div class="lg:flex">
   <aside class="card hidden lg:flex lg:flex-col lg:w-58 lg:h-[calc(100vh-32px)] lg:sticky lg:top-4 lg:shrink-0 lg:m-4 lg:mr-0 px-0! py-4 gap-0.5">
-    <a href="{% url 'ui:home' %}" class="px-[18px] pb-4 font-serif font-medium text-xl tracking-tight">Finanças</a>
+    <a href="{% url 'ui:home' %}" class="px-[18px] pb-4 flex flex-col" aria-label="NEXORA, início"><span class="wordmark text-xl">NEXORA</span><span class="text-xs text-text-3 mt-0.5">Your finances. In perspective.</span></a>
     <a href="{% url 'entries:quick' %}" class="btn btn-primary mx-[18px] mb-3">+ Lançar</a>
     {% for name, label, ic, active in nav %}<a href="{% url name %}" class="nav-link" {% if active %}aria-current="page"{% endif %}>{% icon ic 18 %}{{ label }}</a>{% endfor %}
     <div class="px-[18px] pt-3 pb-1 text-xs text-text-3">O que devo e tenho</div>
@@ -26,7 +26,7 @@
     <a href="{% url 'ui:settings' %}" class="nav-link mt-auto" {% if settings_active %}aria-current="page"{% endif %}>{% icon 'gear' 18 %}Ajustes</a>
   </aside>
   <nav class="hidden sm:flex lg:hidden flex-wrap items-center gap-x-4 gap-y-1 px-4 py-2 border-b border-strong text-sm" aria-label="Navegação principal">
-    <a href="{% url 'ui:home' %}" class="font-serif font-medium text-xl tracking-tight mr-2">Finanças</a>
+    <a href="{% url 'ui:home' %}" class="wordmark text-lg mr-2" aria-label="NEXORA, início">NEXORA</a>
     {% for name, label, ic, active in nav %}<a href="{% url name %}" class="tab-top" {% if active %}aria-current="page"{% endif %}>{{ label }}</a>{% endfor %}
     {% for name, label, ic, active in nav_holdings %}<a href="{% url name %}" class="tab-top" {% if active %}aria-current="page"{% endif %}>{{ label }}</a>{% endfor %}
     <a href="{% url 'ui:settings' %}" class="tab-top" {% if settings_active %}aria-current="page"{% endif %}>Ajustes</a>

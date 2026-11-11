@@ -1,4 +1,6 @@
-# Financial Simplification
+# NEXORA
+
+**Your finances. In perspective.**
 
 Sistema de gestão financeira pessoal, para uma pessoa, rodando num PC com Windows e acessado
 pelo celular através de uma rede privada (Tailscale). Responde primeiro a uma pergunta:
@@ -91,7 +93,7 @@ validação com uso real antes da próxima.
 ## Fases do projeto
 
 O planejamento completo está em [`docs/implementation-roadmap.md`](docs/implementation-roadmap.md).
-As decisões ficam em [`docs/decisions.md`](docs/decisions.md) (ADR-001 a ADR-043).
+As decisões ficam em [`docs/decisions.md`](docs/decisions.md) (ADR-001 a ADR-044).
 
 ### Planejamento (Etapas 1 a 8)
 

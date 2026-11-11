@@ -167,6 +167,7 @@
   .salary-line { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 56px; padding: 0 10px; background: var(--salary); border-top: 2px solid var(--positive); border-bottom: 2px solid var(--positive); color: var(--positive); font-weight: 600; }
 
   /* Proposta 2 (ADR-043) */
+  .wordmark { font-family: var(--font-serif); font-weight: 500; letter-spacing: .14em; line-height: 1.1; }
   .blk-t { font-family: var(--font-sans); font-weight: 600; font-size: 15.5px; letter-spacing: 0; line-height: 1.3; }
   .blk-h { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
   .i3d { flex: none; display: block; }

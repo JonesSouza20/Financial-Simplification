@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Versão | 0.8 |
+| Versão | 0.9 |
 | Data | 06/11/2026 |
 | Etapa | 3 — Arquitetura (Fase A) |
 | Status | Versão 0.1 aprovada em 06/11/2026 (ADR-001 a 031: "Proposta" passa a valer como aceita). Versão 0.2 acrescenta ADR-032 a 036 (Fase B), aprovada em 06/11/2026. Versão 0.3 acrescenta ADR-037 e 038 (Fase 1D), aprovada em 06/11/2026. Versão 0.4 acrescenta ADR-039 (Fase 2A), aprovada em 08/11/2026. Versões 0.5 e 0.6 acrescentam ADR-040 e 041, decisões do usuário em 08/11/2026 |
@@ -679,3 +679,13 @@ Comparação em `architecture.md`, seção 9.4.
 **Alternativas:** sistema todo no estilo novo (rejeitada pelo usuário); ícones gerados por IA (rejeitada: custo e serviço externo); só a cor, sem logotipo (rejeitada pelo usuário).
 
 **Consequências:** colunas `card.bank` e `card.color` (migração aditiva). A estética fica mais próxima de painéis comuns; o que mantém a identidade é a tipografia, a cor por estado e a linha do tempo.
+
+## ADR-044 — Nome e lema: NEXORA, "Your finances. In perspective."
+
+**Status:** Aceita (decisão do usuário em 11/11/2026).
+
+**Contexto:** o sistema era chamado de "Finanças", um nome genérico, igual ao de muitos aplicativos e sem identidade.
+
+**Decisão:** o sistema passa a se chamar **NEXORA**, com o lema **"Your finances. In perspective."**, mantido em inglês como foi definido. O nome aparece no menu, no título das páginas, na tela de acesso, no aplicativo instalado no celular, no ícone e nos avisos do Telegram. O lema aparece no menu e na tela de acesso. A marca escrita usa IBM Plex Serif em maiúsculas com espaçamento largo; o ícone traz um N com a mesma régua azul do anterior.
+
+**Consequências:** o repositório continua com o nome Financial-Simplification. Pastas, banco de dados, serviço do Windows e chaves do cofre mantêm os nomes antigos (`financas`), para não quebrar a instalação em uso nem os backups. A interface continua em português.
